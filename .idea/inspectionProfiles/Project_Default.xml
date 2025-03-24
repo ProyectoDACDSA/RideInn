@@ -1,0 +1,35 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="Deprecation" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="MismatchedStringBuilderQueryUpdate" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="ThrowablePrintStackTrace" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="VulnerableLibrariesLocal" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="isIgnoringEnabled" value="true" />
+      <option name="ignoredModules">
+        <list>
+          <option value="RideInn" />
+          <option value="RideInn" />
+          <option value="RideInn" />
+          <option value="RideInn" />
+        </list>
+      </option>
+      <option name="ignoredPackages">
+        <list>
+          <option value="org.eclipse.jetty:jetty-http:9.4.48.v20220622" />
+          <option value="org.eclipse.jetty:jetty-server:9.4.48.v20220622" />
+          <option value="org.eclipse.jetty:jetty-xml:9.4.48.v20220622" />
+          <option value="org.jsoup:jsoup:1.14.3" />
+        </list>
+      </option>
+      <option name="ignoredReasons">
+        <list>
+          <option value="Not exploitable" />
+          <option value="Other" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
