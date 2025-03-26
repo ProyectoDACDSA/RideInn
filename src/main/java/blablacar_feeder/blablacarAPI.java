@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.concurrent.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -15,22 +16,37 @@ import com.google.gson.JsonObject;
 public class blablacarAPI {
 
     private static final String API_URL = "https://bus-api.blablacar.com/v3/stops";
-    private static final String API_KEY = "RPQn87Lb1z2OPQTwsOQsAQ";
     private static final String DB_URL = "jdbc:sqlite:rideinn.db";
 
     public static void main(String[] args) {
-        String jsonResponse = fetchDataFromAPI();
-        if (jsonResponse != null) {
-            saveDataToDatabase(jsonResponse);
+        String apiKey = System.getenv("BLABLACAR_API_KEY");
+
+        if (apiKey == null || apiKey.isEmpty()) {
+            System.err.println("Error: La API Key no está definida en las variables de entorno.");
+            System.exit(1);
         }
+
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        Runnable task = () -> {
+            try {
+                String jsonData = fetchDataFromAPI(apiKey);
+                if (jsonData != null) {
+                    saveDataToDatabase(jsonData);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        };
+        scheduler.scheduleAtFixedRate(task, 0, 1, TimeUnit.DAYS);
     }
 
-    private static String fetchDataFromAPI() {
+    private static String fetchDataFromAPI(String apiKey) {
+        HttpURLConnection connection = null;
         try {
             URL url = new URL(API_URL);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
-            connection.setRequestProperty("Authorization", "Token " + API_KEY);
+            connection.setRequestProperty("Authorization", "Token " + apiKey);
             connection.setRequestProperty("Accept", "application/json");
 
             int responseCode = connection.getResponseCode();
@@ -47,20 +63,19 @@ public class blablacarAPI {
             } else {
                 System.out.println("Connection error: " + responseCode);
             }
-            connection.disconnect();
         } catch (Exception e) {
-            System.out.println("Connection error: ");
+            System.out.println("API connection error:");
             e.printStackTrace();
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
         return null;
     }
 
     private static void saveDataToDatabase(String jsonData) {
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
-
-            String dropTableSQL = "DROP TABLE IF EXISTS stops;";
-            conn.createStatement().execute(dropTableSQL);
-
             String createTableSQL = """
             CREATE TABLE IF NOT EXISTS stops (
                 id INTEGER PRIMARY KEY,
@@ -72,7 +87,7 @@ public class blablacarAPI {
                 longitude REAL,
                 destinations_ids TEXT
             );
-        """;
+            """;
             conn.createStatement().execute(createTableSQL);
 
             Gson gson = new Gson();
@@ -88,12 +103,11 @@ public class blablacarAPI {
             INSERT OR REPLACE INTO stops 
             (id, carrier_id, short_name, long_name, time_zone, latitude, longitude, destinations_ids) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?);
-        """;
+            """;
             PreparedStatement pstmt = conn.prepareStatement(insertSQL);
 
             for (int i = 0; i < stops.size(); i++) {
                 JsonObject stop = stops.get(i).getAsJsonObject();
-
                 int id = stop.has("id") ? stop.get("id").getAsInt() : -1;
                 String carrierId = stop.has("_carrier_id") ? stop.get("_carrier_id").getAsString() : null;
                 String shortName = stop.has("short_name") ? stop.get("short_name").getAsString() : null;
@@ -101,7 +115,6 @@ public class blablacarAPI {
                 String timeZone = stop.has("time_zone") ? stop.get("time_zone").getAsString() : null;
                 double latitude = stop.has("latitude") ? stop.get("latitude").getAsDouble() : 0.0;
                 double longitude = stop.has("longitude") ? stop.get("longitude").getAsDouble() : 0.0;
-
                 JsonArray destinationsArray = stop.has("destinations_ids") ? stop.getAsJsonArray("destinations_ids") : null;
                 String destinationsIds = (destinationsArray != null) ? gson.toJson(destinationsArray) : "[]";
 
@@ -113,7 +126,6 @@ public class blablacarAPI {
                 pstmt.setDouble(6, latitude);
                 pstmt.setDouble(7, longitude);
                 pstmt.setString(8, destinationsIds);
-
                 pstmt.addBatch();
             }
             pstmt.executeBatch();
@@ -124,4 +136,3 @@ public class blablacarAPI {
         }
     }
 }
-
