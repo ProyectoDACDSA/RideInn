@@ -9,30 +9,33 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.concurrent.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class xoteloAPI {
     private static final String DB_URL = "jdbc:sqlite:rideinn.db";
+    private static final Map<String, String> cityUrls = Map.of(
+            "Madrid", "https://data.xotelo.com/api/list?location_key=g187514&offset=0&limit=30&sort=best_value",
+            "Barcelona", "https://data.xotelo.com/api/list?location_key=g187497&offset=0&limit=30&sort=best_value",
+            "Valencia", "https://data.xotelo.com/api/list?location_key=g187529&offset=0&limit=30&sort=best_value",
+            "Granada", "https://data.xotelo.com/api/list?location_key=g187441&offset=0&limit=30&sort=best_value",
+            "Seville", "https://data.xotelo.com/api/list?location_key=g187443&offset=0&limit=30&sort=best_value"
+    );
 
     public static void main(String[] args) {
-        Map<String, String> cityUrls = Map.of(
-                "Madrid", "https://data.xotelo.com/api/list?location_key=g187514&offset=0&limit=30&sort=best_value",
-                "Barcelona", "https://data.xotelo.com/api/list?location_key=g187497&offset=0&limit=30&sort=best_value",
-                "Valencia", "https://data.xotelo.com/api/list?location_key=g187529&offset=0&limit=30&sort=best_value",
-                "Granada", "https://data.xotelo.com/api/list?location_key=g187441&offset=0&limit=30&sort=best_value",
-                "Seville", "https://data.xotelo.com/api/list?location_key=g187443&offset=0&limit=30&sort=best_value"
-        );
-
-        resetDatabase();
-
-        for (Map.Entry<String, String> entry : cityUrls.entrySet()) {
-            String jsonResponse = fetchData(entry.getKey(), entry.getValue());
-            if (jsonResponse != null) {
-                saveDataToDatabase(jsonResponse, entry.getKey());
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        Runnable task = () -> {
+            resetDatabase();
+            for (Map.Entry<String, String> entry : cityUrls.entrySet()) {
+                String jsonResponse = fetchData(entry.getKey(), entry.getValue());
+                if (jsonResponse != null) {
+                    saveDataToDatabase(jsonResponse, entry.getKey());
+                }
             }
-        }
+        };
+        scheduler.scheduleAtFixedRate(task, 0, 1, TimeUnit.DAYS);
     }
 
     private static String fetchData(String city, String apiUrl) {
