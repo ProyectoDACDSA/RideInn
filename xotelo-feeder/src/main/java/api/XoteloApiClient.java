@@ -6,9 +6,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class XoteloApiClient {
     private static final Logger LOGGER = Logger.getLogger(XoteloApiClient.class.getName());
+    SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy h:mm:ss a");
 
     private static final Map<String, String> cityUrls = Map.of(
             "Madrid", "https://data.xotelo.com/api/list?location_key=g187514&offset=0&limit=30&sort=best_value",
@@ -37,7 +40,8 @@ public class XoteloApiClient {
                     response.append(inputLine);
                 }
                 in.close();
-                LOGGER.info("API connected successfully for " + city);
+                Date date = new Date();
+                System.out.println(sdf.format(date) + " - API connected successfully for " + city);
                 return response.toString();
             } else {
                 LOGGER.warning("Connection error for " + city + ": " + responseCode);

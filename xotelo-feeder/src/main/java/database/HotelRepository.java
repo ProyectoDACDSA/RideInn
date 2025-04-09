@@ -95,7 +95,7 @@ public class HotelRepository {
                 pstmt.addBatch();
             }
             pstmt.executeBatch();
-            LOGGER.info("Data inserted successfully for " + city);
+            System.out.println("Data inserted successfully for " + city);
         } catch (SQLException e) {
             LOGGER.warning("Database error:");
             e.printStackTrace();

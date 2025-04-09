@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.concurrent.*;
 
 public class XoteloApiScheduler {
-    private final XoteloApiClient apiClient = new XoteloApiClient();
+    private final XoteloApiClient apiClient;
     private final HotelRepository repository;
 
     public XoteloApiScheduler() {
@@ -15,7 +15,13 @@ public class XoteloApiScheduler {
         if (dbUrl == null || dbUrl.isEmpty()) {
             throw new IllegalArgumentException("Falta la variable de entorno DB_URL");
         }
+        this.apiClient = new XoteloApiClient();
         this.repository = new HotelRepository(dbUrl);
+    }
+
+    public XoteloApiScheduler(XoteloApiClient apiClient, HotelRepository repository) {
+        this.apiClient = apiClient;
+        this.repository = repository;
     }
 
     public void start() {
@@ -32,6 +38,18 @@ public class XoteloApiScheduler {
         };
         scheduler.scheduleAtFixedRate(task, 0, 1, TimeUnit.DAYS);
     }
+
+    public void runOnce() {
+        Map<String, String> cityUrls = apiClient.getCityUrls();
+        for (Map.Entry<String, String> entry : cityUrls.entrySet()) {
+            String city = entry.getKey();
+            String jsonData = apiClient.fetchData(city, entry.getValue());
+            if (jsonData != null) {
+                repository.saveHotels(jsonData, city);
+            }
+        }
+    }
 }
+
 
 
