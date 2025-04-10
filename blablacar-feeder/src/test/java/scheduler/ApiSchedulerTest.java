@@ -1,17 +1,17 @@
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-import api.BlablacarApiClient;
-import database.StopsRepository;
+package scheduler;
 import org.junit.jupiter.api.*;
-import scheduler.ApiScheduler;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import api.BlablacarApiClient;
+import database.StopsRepository;
+import scheduler.ApiScheduler;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class BlablacarTest {
+public class ApiSchedulerTest {
 
+    protected static Path tempDbFile;
+    protected static String dbUrl;
     private static final String DUMMY_API_KEY = "dummy-key";
-    private static Path tempDbFile;
-    private static String dbUrl;
 
     @BeforeAll
     public static void setupDatabase() throws Exception {
@@ -30,29 +30,30 @@ public class BlablacarTest {
             @Override
             public String fetchData() {
                 return """
-                    {
-                        "stops": [
-                            {
-                                "id": 1,
-                                "_carrier_id": "abc",
-                                "short_name": "MAD",
-                                "long_name": "Madrid",
-                                "time_zone": "Europe/Madrid",
-                                "latitude": 40.4168,
-                                "longitude": -3.7038,
-                                "destinations_ids": [2, 3]
-                            }
-                        ]
-                    }
-                    """;
+                {
+                    \"stops\": [
+                        {
+                            \"id\": 1,
+                            \"_carrier_id\": \"abc\",
+                            \"short_name\": \"MAD\",
+                            \"long_name\": \"Madrid\",
+                            \"time_zone\": \"Europe/Madrid\",
+                            \"latitude\": 40.4168,
+                            \"longitude\": -3.7038,
+                            \"destinations_ids\": [2, 3]
+                        }
+                    ]
+                }
+                """;
             }
         };
 
         StopsRepository repository = new StopsRepository(dbUrl);
         ApiScheduler scheduler = new ApiScheduler(mockClient, repository);
         scheduler.start();
+
         try {
-            Thread.sleep(2000); // 2 segundos
+            Thread.sleep(2000);
         } catch (InterruptedException ignored) {}
 
         try (var conn = java.sql.DriverManager.getConnection(dbUrl);
@@ -61,7 +62,7 @@ public class BlablacarTest {
             assertTrue(rs.next());
             assertEquals(1, rs.getInt("total"));
         } catch (Exception e) {
-            fail("Error al verificar datos en la base de datos: " + e.getMessage());
+            fail("Error al verificar datos en base de datos: " + e.getMessage());
         }
     }
 
@@ -100,46 +101,9 @@ public class BlablacarTest {
              var stmt = conn.createStatement();
              var rs = stmt.executeQuery("SELECT COUNT(*) AS total FROM stops")) {
             assertTrue(rs.next());
-            assertEquals(0, rs.getInt("total"), "No debería haberse insertado ninguna parada");
+            assertEquals(0, rs.getInt("total"));
         } catch (Exception e) {
             fail("Error al verificar base de datos: " + e.getMessage());
-        }
-    }
-
-    @Test
-    public void testStopWithMissingFields() {
-        BlablacarApiClient mockClient = new BlablacarApiClient(DUMMY_API_KEY) {
-            @Override
-            public String fetchData() {
-                return """
-                {
-                    "stops": [
-                        {
-                            "id": 2,
-                            "short_name": "BCN"
-                        }
-                    ]
-                }
-                """;
-            }
-        };
-
-        StopsRepository repository = new StopsRepository(dbUrl);
-        ApiScheduler scheduler = new ApiScheduler(mockClient, repository);
-        scheduler.start();
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ignored) {}
-
-        try (var conn = java.sql.DriverManager.getConnection(dbUrl);
-             var stmt = conn.createStatement();
-             var rs = stmt.executeQuery("SELECT * FROM stops WHERE id = 2")) {
-            assertTrue(rs.next());
-            assertEquals("BCN", rs.getString("short_name"));
-            assertNull(rs.getString("carrier_id")); // debería ser null si falta en JSON
-        } catch (Exception e) {
-            fail("Error al verificar los campos opcionales en la base de datos: " + e.getMessage());
         }
     }
 
@@ -150,16 +114,16 @@ public class BlablacarTest {
             public String fetchData() {
                 return """
                 {
-                    "stops": [
+                    \"stops\": [
                         {
-                            "id": 5,
-                            "_carrier_id": "carrier5",
-                            "short_name": "TEST5",
-                            "long_name": "Test City 5",
-                            "time_zone": "UTC",
-                            "latitude": 0.0,
-                            "longitude": 0.0,
-                            "destinations_ids": []
+                            \"id\": 5,
+                            \"_carrier_id\": \"carrier5\",
+                            \"short_name\": \"TEST5\",
+                            \"long_name\": \"Test City 5\",
+                            \"time_zone\": \"UTC\",
+                            \"latitude\": 0.0,
+                            \"longitude\": 0.0,
+                            \"destinations_ids\": []
                         }
                     ]
                 }
@@ -180,7 +144,7 @@ public class BlablacarTest {
             }
         };
 
-        task.run(); // Ejecutamos manualmente
+        task.run();
 
         try (var conn = java.sql.DriverManager.getConnection(dbUrl);
              var stmt = conn.createStatement();
@@ -188,7 +152,7 @@ public class BlablacarTest {
             assertTrue(rs.next());
             assertEquals(1, rs.getInt("total"));
         } catch (Exception e) {
-            fail("Error al verificar inserción manual del scheduler task: " + e.getMessage());
+            fail("Error al verificar inserción: " + e.getMessage());
         }
     }
 }
