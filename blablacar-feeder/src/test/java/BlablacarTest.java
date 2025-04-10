@@ -78,4 +78,117 @@ public class BlablacarTest {
         ApiScheduler scheduler = new ApiScheduler(mockClient, repository);
         assertDoesNotThrow(scheduler::start);
     }
+
+    @Test
+    public void testEmptyStopsArrayHandledCorrectly() {
+        BlablacarApiClient mockClient = new BlablacarApiClient(DUMMY_API_KEY) {
+            @Override
+            public String fetchData() {
+                return "{ \"stops\": [] }";
+            }
+        };
+
+        StopsRepository repository = new StopsRepository(dbUrl);
+        ApiScheduler scheduler = new ApiScheduler(mockClient, repository);
+        scheduler.start();
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ignored) {}
+
+        try (var conn = java.sql.DriverManager.getConnection(dbUrl);
+             var stmt = conn.createStatement();
+             var rs = stmt.executeQuery("SELECT COUNT(*) AS total FROM stops")) {
+            assertTrue(rs.next());
+            assertEquals(0, rs.getInt("total"), "No debería haberse insertado ninguna parada");
+        } catch (Exception e) {
+            fail("Error al verificar base de datos: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testStopWithMissingFields() {
+        BlablacarApiClient mockClient = new BlablacarApiClient(DUMMY_API_KEY) {
+            @Override
+            public String fetchData() {
+                return """
+                {
+                    "stops": [
+                        {
+                            "id": 2,
+                            "short_name": "BCN"
+                        }
+                    ]
+                }
+                """;
+            }
+        };
+
+        StopsRepository repository = new StopsRepository(dbUrl);
+        ApiScheduler scheduler = new ApiScheduler(mockClient, repository);
+        scheduler.start();
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ignored) {}
+
+        try (var conn = java.sql.DriverManager.getConnection(dbUrl);
+             var stmt = conn.createStatement();
+             var rs = stmt.executeQuery("SELECT * FROM stops WHERE id = 2")) {
+            assertTrue(rs.next());
+            assertEquals("BCN", rs.getString("short_name"));
+            assertNull(rs.getString("carrier_id")); // debería ser null si falta en JSON
+        } catch (Exception e) {
+            fail("Error al verificar los campos opcionales en la base de datos: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testSchedulerTaskOnlyOnceManually() {
+        BlablacarApiClient mockClient = new BlablacarApiClient(DUMMY_API_KEY) {
+            @Override
+            public String fetchData() {
+                return """
+                {
+                    "stops": [
+                        {
+                            "id": 5,
+                            "_carrier_id": "carrier5",
+                            "short_name": "TEST5",
+                            "long_name": "Test City 5",
+                            "time_zone": "UTC",
+                            "latitude": 0.0,
+                            "longitude": 0.0,
+                            "destinations_ids": []
+                        }
+                    ]
+                }
+                """;
+            }
+        };
+
+        StopsRepository repository = new StopsRepository(dbUrl);
+
+        Runnable task = () -> {
+            try {
+                String jsonData = mockClient.fetchData();
+                if (jsonData != null) {
+                    repository.save(jsonData);
+                }
+            } catch (Exception e) {
+                fail("El task del scheduler lanzó una excepción: " + e.getMessage());
+            }
+        };
+
+        task.run(); // Ejecutamos manualmente
+
+        try (var conn = java.sql.DriverManager.getConnection(dbUrl);
+             var stmt = conn.createStatement();
+             var rs = stmt.executeQuery("SELECT COUNT(*) AS total FROM stops WHERE id = 5")) {
+            assertTrue(rs.next());
+            assertEquals(1, rs.getInt("total"));
+        } catch (Exception e) {
+            fail("Error al verificar inserción manual del scheduler task: " + e.getMessage());
+        }
+    }
 }
