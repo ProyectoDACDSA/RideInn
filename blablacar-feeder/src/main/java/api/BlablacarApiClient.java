@@ -1,4 +1,5 @@
 package api;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -13,34 +14,42 @@ public class BlablacarApiClient {
     }
 
     public String fetchFare(int originId, int destinationId) throws Exception {
-        String apiUrl = BASE_API_URL + "?origin_id=" + originId + "&destination_id=" + destinationId;
-        HttpURLConnection connection = null;
+        HttpURLConnection connection = createConnection(originId, destinationId);
         try {
-            URL url = new URL(apiUrl);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("Authorization", "Token " + apiKey);
-            connection.setRequestProperty("Accept", "application/json");
-
-            int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                StringBuilder response = new StringBuilder();
-                String inputLine;
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-                System.out.println("Data received for " + originId + " -> " + destinationId);
-                return response.toString();
-            } else {
-                System.out.println("Error connecting to " + originId + " -> " + destinationId + ": Code " + responseCode);
-            }
+            return handleResponse(connection, originId, destinationId);
         } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
+            connection.disconnect();
         }
+    }
+
+    private HttpURLConnection createConnection(int originId, int destinationId) throws Exception {
+        String apiUrl = BASE_API_URL + "?origin_id=" + originId + "&destination_id=" + destinationId;
+        URL url = new URL(apiUrl);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+        connection.setRequestProperty("Authorization", "Token " + apiKey);
+        connection.setRequestProperty("Accept", "application/json");
+        return connection;
+    }
+
+    private String handleResponse(HttpURLConnection connection, int originId, int destinationId) throws Exception {
+        int responseCode = connection.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            return readResponse(connection, originId, destinationId);
+        }
+        System.out.println("Error connecting to " + originId + " -> " + destinationId + ": Code " + responseCode);
         return null;
+    }
+
+    private String readResponse(HttpURLConnection connection, int originId, int destinationId) throws Exception {
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+            StringBuilder response = new StringBuilder();
+            String inputLine;
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            System.out.println("Data received for " + originId + " -> " + destinationId);
+            return response.toString();
+        }
     }
 }

@@ -2,7 +2,6 @@ package scheduler;
 
 import api.XoteloApiClient;
 import database.HotelRepository;
-import java.util.Map;
 import java.util.concurrent.*;
 
 public class XoteloApiScheduler {
