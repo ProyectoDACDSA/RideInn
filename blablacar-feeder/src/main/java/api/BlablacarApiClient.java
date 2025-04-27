@@ -1,22 +1,22 @@
 package api;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class BlablacarApiClient {
-    private static final String API_URL = "https://bus-api.blablacar.com/v3/stops";
+    private static final String BASE_API_URL = "https://bus-api.blablacar.com/v2/fares";
     private final String apiKey;
 
     public BlablacarApiClient(String apiKey) {
         this.apiKey = apiKey;
     }
 
-    public String fetchData() throws Exception {
+    public String fetchFare(int originId, int destinationId) throws Exception {
+        String apiUrl = BASE_API_URL + "?origin_id=" + originId + "&destination_id=" + destinationId;
         HttpURLConnection connection = null;
         try {
-            URL url = new URL(API_URL);
+            URL url = new URL(apiUrl);
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Authorization", "Token " + apiKey);
@@ -31,14 +31,11 @@ public class BlablacarApiClient {
                     response.append(inputLine);
                 }
                 in.close();
-                System.out.println("Conexión exitosa con la API.");
+                System.out.println("Data received for " + originId + " -> " + destinationId);
                 return response.toString();
             } else {
-                System.out.println("Error en la conexión con la API: Código de respuesta " + responseCode);
+                System.out.println("Error connecting to " + originId + " -> " + destinationId + ": Code " + responseCode);
             }
-        } catch (Exception e) {
-            System.out.println("Error al conectar con la API:");
-            e.printStackTrace();
         } finally {
             if (connection != null) {
                 connection.disconnect();
