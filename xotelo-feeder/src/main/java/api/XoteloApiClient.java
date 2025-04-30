@@ -18,7 +18,7 @@ public class XoteloApiClient {
             "Lyon", "https://data.xotelo.com/api/list?location_key=g187265&offset=0&limit=30&sort=best_value",
             "Toulouse", "https://data.xotelo.com/api/list?location_key=g187175&offset=0&limit=30&sort=best_value",
             "Niza", "https://data.xotelo.com/api/list?location_key=g187234&offset=0&limit=30&sort=best_value",
-            "Marsella", "https://data.xotelo.com/api/list?location_key=g187253&offset=0&limit=30&sort=best_value"
+            "Estrasburgo", "https://data.xotelo.com/api/list?location_key=g187075&offset=0&limit=30&sort=best_value"
     );
 
     public Map<String, String> getCityUrls() {
