@@ -2,14 +2,17 @@ package scheduler;
 
 import api.BlablacarApiClient;
 import database.DatabaseManager;
+import events.TripEvent;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class ApiScheduler {
-    private final String[] cities = {"Paris", "Marsella", "Lyon", "Niza", "Toulouse"};
-    private final int[] cityIds = {90, 1633, 137, 210, 16};
+    private final String[] cities = {"Paris", "Estrasburgo", "Lyon", "Niza", "Toulouse"};
+    private final int[] cityIds = {90, 27, 137, 210, 16};
     private final BlablacarApiClient apiClient;
     private final DatabaseManager databaseManager;
 
@@ -87,14 +90,33 @@ public class ApiScheduler {
     }
 
     private void saveSingleFare(JSONObject fare, String origin, String destination, int originId, int destinationId) {
-        databaseManager.saveFare(
-                origin, destination, originId, destinationId,
-                getDeparture(fare), getArrival(fare),
+        TripEvent event = new TripEvent(
+                origin,
+                destination,
+                originId,
+                destinationId,
+                getDeparture(fare),
+                getArrival(fare),
                 fare.optBoolean("available", false),
                 fare.optInt("price_cents", 0),
                 fare.optString("price_currency", null),
                 fare.optString("updated_at", null)
         );
+
+        databaseManager.saveFare(
+                event.getOrigin(),
+                event.getDestination(),
+                event.getOriginId(),
+                event.getDestinationId(),
+                event.getDeparture(),
+                event.getArrival(),
+                event.isAvailable(),
+                event.getPriceCents(),
+                event.getPriceCurrency(),
+                event.getUpdatedAt()
+        );
+
+        writeEventToJsonFile(event);
     }
 
     private String getDeparture(JSONObject fare) {
@@ -107,6 +129,16 @@ public class ApiScheduler {
         JSONArray legs = fare.optJSONArray("legs");
         return legs != null && !legs.isEmpty() ? legs.getJSONObject(legs.length() - 1).optString("arrival", null) :
                 fare.optString("arrival", null);
+    }
+
+    private void writeEventToJsonFile(TripEvent event) {
+        try (FileWriter file = new FileWriter("fares.json", true)) {
+            org.json.JSONObject eventJson = event.toJson();
+
+            file.write(eventJson.toString() + "\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private interface CityPairAction {
