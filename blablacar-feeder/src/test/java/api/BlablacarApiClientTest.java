@@ -1,35 +1,30 @@
 package api;
-import org.junit.jupiter.api.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
+
 import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class BlablacarApiClientTest {
 
-    protected static Path tempDbFile;
-    protected static String dbUrl;
-
-    @BeforeAll
-    public static void setupDatabase() throws Exception {
-        tempDbFile = Files.createTempFile("test-stops", ".db");
-        dbUrl = "jdbc:sqlite:" + tempDbFile.toAbsolutePath();
-    }
-
-    @AfterAll
-    public static void cleanup() throws Exception {
-        Files.deleteIfExists(tempDbFile);
-    }
-
     @Test
-    public void testDummyApiClientReturnsExpectedString() throws Exception {
-        BlablacarApiClient client = new BlablacarApiClient("dummy-key") {
-            @Override
-            public String fetchData() {
-                return "mock response";
-            }
-        };
-        String result = client.fetchData();
-        assertNotNull(result);
-        assertEquals("mock response", result);
+    public void testCrearEvent() {
+        // Datos de prueba
+        String origin = "Paris";
+        String destination = "Lyon";
+        String departureTime = "2025-05-01T10:00:00";
+        double price = 50.0;
+        int seatsAvailable = 10;
+
+        // Crear una instancia de BlablacarApiClient
+        BlablacarApiClient apiClient = new BlablacarApiClient("your_api_key");
+
+        // Generar evento
+        String eventJson = apiClient.crearTripEventJson(origin, destination, departureTime, price, seatsAvailable);
+        System.out.println("Evento generado: " + eventJson);
+
+        // Asegúrate de que el JSON tiene los atributos correctos
+        assertTrue(eventJson.contains("\"origin\":\"Paris\""));
+        assertTrue(eventJson.contains("\"destination\":\"Lyon\""));
+        assertTrue(eventJson.contains("\"price\":50.0"));
+        assertTrue(eventJson.contains("\"seatsAvailable\":10"));
     }
 }

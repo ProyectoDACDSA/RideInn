@@ -1,13 +1,18 @@
 package api;
 
+import publisher.BlablacarEventSender;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import com.google.gson.JsonObject;
+import com.google.gson.Gson;
 
 public class BlablacarApiClient {
     private static final String BASE_API_URL = "https://bus-api.blablacar.com/v2/fares";
     private final String apiKey;
+    private BlablacarEventSender eventSender = new BlablacarEventSender();
 
     public BlablacarApiClient(String apiKey) {
         this.apiKey = apiKey;
@@ -52,4 +57,21 @@ public class BlablacarApiClient {
             return response.toString();
         }
     }
+
+    public void processFareAndSendEvent(String origin, String destination, String departureTime, double price, int available) {
+        eventSender.sendEvent(origin, destination, departureTime, price, available); // Llamada correcta a sendEvent
+    }
+    public String crearTripEventJson(String origin, String destination, String departureTime, double price, int available) {
+        JsonObject json = new JsonObject();
+        long timestamp = System.currentTimeMillis();
+        json.addProperty("ts", timestamp);
+        json.addProperty("ss", "Blablacar");
+        json.addProperty("origin", origin);
+        json.addProperty("destination", destination);
+        json.addProperty("departureTime", departureTime);
+        json.addProperty("price", price);
+        json.addProperty("seatsAvailable", available);
+        return new Gson().toJson(json);
+    }
+
 }
