@@ -1,7 +1,10 @@
 package scheduler;
 
 import api.XoteloApiClient;
+import com.google.gson.*;
 import database.HotelRepository;
+import publisher.XoteloEventSender;
+
 import java.util.concurrent.*;
 
 public class XoteloApiScheduler {
@@ -27,11 +30,30 @@ public class XoteloApiScheduler {
     }
 
     private void fetchAndSaveHotels() {
+        XoteloEventSender sender = new XoteloEventSender(); // añadir esto
         apiClient.getCityUrls().forEach((city, url) -> {
             String jsonData = apiClient.fetchData(city, url);
-            if (jsonData != null) repository.saveHotels(jsonData, city);
+            if (jsonData != null) {
+                repository.saveHotels(jsonData, city);
+
+                // Enviar eventos al broker
+                JsonArray hotels = JsonParser.parseString(jsonData)
+                        .getAsJsonObject()
+                        .getAsJsonObject("result")
+                        .getAsJsonArray("list");
+
+                for (JsonElement el : hotels) {
+                    JsonObject hotel = el.getAsJsonObject();
+                    String name = hotel.get("name").getAsString();
+                    double price = hotel.getAsJsonObject("price_ranges").get("minimum").getAsDouble();
+                    String location = city;
+
+                    sender.sendEvent(name, price, location);
+                }
+            }
         });
     }
+
 
     private static String getDbUrl() {
         String dbUrl = System.getenv("DB_URL");
