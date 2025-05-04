@@ -2,22 +2,19 @@ package scheduler;
 
 import api.XoteloApiClient;
 import com.google.gson.*;
-import database.HotelRepository;
 import publisher.XoteloEventSender;
 
 import java.util.concurrent.*;
 
 public class XoteloApiScheduler {
     private final XoteloApiClient apiClient;
-    private final HotelRepository repository;
 
     public XoteloApiScheduler() {
-        this(new XoteloApiClient(), new HotelRepository(getDbUrl()));
+        this(new XoteloApiClient());
     }
 
-    public XoteloApiScheduler(XoteloApiClient apiClient, HotelRepository repository) {
+    public XoteloApiScheduler(XoteloApiClient apiClient) {
         this.apiClient = apiClient;
-        this.repository = repository;
     }
 
     public void start() {
@@ -29,14 +26,30 @@ public class XoteloApiScheduler {
         fetchAndSaveHotels();
     }
 
+    private void sendHotelsToTopic(String jsonData, String city) {
+        XoteloEventSender sender = new XoteloEventSender();
+        JsonArray hotels = JsonParser.parseString(jsonData)
+                .getAsJsonObject()
+                .getAsJsonObject("result")
+                .getAsJsonArray("list");
+
+        for (JsonElement el : hotels) {
+            JsonObject hotel = el.getAsJsonObject();
+            String name = hotel.get("name").getAsString();
+            double price = hotel.getAsJsonObject("price_ranges").get("minimum").getAsDouble();
+
+            sender.sendEvent(name, price, city); // envía evento a ActiveMQ
+        }
+    }
+
+
     private void fetchAndSaveHotels() {
         XoteloEventSender sender = new XoteloEventSender(); // añadir esto
         apiClient.getCityUrls().forEach((city, url) -> {
             String jsonData = apiClient.fetchData(city, url);
             if (jsonData != null) {
-                repository.saveHotels(jsonData, city);
+                sendHotelsToTopic(jsonData, city);
 
-                // Enviar eventos al broker
                 JsonArray hotels = JsonParser.parseString(jsonData)
                         .getAsJsonObject()
                         .getAsJsonObject("result")

@@ -1,6 +1,5 @@
 import api.BlablacarApiClient;
-import database.DatabaseManager;
-import scheduler.ApiScheduler;
+import scheduler.BlablacarApiScheduler;
 
 public class Main {
     public static void main(String[] args) {
@@ -12,8 +11,7 @@ public class Main {
         }
 
         BlablacarApiClient apiClient = new BlablacarApiClient(apiKey);
-        DatabaseManager databaseManager = new DatabaseManager();
-        ApiScheduler scheduler = new ApiScheduler(apiClient, databaseManager);
+        BlablacarApiScheduler scheduler = new BlablacarApiScheduler(apiClient);
         scheduler.start();
     }
 }

@@ -1,21 +1,18 @@
 package scheduler;
 
 import api.BlablacarApiClient;
-import database.DatabaseManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class ApiScheduler {
+public class BlablacarApiScheduler {
     private final String[] cities = {"Paris", "Marsella", "Lyon", "Niza", "Toulouse"};
     private final int[] cityIds = {90, 1633, 137, 210, 16};
     private final BlablacarApiClient apiClient;
-    private final DatabaseManager databaseManager;
 
-    public ApiScheduler(BlablacarApiClient apiClient, DatabaseManager databaseManager) {
+    public BlablacarApiScheduler(BlablacarApiClient apiClient) {
         this.apiClient = apiClient;
-        this.databaseManager = databaseManager;
     }
 
     public void start() {
@@ -87,23 +84,19 @@ public class ApiScheduler {
     }
 
     private void saveSingleFare(JSONObject fare, String origin, String destination, int originId, int destinationId) {
-        // Guardamos la tarifa en la base de datos
-        databaseManager.saveFare(
-                origin, destination, originId, destinationId,
-                getDeparture(fare), getArrival(fare),
-                fare.optBoolean("available", false),
-                fare.optInt("price_cents", 0),
-                fare.optString("price_currency", null),
-                fare.optString("updated_at", null)
-        );
+        sendFareToTopic(fare, origin, destination);
+    }
 
-        // Después de guardar, enviamos el evento a ActiveMQ
+    private void sendFareToTopic(JSONObject fare, String origin, String destination) {
+        String departure = getDeparture(fare);
+        double price = fare.optDouble("price_cents", 0) / 100.0;
+        boolean available = fare.optBoolean("available", false);
+
         apiClient.processFareAndSendEvent(
-                origin, destination,
-                getDeparture(fare), fare.optDouble("price_cents", 0) / 100.0, // Convertir a precio real
-                fare.optInt("available", 0)
+                origin, destination, departure, price, available ? 1 : 0
         );
     }
+
 
     private String getDeparture(JSONObject fare) {
         JSONArray legs = fare.optJSONArray("legs");

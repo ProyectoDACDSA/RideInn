@@ -60,7 +60,8 @@ public class Subscriber {
             String date = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
             String second = now.format(DateTimeFormatter.ofPattern("ss")); // segundos actuales
 
-            Path dir = Paths.get(BASE_DIR, topicName, second);
+            String hourMinute = now.format(DateTimeFormatter.ofPattern("HHmm"));
+            Path dir = Paths.get(BASE_DIR, topicName, hourMinute);
             Files.createDirectories(dir);
 
             Path filePath = dir.resolve(date + ".events");
