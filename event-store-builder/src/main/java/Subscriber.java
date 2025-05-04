@@ -58,7 +58,7 @@ public class Subscriber {
         try {
             LocalDateTime now = LocalDateTime.now();
             String date = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-            String second = now.format(DateTimeFormatter.ofPattern("ss")); // segundos actuales
+            String second = now.format(DateTimeFormatter.ofPattern("ss"));
 
             String hourMinute = now.format(DateTimeFormatter.ofPattern("HHmm"));
             Path dir = Paths.get(BASE_DIR, topicName, hourMinute);

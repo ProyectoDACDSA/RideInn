@@ -12,7 +12,7 @@ import com.google.gson.Gson;
 public class BlablacarApiClient {
     private static final String BASE_API_URL = "https://bus-api.blablacar.com/v2/fares";
     private final String apiKey;
-    private BlablacarEventSender eventSender = new BlablacarEventSender();
+    private final BlablacarEventSender eventSender = new BlablacarEventSender();
 
     public BlablacarApiClient(String apiKey) {
         this.apiKey = apiKey;
@@ -59,7 +59,7 @@ public class BlablacarApiClient {
     }
 
     public void processFareAndSendEvent(String origin, String destination, String departureTime, double price, int available) {
-        eventSender.sendEvent(origin, destination, departureTime, price, available); // Llamada correcta a sendEvent
+        eventSender.sendEvent(origin, destination, departureTime, price, available);
     }
     public String crearTripEventJson(String origin, String destination, String departureTime, double price, int available) {
         JsonObject json = new JsonObject();

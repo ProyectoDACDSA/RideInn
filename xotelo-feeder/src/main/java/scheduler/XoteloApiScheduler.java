@@ -22,10 +22,6 @@ public class XoteloApiScheduler {
         scheduler.scheduleAtFixedRate(this::fetchAndSaveHotels, 0, 1, TimeUnit.DAYS);
     }
 
-    public void runOnce() {
-        fetchAndSaveHotels();
-    }
-
     private void sendHotelsToTopic(String jsonData, String city) {
         XoteloEventSender sender = new XoteloEventSender();
         JsonArray hotels = JsonParser.parseString(jsonData)
@@ -38,13 +34,13 @@ public class XoteloApiScheduler {
             String name = hotel.get("name").getAsString();
             double price = hotel.getAsJsonObject("price_ranges").get("minimum").getAsDouble();
 
-            sender.sendEvent(name, price, city); // envía evento a ActiveMQ
+            sender.sendEvent(name, price, city);
         }
     }
 
 
     private void fetchAndSaveHotels() {
-        XoteloEventSender sender = new XoteloEventSender(); // añadir esto
+        XoteloEventSender sender = new XoteloEventSender();
         apiClient.getCityUrls().forEach((city, url) -> {
             String jsonData = apiClient.fetchData(city, url);
             if (jsonData != null) {
@@ -59,22 +55,14 @@ public class XoteloApiScheduler {
                     JsonObject hotel = el.getAsJsonObject();
                     String name = hotel.get("name").getAsString();
                     double price = hotel.getAsJsonObject("price_ranges").get("minimum").getAsDouble();
-                    String location = city;
 
-                    sender.sendEvent(name, price, location);
+                    sender.sendEvent(name, price, city);
                 }
             }
         });
     }
 
 
-    private static String getDbUrl() {
-        String dbUrl = System.getenv("DB_URL");
-        if (dbUrl == null || dbUrl.isEmpty()) {
-            throw new IllegalArgumentException("Falta la variable de entorno DB_URL");
-        }
-        return dbUrl;
-    }
 }
 
 
