@@ -1,16 +1,19 @@
-package api;
+package adapters;
 
+import domain.Hotel;
+import ports.HotelProvider;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import com.google.gson.*;
 
-public class XoteloApiClient {
-    private static final Logger LOGGER = Logger.getLogger(XoteloApiClient.class.getName());
+public class XoteloApiHotelProvider implements HotelProvider {
+    private static final Logger LOGGER = Logger.getLogger(XoteloApiHotelProvider.class.getName());
     private static final SimpleDateFormat SDF = new SimpleDateFormat("MMM dd, yyyy h:mm:ss a");
 
     private static final Map<String, String> CITY_URLS = Map.of(
@@ -21,11 +24,38 @@ public class XoteloApiClient {
             "Estrasburgo", "https://data.xotelo.com/api/list?location_key=g187075&offset=0&limit=30&sort=best_value"
     );
 
+    @Override
     public Map<String, String> getCityUrls() {
         return CITY_URLS;
     }
 
-    public String fetchData(String city, String apiUrl) {
+    @Override
+    public List<Hotel> fetchHotelsForCity(String city, String apiUrl) {
+        String jsonData = fetchData(city, apiUrl);
+        if (jsonData == null) {
+            return Collections.emptyList();
+        }
+
+        try {
+            JsonArray hotelsJson = JsonParser.parseString(jsonData)
+                    .getAsJsonObject()
+                    .getAsJsonObject("result")
+                    .getAsJsonArray("list");
+
+            List<Hotel> hotels = new ArrayList<>();
+            for (JsonElement el : hotelsJson) {
+                JsonObject hotelJson = el.getAsJsonObject();
+                Hotel hotel = createHotelFromJson(hotelJson, city);
+                hotels.add(hotel);
+            }
+            return hotels;
+        } catch (Exception e) {
+            LOGGER.warning("Error parsing hotel data for " + city + ": " + e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
+    private String fetchData(String city, String apiUrl) {
         try {
             HttpURLConnection connection = openConnection(apiUrl);
             return readResponse(connection, city);
@@ -59,9 +89,24 @@ public class XoteloApiClient {
         return response.toString();
     }
 
+    private Hotel createHotelFromJson(JsonObject hotelJson, String city) {
+        String name = hotelJson.get("name").getAsString();
+        String key = hotelJson.get("key").getAsString();
+        String accommodationType = hotelJson.get("accommodation_type").getAsString();
+        String url = hotelJson.get("url").getAsString();
+
+        JsonObject priceRanges = hotelJson.getAsJsonObject("price_ranges");
+        int priceMin = priceRanges.get("minimum").getAsInt();
+        int priceMax = priceRanges.get("maximum").getAsInt();
+
+        JsonObject reviewSummary = hotelJson.getAsJsonObject("review_summary");
+        double rating = reviewSummary.get("rating").getAsDouble();
+
+        return new Hotel(name, key, priceMin, priceMax, rating, accommodationType, url, city);
+    }
+
     private void logSuccess(String city) {
         String timestamp = SDF.format(new Date());
         System.out.println(timestamp + " - API connected successfully for " + city);
     }
 }
-

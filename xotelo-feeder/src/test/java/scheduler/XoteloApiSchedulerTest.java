@@ -1,16 +1,12 @@
 package scheduler;
 
-import api.XoteloApiClient;
-
-import org.junit.jupiter.api.Test;
+import adapters.XoteloApiHotelProvider;
 
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 public class XoteloApiSchedulerTest {
 
-    static class FakeApiClient extends XoteloApiClient {
+    static class FakeApiClient extends XoteloApiHotelProvider {
         @Override
         public Map<String, String> getCityUrls() {
             return Map.of("Madrid", "http://fakeurl.com");

@@ -1,5 +1,6 @@
 package api;
 
+import adapters.XoteloApiHotelProvider;
 import org.junit.jupiter.api.Test;
 import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
@@ -8,13 +9,13 @@ public class XoteloApiClientTest {
 
     @Test
     public void testCityUrlsNotEmpty() {
-        XoteloApiClient client = new XoteloApiClient();
+        XoteloApiHotelProvider client = new XoteloApiHotelProvider();
         assertFalse(client.getCityUrls().isEmpty(), "City URLs should not be empty");
     }
 
     @Test
     public void testFetchDataReturnsJson() {
-        XoteloApiClient client = new XoteloApiClient();
+        XoteloApiHotelProvider client = new XoteloApiHotelProvider();
         String url = client.getCityUrls().get("Paris");
         assertNotNull(url, "Paris URL should exist in cityUrls");
 
@@ -25,14 +26,14 @@ public class XoteloApiClientTest {
 
     @Test
     public void testFetchDataWithInvalidUrl() {
-        XoteloApiClient client = new XoteloApiClient();
+        XoteloApiHotelProvider client = new XoteloApiHotelProvider();
         String json = client.fetchData("FakeCity", "http://invalid.url");
         assertNull(json, "fetchData should return null for invalid URL");
     }
 
     @Test
     public void testCityUrlsContainsExpectedCities() {
-        XoteloApiClient client = new XoteloApiClient();
+        XoteloApiHotelProvider client = new XoteloApiHotelProvider();
         Map<String, String> urls = client.getCityUrls();
 
         assertTrue(urls.containsKey("Paris"), "City URLs should contain Paris");

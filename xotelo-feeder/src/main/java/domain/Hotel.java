@@ -1,4 +1,4 @@
-package api;
+package domain;
 
 public class Hotel {
     private String name;

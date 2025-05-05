@@ -1,6 +1,6 @@
-package publisher;
+package domain;
 
-import api.Hotel;
+import com.google.gson.JsonObject;
 import java.time.LocalDate;
 
 public class Booking {
@@ -69,4 +69,21 @@ public class Booking {
 
     public String getCity() {return city;}
     public void setCity(String city) {this.city = city;}
+
+    public String toJson() {
+        JsonObject json = new JsonObject();
+        json.addProperty("ts", ts);
+        json.addProperty("ss", ss);
+        json.addProperty("hotelName", hotelName);
+        json.addProperty("key", key);
+        json.addProperty("accommodationType", accommodationType);
+        json.addProperty("url", url);
+        json.addProperty("rating", rating);
+        json.addProperty("averagePricePerNight", averagePricePerNight);
+        json.addProperty("startDate", startDate.toString());
+        json.addProperty("endDate", endDate.toString());
+        json.addProperty("totalPrice", totalPrice);
+        json.addProperty("city", city);
+        return json.toString();
+    }
 }
