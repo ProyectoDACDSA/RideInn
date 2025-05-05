@@ -1,9 +1,11 @@
 package scheduler;
 
 import api.XoteloApiClient;
-import com.google.gson.*;
+import api.Hotel;
+import publisher.Booking;
 import publisher.XoteloEventSender;
-
+import com.google.gson.*;
+import java.time.LocalDate;
 import java.util.concurrent.*;
 
 public class XoteloApiScheduler {
@@ -19,51 +21,65 @@ public class XoteloApiScheduler {
 
     public void start() {
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-        scheduler.scheduleAtFixedRate(this::fetchAndSaveHotels, 0, 1, TimeUnit.DAYS);
+        scheduler.scheduleAtFixedRate(this::fetchAndProcessHotels, 0, 1, TimeUnit.DAYS);
     }
 
-    private void sendHotelsToTopic(String jsonData, String city) {
-        XoteloEventSender sender = new XoteloEventSender();
-        JsonArray hotels = JsonParser.parseString(jsonData)
-                .getAsJsonObject()
-                .getAsJsonObject("result")
-                .getAsJsonArray("list");
+    private void processHotels(String jsonData, String city) {
+        try {
+            JsonArray hotels = JsonParser.parseString(jsonData)
+                    .getAsJsonObject()
+                    .getAsJsonObject("result")
+                    .getAsJsonArray("list");
 
-        for (JsonElement el : hotels) {
-            JsonObject hotel = el.getAsJsonObject();
-            String name = hotel.get("name").getAsString();
-            double price = hotel.getAsJsonObject("price_ranges").get("minimum").getAsDouble();
+            XoteloEventSender sender = new XoteloEventSender();
+            LocalDate today = LocalDate.now();
+            int defaultStayDays = 3; // Default stay duration
 
-            sender.sendEvent(name, price, city);
+            for (JsonElement el : hotels) {
+                JsonObject hotelJson = el.getAsJsonObject();
+                Hotel hotel = createHotelFromJson(hotelJson, city);
+                Booking booking = new Booking(
+                        System.currentTimeMillis(),
+                        "Xotelo",
+                        hotel,
+                        today,
+                        defaultStayDays
+                );
+                sender.sendBookingEvent(booking);
+            }
+        } catch (Exception e) {
+            System.err.println("Error processing hotels for city " + city + ": " + e.getMessage());
         }
     }
 
+    private Hotel createHotelFromJson(JsonObject hotelJson, String city) {
+        String name = hotelJson.get("name").getAsString();
+        String key = hotelJson.get("key").getAsString();
+        String accommodationType = hotelJson.get("accommodation_type").getAsString();
+        String url = hotelJson.get("url").getAsString();
 
-    private void fetchAndSaveHotels() {
-        XoteloEventSender sender = new XoteloEventSender();
+        JsonObject priceRanges = hotelJson.getAsJsonObject("price_ranges");
+        int priceMin = priceRanges.get("minimum").getAsInt();
+        int priceMax = priceRanges.get("maximum").getAsInt();
+
+        JsonObject reviewSummary = hotelJson.getAsJsonObject("review_summary");
+        double rating = reviewSummary.get("rating").getAsDouble();
+
+        return new Hotel(name, key, priceMin, priceMax, rating, accommodationType, url, city);
+    }
+
+    private void fetchAndProcessHotels() {
         apiClient.getCityUrls().forEach((city, url) -> {
             String jsonData = apiClient.fetchData(city, url);
             if (jsonData != null) {
-                sendHotelsToTopic(jsonData, city);
-
-                JsonArray hotels = JsonParser.parseString(jsonData)
-                        .getAsJsonObject()
-                        .getAsJsonObject("result")
-                        .getAsJsonArray("list");
-
-                for (JsonElement el : hotels) {
-                    JsonObject hotel = el.getAsJsonObject();
-                    String name = hotel.get("name").getAsString();
-                    double price = hotel.getAsJsonObject("price_ranges").get("minimum").getAsDouble();
-
-                    sender.sendEvent(name, price, city);
-                }
+                processHotels(jsonData, city);
             }
         });
     }
-
-
 }
+
+
+
 
 
 
