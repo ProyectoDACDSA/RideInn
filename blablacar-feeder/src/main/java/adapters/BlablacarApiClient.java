@@ -11,7 +11,7 @@ public class BlablacarApiClient implements ApiClient {
     private static final String BASE_API_URL = "https://bus-api.blablacar.com/v2/fares";
     private static final Map<String, Integer> CITY_IDS = Map.of(
             "Paris", 90,
-            "Estrasburgo", 1633,
+            "Estrasburgo", 27,
             "Lyon", 137,
             "Niza", 210,
             "Toulouse", 16
@@ -24,7 +24,6 @@ public class BlablacarApiClient implements ApiClient {
         this.apiKey = apiKey;
     }
 
-    // Método para asignar el EventSender
     public void setEventSender(EventSender eventSender) {
         this.eventSender = eventSender;
     }
