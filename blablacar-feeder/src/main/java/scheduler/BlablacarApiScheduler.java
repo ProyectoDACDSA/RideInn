@@ -1,17 +1,15 @@
 package scheduler;
-
-import api.BlablacarApiClient;
+import ports.ApiClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Map;
 
 public class BlablacarApiScheduler {
-    private final String[] cities = {"Paris", "Marsella", "Lyon", "Niza", "Toulouse"};
-    private final int[] cityIds = {90, 1633, 137, 210, 16};
-    private final BlablacarApiClient apiClient;
+    private final ApiClient apiClient;
 
-    public BlablacarApiScheduler(BlablacarApiClient apiClient) {
+    public BlablacarApiScheduler(ApiClient apiClient) {
         this.apiClient = apiClient;
     }
 
@@ -41,20 +39,23 @@ public class BlablacarApiScheduler {
     }
 
     private void forEachCityPair(CityPairAction action) {
+        Map<String, Integer> cityIds = apiClient.getCityIds();
+        String[] cities = cityIds.keySet().toArray(new String[0]);
+
         for (int i = 0; i < cities.length; i++) {
             for (int j = 0; j < cities.length; j++) {
                 if (i != j) {
-                    action.execute(i, j);
+                    action.execute(cities[i], cities[j], cityIds.get(cities[i]), cityIds.get(cities[j]));
                 }
             }
         }
     }
 
-    private void fetchAndSaveFare(int i, int j) {
+    private void fetchAndSaveFare(String originCity, String destCity, int originId, int destId) {
         try {
-            String response = apiClient.fetchFare(cityIds[i], cityIds[j]);
+            String response = apiClient.fetchFare(originId, destId);
             if (response != null) {
-                parseAndSave(response, cities[i], cities[j], cityIds[i], cityIds[j]);
+                parseAndSave(response, originCity, destCity, originId, destId);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -66,7 +67,7 @@ public class BlablacarApiScheduler {
         if (fares != null && !fares.isEmpty()) {
             insertFares(fares, origin, destination, originId, destinationId);
         } else {
-            System.out.println("There are no fares available for " + origin + " -> " + destination + "\n");
+            System.out.println("No fares available for " + origin + " -> " + destination + "\n");
         }
     }
 
@@ -78,25 +79,18 @@ public class BlablacarApiScheduler {
     private void insertFares(JSONArray fares, String origin, String destination, int originId, int destinationId) {
         int limit = Math.min(25, fares.length());
         for (int i = 0; i < limit; i++) {
-            saveSingleFare(fares.getJSONObject(i), origin, destination, originId, destinationId);
+            saveSingleFare(fares.getJSONObject(i), origin, destination);
         }
         System.out.println("Inserted " + limit + " fares for " + origin + " -> " + destination + "\n");
     }
 
-    private void saveSingleFare(JSONObject fare, String origin, String destination, int originId, int destinationId) {
-        sendFareToTopic(fare, origin, destination);
-    }
-
-    private void sendFareToTopic(JSONObject fare, String origin, String destination) {
+    private void saveSingleFare(JSONObject fare, String origin, String destination) {
         String departure = getDeparture(fare);
         double price = fare.optDouble("price_cents", 0) / 100.0;
         boolean available = fare.optBoolean("available", false);
 
-        apiClient.processFareAndSendEvent(
-                origin, destination, departure, price, available ? 1 : 0
-        );
+        apiClient.processFareAndSendEvent(origin, destination, departure, price, available ? 1 : 0);
     }
-
 
     private String getDeparture(JSONObject fare) {
         JSONArray legs = fare.optJSONArray("legs");
@@ -104,13 +98,7 @@ public class BlablacarApiScheduler {
                 fare.optString("departure", null);
     }
 
-    private String getArrival(JSONObject fare) {
-        JSONArray legs = fare.optJSONArray("legs");
-        return legs != null && !legs.isEmpty() ? legs.getJSONObject(legs.length() - 1).optString("arrival", null) :
-                fare.optString("arrival", null);
-    }
-
     private interface CityPairAction {
-        void execute(int i, int j);
+        void execute(String originCity, String destCity, int originId, int destId);
     }
 }

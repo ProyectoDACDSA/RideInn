@@ -1,29 +1,50 @@
-package api;
-
-import publisher.BlablacarEventSender;
-
+package adapters;
+import ports.ApiClient;
+import ports.EventSender;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import com.google.gson.JsonObject;
-import com.google.gson.Gson;
+import java.util.Map;
 
-public class BlablacarApiClient {
+public class BlablacarApiClient implements ApiClient {
     private static final String BASE_API_URL = "https://bus-api.blablacar.com/v2/fares";
+    private static final Map<String, Integer> CITY_IDS = Map.of(
+            "Paris", 90,
+            "Estrasburgo", 1633,
+            "Lyon", 137,
+            "Niza", 210,
+            "Toulouse", 16
+    );
+
     private final String apiKey;
-    private final BlablacarEventSender eventSender = new BlablacarEventSender();
+    private EventSender eventSender;
 
     public BlablacarApiClient(String apiKey) {
         this.apiKey = apiKey;
     }
 
-    public String fetchFare(int originId, int destinationId) throws Exception {
-        HttpURLConnection connection = createConnection(originId, destinationId);
+    // Método para asignar el EventSender
+    public void setEventSender(EventSender eventSender) {
+        this.eventSender = eventSender;
+    }
+
+    @Override
+    public Map<String, Integer> getCityIds() {
+        return CITY_IDS;
+    }
+
+    @Override
+    public String fetchFare(int originId, int destinationId) {
         try {
-            return handleResponse(connection, originId, destinationId);
-        } finally {
-            connection.disconnect();
+            HttpURLConnection connection = createConnection(originId, destinationId);
+            try {
+                return handleResponse(connection, originId, destinationId);
+            } finally {
+                connection.disconnect();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching fare", e);
         }
     }
 
@@ -40,38 +61,28 @@ public class BlablacarApiClient {
     private String handleResponse(HttpURLConnection connection, int originId, int destinationId) throws Exception {
         int responseCode = connection.getResponseCode();
         if (responseCode == HttpURLConnection.HTTP_OK) {
-            return readResponse(connection, originId, destinationId);
+            return readResponse(connection);
         }
         System.out.println("Error connecting to " + originId + " -> " + destinationId + ": Code " + responseCode);
         return null;
     }
 
-    private String readResponse(HttpURLConnection connection, int originId, int destinationId) throws Exception {
+    private String readResponse(HttpURLConnection connection) throws Exception {
         try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
             StringBuilder response = new StringBuilder();
             String inputLine;
             while ((inputLine = in.readLine()) != null) {
                 response.append(inputLine);
             }
-            System.out.println("Data received for " + originId + " -> " + destinationId);
             return response.toString();
         }
     }
 
-    public void processFareAndSendEvent(String origin, String destination, String departureTime, double price, int available) {
-        eventSender.sendEvent(origin, destination, departureTime, price, available);
+    @Override
+    public void processFareAndSendEvent(String origin, String destination,
+                                        String departureTime, double price, int available) {
+        if (eventSender != null) {
+            eventSender.sendEvent(origin, destination, departureTime, price, available);
+        }
     }
-    public String crearTripEventJson(String origin, String destination, String departureTime, double price, int available) {
-        JsonObject json = new JsonObject();
-        long timestamp = System.currentTimeMillis();
-        json.addProperty("ts", timestamp);
-        json.addProperty("ss", "Blablacar");
-        json.addProperty("origin", origin);
-        json.addProperty("destination", destination);
-        json.addProperty("departureTime", departureTime);
-        json.addProperty("price", price);
-        json.addProperty("seatsAvailable", available);
-        return new Gson().toJson(json);
-    }
-
 }

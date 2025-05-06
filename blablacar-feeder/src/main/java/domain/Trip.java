@@ -1,5 +1,4 @@
-package model;
-
+package domain;
 import java.time.ZonedDateTime;
 
 public class Trip {
@@ -56,4 +55,3 @@ public class Trip {
     public ZonedDateTime getUpdatedAt() {return updatedAt;}
 
 }
-
