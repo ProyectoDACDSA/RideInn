@@ -33,14 +33,6 @@ public class Trip {
         this.updatedAt = updatedAt;
     }
 
-    public void setOriginCity(String originCity) {
-        this.originCity = originCity;
-    }
-
-    public void setDestinationCity(String destinationCity) {
-        this.destinationCity = destinationCity;
-    }
-
     public long getId() {return id;}
     public ZonedDateTime getDeparture() {return departure;}
     public ZonedDateTime getArrival() {return arrival;}

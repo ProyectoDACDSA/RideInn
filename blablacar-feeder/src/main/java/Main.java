@@ -1,8 +1,6 @@
 import adapters.ActiveMqEventSender;
 import adapters.BlablacarApiClient;
-import ports.ApiClient;
 import ports.EventSender;
-import scheduler.BlablacarApiScheduler;
 
 public class Main {
     public static void main(String[] args) {
@@ -14,11 +12,11 @@ public class Main {
         }
 
         EventSender eventSender = new ActiveMqEventSender();
-        ApiClient apiClient = new BlablacarApiClient(apiKey);
+        BlablacarApiClient apiClient = new BlablacarApiClient(apiKey);
+        apiClient.setEventSender(eventSender);
+        Controller controller = new Controller(apiClient, eventSender);
+        controller.start();
 
-        ((BlablacarApiClient) apiClient).setEventSender(eventSender);
-
-        BlablacarApiScheduler scheduler = new BlablacarApiScheduler(apiClient);
-        scheduler.start();
+        Runtime.getRuntime().addShutdownHook(new Thread(controller::stop));
     }
 }
