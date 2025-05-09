@@ -35,40 +35,28 @@ public class Booking {
     }
 
     public long getTs() { return ts; }
-    public void setTs(long ts) { this.ts = ts; }
 
     public String getSs() { return ss; }
-    public void setSs(String ss) { this.ss = ss; }
 
     public String getKey() { return key; }
-    public void setKey(String key) { this.key = key; }
 
     public String getHotelName() { return hotelName;}
-    public void setHotelName(String hotelName) { this.hotelName = hotelName; }
 
     public String getAccommodationType() { return accommodationType;}
-    public void setAccommodationType(String accommodationType) { this.accommodationType = accommodationType;}
 
     public String getUrl() {return url;}
-    public void setUrl(String url) { this.url = url;}
 
     public double getRating() {return rating;}
-    public void setRating(double rating) {this.rating = rating;}
 
     public int getAveragePricePerNight() {return averagePricePerNight;}
-    public void setAveragePricePerNight(int averagePrice) {this.averagePricePerNight = averagePrice;}
 
     public LocalDate getStartDate() {return startDate;}
-    public void setStartDate(LocalDate startDate) {this.startDate = startDate;}
 
     public LocalDate getEndDate() {return endDate;}
-    public void setEndDate(LocalDate endDate) {this.endDate = endDate;}
 
     public int getTotalPrice() {return totalPrice;}
-    public void setTotalPrice(int totalPrice) {this.totalPrice = totalPrice;}
 
     public String getCity() {return city;}
-    public void setCity(String city) {this.city = city;}
 
     public String toJson() {
         JsonObject json = new JsonObject();

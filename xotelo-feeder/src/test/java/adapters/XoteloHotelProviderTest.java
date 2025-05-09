@@ -7,7 +7,6 @@ import java.util.Map;
 
 import domain.Hotel;
 import org.junit.jupiter.api.Test;
-import com.google.gson.JsonObject;
 
 public class XoteloHotelProviderTest {
     @Test
