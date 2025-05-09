@@ -15,6 +15,15 @@ public class BookingTest {
         Booking booking = new Booking(12345L, "Xotelo", hotel, today, 3);
 
         assertEquals("Grand Hotel", booking.getHotelName());
+        assertEquals("key123", booking.getKey());
+        assertEquals("Xotelo",booking.getSs());
+        assertEquals(12345L, booking.getTs());
+        assertEquals("Hotel", booking.getAccommodationType());
+        assertEquals(today, booking.getStartDate());
+        assertEquals("Paris", booking.getCity());
+        assertEquals(4.5, booking.getRating());
+        assertEquals(booking.getAveragePricePerNight()*3, booking.getTotalPrice());
+        assertEquals("http://example.com",booking.getUrl());
         assertEquals(150, booking.getAveragePricePerNight()); // (100+200)/2
         assertEquals(today.plusDays(3), booking.getEndDate());
         assertTrue(booking.toJson().contains("\"hotelName\":\"Grand Hotel\""));
