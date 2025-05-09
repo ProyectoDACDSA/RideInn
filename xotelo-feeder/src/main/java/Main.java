@@ -1,17 +1,17 @@
 import adapters.ActiveMqBookingStorage;
-import adapters.XoteloApiHotelProvider;
-import scheduler.XoteloApiScheduler;
+import adapters.XoteloApiClient;
+import adapters.XoteloHotelProvider;
 import ports.BookingStorage;
 import ports.HotelProvider;
 
 public class Main {
     public static void main(String[] args) {
-        HotelProvider hotelProvider = new XoteloApiHotelProvider();
+        XoteloApiClient apiClient = new XoteloApiClient();
+        HotelProvider hotelProvider = new XoteloHotelProvider(apiClient);
         BookingStorage bookingStorage = new ActiveMqBookingStorage();
-        XoteloApiScheduler scheduler = new XoteloApiScheduler(hotelProvider, bookingStorage);
+        Controller controller = new Controller(hotelProvider, bookingStorage);
 
-        scheduler.start();
-
+        controller.execute();
         System.out.println("Xotelo Feeder started successfully");
     }
 }

@@ -13,6 +13,8 @@
         <module>blablacar-feeder</module>
         <module>xotelo-feeder</module>
         <module>event-store-builder</module>
+        <module>datamart</module>
+        <module>business-unit</module>
     </modules>
 
     <properties>
@@ -88,7 +90,7 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.6</version>
+            <version>1.5.13</version>
         </dependency>
 
         <dependency>
