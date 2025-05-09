@@ -1,36 +1,22 @@
 package adapters;
+
 import ports.ApiClient;
 import ports.EventSender;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Map;
+import java.util.logging.Logger;
 
 public class BlablacarApiClient implements ApiClient {
+    private static final Logger LOGGER = Logger.getLogger(BlablacarApiClient.class.getName());
     private static final String BASE_API_URL = "https://bus-api.blablacar.com/v2/fares";
-    private static final Map<String, Integer> CITY_IDS = Map.of(
-            "Paris", 90,
-            "Estrasburgo", 27,
-            "Lyon", 137,
-            "Niza", 210,
-            "Toulouse", 16
-    );
 
     private final String apiKey;
     private EventSender eventSender;
 
     public BlablacarApiClient(String apiKey) {
         this.apiKey = apiKey;
-    }
-
-    public void setEventSender(EventSender eventSender) {
-        this.eventSender = eventSender;
-    }
-
-    @Override
-    public Map<String, Integer> getCityIds() {
-        return CITY_IDS;
     }
 
     @Override
@@ -43,7 +29,9 @@ public class BlablacarApiClient implements ApiClient {
                 connection.disconnect();
             }
         } catch (Exception e) {
-            throw new RuntimeException("Error fetching fare", e);
+            LOGGER.warning(String.format("Error fetching fare %d->%d: %s",
+                    originId, destinationId, e.getMessage()));
+            return null;
         }
     }
 
@@ -62,7 +50,7 @@ public class BlablacarApiClient implements ApiClient {
         if (responseCode == HttpURLConnection.HTTP_OK) {
             return readResponse(connection);
         }
-        System.out.println("Error connecting to " + originId + " -> " + destinationId + ": Code " + responseCode);
+        LOGGER.warning("Error connecting to " + originId + " -> " + destinationId + ": Code " + responseCode);
         return null;
     }
 
@@ -83,5 +71,9 @@ public class BlablacarApiClient implements ApiClient {
         if (eventSender != null) {
             eventSender.sendEvent(origin, destination, departureTime, price, available);
         }
+    }
+
+    public void setEventSender(EventSender eventSender) {
+        this.eventSender = eventSender;
     }
 }

@@ -1,4 +1,5 @@
 package domain;
+
 import java.time.ZonedDateTime;
 
 public class Trip {
