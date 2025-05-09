@@ -1,4 +1,5 @@
 package adapters;
+
 import ports.EventSender;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import javax.jms.*;

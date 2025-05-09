@@ -1,5 +1,6 @@
 import adapters.ActiveMqEventSender;
 import adapters.BlablacarApiClient;
+import adapters.BlablacarTripProvider;
 import ports.EventSender;
 
 public class Main {
@@ -13,10 +14,14 @@ public class Main {
 
         EventSender eventSender = new ActiveMqEventSender();
         BlablacarApiClient apiClient = new BlablacarApiClient(apiKey);
-        apiClient.setEventSender(eventSender);
-        Controller controller = new Controller(apiClient, eventSender);
+        BlablacarTripProvider tripProvider = new BlablacarTripProvider(apiClient, eventSender);
+
+        Controller controller = new Controller(tripProvider);
         controller.start();
 
-        Runtime.getRuntime().addShutdownHook(new Thread(controller::stop));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("Shutting down gracefully...");
+            controller.stop();
+        }));
     }
 }
