@@ -13,7 +13,7 @@
         <module>blablacar-feeder</module>
         <module>xotelo-feeder</module>
         <module>event-store-builder</module>
-        <module>datamart</module>
+        <module>business-unit</module>
     </modules>
 
     <properties>

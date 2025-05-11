@@ -9,7 +9,7 @@
     </option>
     <option name="ignoredFiles">
       <set>
-        <option value="$PROJECT_DIR$/business-unit/pom.xml" />
+        <option value="$PROJECT_DIR$/datamart/pom.xml" />
       </set>
     </option>
   </component>
