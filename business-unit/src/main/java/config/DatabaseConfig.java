@@ -54,7 +54,8 @@ public class DatabaseConfig {
                             "departure_time TEXT NOT NULL," +
                             "price REAL NOT NULL," +
                             "available INTEGER NOT NULL," +
-                            "processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
+                            "processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                            "CONSTRAINT unique_trip UNIQUE (origin, destination, departure_date, departure_time))");
 
             conn.createStatement().execute(
                     "CREATE TABLE IF NOT EXISTS hotels (" +
