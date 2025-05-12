@@ -71,7 +71,8 @@ public class DatabaseConfig {
                             "end_date TEXT NOT NULL," +
                             "total_price REAL NOT NULL," +
                             "city TEXT NOT NULL," +
-                            "processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
+                            "processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"+
+                            "CONSTRAINT unique_book UNIQUE (hotel_key, start_date))");
 
             conn.createStatement().execute(
                     "CREATE INDEX IF NOT EXISTS idx_trips_destination ON trips(destination)");
