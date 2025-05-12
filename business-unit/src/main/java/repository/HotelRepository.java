@@ -49,7 +49,6 @@ public class HotelRepository {
         pstmt.setString(11, hotel.getCity());
     }
 
-    //TODO: Establecer key como id
     private void retrieveGeneratedId(PreparedStatement pstmt, Hotel hotel) throws SQLException {
         try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
             if (generatedKeys.next()) {

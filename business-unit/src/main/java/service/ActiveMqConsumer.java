@@ -10,10 +10,8 @@ import repository.HotelRepository;
 import repository.TripRepository;
 
 import javax.jms.*;
-import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

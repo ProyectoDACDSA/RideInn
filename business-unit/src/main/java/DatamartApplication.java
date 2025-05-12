@@ -9,6 +9,7 @@ import service.EventStoreReader;
 
 public class DatamartApplication {
     private static final Logger logger = LoggerFactory.getLogger(DatamartApplication.class);
+    private static final int JAVALIN_PORT = 7070;
 
     public static void main(String[] args) {
         try {
@@ -17,8 +18,8 @@ public class DatamartApplication {
 
             logger.info("Procesando eventos históricos...");
             EventStoreReader eventReader = new EventStoreReader(
-                    "eventstore/blablacar",
-                    "eventstore/xotelo"
+                    "eventstore/Blablacar",
+                    "eventstore/Xotelo"
             );
             eventReader.processAllHistoricalEvents();
 
@@ -30,9 +31,8 @@ public class DatamartApplication {
             Javalin app = Javalin.create(config -> {
                 config.plugins.enableDevLogging();
             });
-            //TODO
             new ApiController(app, new AnalysisService());
-            app.start(61616);
+            app.start(JAVALIN_PORT);
 
             logger.info("Sistema completamente operativo");
 
