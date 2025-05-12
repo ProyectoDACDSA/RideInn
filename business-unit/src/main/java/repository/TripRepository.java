@@ -4,12 +4,16 @@ import config.DatabaseConfig;
 import model.Trip;
 
 import java.sql.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TripRepository {
     private static final String INSERT_SQL =
-            "INSERT INTO trips(timestamp, origin, destination, departure_time, price, available) " +
+            "INSERT INTO trips(origin, destination, departure_date, departure_time, price, available) " +
                     "VALUES(?, ?, ?, ?, ?, ?)";
 
     private static final String SELECT_BY_DESTINATION_SQL =
@@ -19,9 +23,9 @@ public class TripRepository {
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
 
-            pstmt.setLong(1, trip.getTimestamp());
-            pstmt.setString(2, trip.getOrigin());
-            pstmt.setString(3, trip.getDestination());
+            pstmt.setString(1, trip.getOrigin());
+            pstmt.setString(2, trip.getDestination());
+            pstmt.setString(3, trip.getDepartureDate().toString());
             pstmt.setString(4, trip.getDepartureTime().toString());
             pstmt.setDouble(5, trip.getPrice());
             pstmt.setInt(6, trip.getAvailable());
@@ -43,19 +47,20 @@ public class TripRepository {
         List<Trip> trips = new ArrayList<>();
 
         try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(SELECT_BY_DESTINATION_SQL)) {
+             PreparedStatement pstmt = conn.prepareStatement(
+                     "SELECT * FROM trips WHERE destination = ? ORDER BY departure_date, departure_time")) {
 
             pstmt.setString(1, destination);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    long id = rs.getLong("id");
-                    long timestamp = rs.getLong("timestamp");
-                    String origin = rs.getString("origin");
-                    Time departureTime = rs.getTime("departure_time");
-                    double price = rs.getDouble("price");
-                    int available = rs.getInt("available");
-                    Trip trip = new Trip(id, timestamp, origin, destination, departureTime, price, available);
+                    Trip trip = new Trip(
+                            rs.getString("origin"),
+                            rs.getString("destination"),
+                            (rs.getString("departureTime")).substring(11,19),
+                            (rs.getString("departureTime")).substring(0,10),
+                            rs.getDouble("price"),
+                            rs.getInt("available"));
                     trips.add(trip);
                 }
             }
@@ -63,3 +68,4 @@ public class TripRepository {
         return trips;
     }
 }
+

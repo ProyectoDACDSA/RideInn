@@ -1,17 +1,20 @@
 package service;
 
-import com.google.gson.Gson;
+import com.google.gson.*;
 import model.Hotel;
 import model.Trip;
 import repository.HotelRepository;
 import repository.TripRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.stream.Stream;
 
 public class EventStoreReader {
@@ -28,7 +31,42 @@ public class EventStoreReader {
         this.xoteloPath = xoteloPath;
         this.tripRepository = new TripRepository();
         this.hotelRepository = new HotelRepository();
-        this.gson = new Gson();
+        this.gson = new GsonBuilder()
+                .registerTypeAdapter(LocalDate.class, (JsonDeserializer<LocalDate>) (json, type, context) -> {
+                    try {
+                        return LocalDate.parse(json.getAsString());
+                    } catch (DateTimeParseException e) {
+                        String datePart = json.getAsString().split("T")[0];
+                        return LocalDate.parse(datePart);
+                    }
+                })
+                .registerTypeAdapter(LocalDateTime.class, (JsonDeserializer<LocalDateTime>) (json, type, context) -> {
+                    try {
+                        return LocalDateTime.parse(json.getAsString());
+                    } catch (DateTimeParseException e) {
+                        if (!json.getAsString().contains("T")) {
+                            return LocalDate.parse(json.getAsString()).atStartOfDay();
+                        }
+                        throw e;
+                    }
+                })
+                .registerTypeAdapter(LocalTime.class, (JsonDeserializer<LocalTime>) (json, type, context) -> {
+                    try {
+                        String timeStr = json.getAsString();
+                        // Handle full datetime strings by extracting time part
+                        if (timeStr.contains("T")) {
+                            timeStr = timeStr.split("T")[1];
+                            // Remove timezone if present
+                            if (timeStr.contains("+")) {
+                                timeStr = timeStr.split("\\+")[0];
+                            }
+                        }
+                        return LocalTime.parse(timeStr);
+                    } catch (DateTimeParseException e) {
+                        throw new JsonParseException("Failed to parse LocalTime", e);
+                    }
+                })
+                .create();
     }
 
     public void processAllHistoricalEvents() {
@@ -74,6 +112,8 @@ public class EventStoreReader {
     private void processTripLine(String line) {
         try {
             Trip trip = gson.fromJson(line, Trip.class);
+            System.out.println("Se identifica");
+            System.out.println(trip.toString());
             if (trip != null) {
                 tripRepository.save(trip);
                 logger.debug("Saved trip: {}", trip);

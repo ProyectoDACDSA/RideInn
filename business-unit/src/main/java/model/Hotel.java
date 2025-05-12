@@ -1,10 +1,12 @@
 package model;
 
+import com.google.gson.annotations.SerializedName;
 import java.time.LocalDate;
 
 public class Hotel {
     private Long id;
     private long timestamp;
+    @SerializedName(value = "hotelName", alternate = "hotel")
     private String hotelName;
     private String key;
     private String accommodationType;

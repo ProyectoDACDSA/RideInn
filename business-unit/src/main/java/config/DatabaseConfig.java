@@ -53,10 +53,10 @@ public class DatabaseConfig {
             conn.createStatement().execute(
                     "CREATE TABLE IF NOT EXISTS trips (" +
                             "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                            "timestamp BIGINT NOT NULL," +
                             "origin TEXT NOT NULL," +
                             "destination TEXT NOT NULL," +
-                            "departure_time TEXT NOT NULL," +
+                            "departure_date TEXT NOT NULL," +  // Nueva columna para fecha
+                            "departure_time TEXT NOT NULL," +  // Nueva columna para hora
                             "price REAL NOT NULL," +
                             "available INTEGER NOT NULL," +
                             "processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");

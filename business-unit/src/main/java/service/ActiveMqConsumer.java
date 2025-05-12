@@ -12,6 +12,8 @@ import repository.TripRepository;
 import javax.jms.*;
 import java.sql.Time;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,8 +32,8 @@ public class ActiveMqConsumer {
     private final Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDate.class, (JsonDeserializer<LocalDate>) (json, type, context) ->
                     LocalDate.parse(json.getAsJsonPrimitive().getAsString()))
-            .registerTypeAdapter(Time.class, (JsonDeserializer<Time>) (json, type, context) ->
-                    Time.valueOf(json.getAsJsonPrimitive().getAsString()))
+            .registerTypeAdapter(LocalDateTime.class, (JsonDeserializer<LocalDateTime>) (json, type, context) ->
+                    LocalDateTime.parse(json.getAsJsonPrimitive().getAsString()))
             .create();
 
     /**
@@ -86,19 +88,15 @@ public class ActiveMqConsumer {
      * Parsea un JSON a objeto Trip con validaciones
      */
     private Trip parseTrip(String json) {
-        if (json == null || json.trim().isEmpty()) {
-            throw new IllegalArgumentException("JSON string cannot be null or empty");
-        }
+        JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
 
-        try {
-            Trip trip = gson.fromJson(json, Trip.class);
-
-            // Validaciones de campos obligatorios
-            validateTripFields(trip);
-            return trip;
-        } catch (JsonSyntaxException e) {
-            throw new IllegalArgumentException("Formato JSON inválido para Trip", e);
-        }
+        return new Trip(
+                jsonObject.get("origin").getAsString(),
+                jsonObject.get("destination").getAsString(),
+                (jsonObject.get("departureTime").getAsString().substring(11,19)),
+                (jsonObject.get("departureTime").getAsString().substring(0,10)),
+                jsonObject.get("price").getAsDouble(),
+                jsonObject.get("available").getAsInt());
     }
 
     private void validateTripFields(Trip trip) {
@@ -162,7 +160,7 @@ public class ActiveMqConsumer {
                     String json = textMessage.getText();
                     Trip trip = parent.parseTrip(json);
                     tripRepository.save(trip);
-                    logger.info("Nuevo viaje procesado - ID: {}, Destino: {}", trip.getId(), trip.getDestination());
+                    logger.info("Nuevo viaje procesado - Origen: {}, Destino: {}, Horario: {}", trip.getOrigin(), trip.getDestination(), trip.getDepartureTime());
                 } else {
                     logger.warn("Tipo de mensaje no soportado: {}", message.getClass().getSimpleName());
                 }
