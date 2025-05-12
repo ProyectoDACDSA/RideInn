@@ -13,7 +13,7 @@ public class Trip {
     private int available;
 
     public Trip(String origin, String destination,
-                String departureTime,String departureDate, double price, int available) {
+                String departureTime, String departureDate, double price, int available) {
         this.origin = origin;
         this.destination = destination;
         this.departureTime = LocalTime.parse(departureTime);

@@ -27,7 +27,6 @@ public class AnalysisService {
     private List<Recommendation> combineData(List<Trip> trips, List<Hotel> hotels) {
         List<Recommendation> recommendations = new ArrayList<>();
 
-        // Ejemplo básico: Combinar cada viaje con cada hotel
         for (Trip trip : trips) {
             for (Hotel hotel : hotels) {
                 double totalPrice = trip.getPrice() + hotel.getTotalPrice();

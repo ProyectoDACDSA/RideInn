@@ -12,11 +12,9 @@ public class DatamartApplication {
 
     public static void main(String[] args) {
         try {
-            // 1. Inicialización de la base de datos
             logger.info("Inicializando base de datos...");
             DatabaseConfig.initializeDatabase();
 
-            // 2. Procesamiento inicial de eventos históricos
             logger.info("Procesando eventos históricos...");
             EventStoreReader eventReader = new EventStoreReader(
                     "eventstore/blablacar",
@@ -24,22 +22,20 @@ public class DatamartApplication {
             );
             eventReader.processAllHistoricalEvents();
 
-            // 3. Iniciar consumidor de ActiveMQ (eventos en tiempo real)
             logger.info("Iniciando consumidor de ActiveMQ...");
             ActiveMqConsumer mqConsumer = new ActiveMqConsumer();
             mqConsumer.start();
 
-            // 4. Iniciar interfaz de usuario (API REST)
             logger.info("Iniciando API REST...");
             Javalin app = Javalin.create(config -> {
                 config.plugins.enableDevLogging();
             });
+            //TODO
             new ApiController(app, new AnalysisService());
-            app.start(7070);
+            app.start(61616);
 
             logger.info("Sistema completamente operativo");
 
-            // Mantener el hilo principal activo
             Thread.currentThread().join();
 
         } catch (InterruptedException e) {

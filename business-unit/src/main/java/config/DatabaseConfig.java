@@ -10,12 +10,9 @@ public class DatabaseConfig {
     private static Connection connection;
 
     public static synchronized Connection getConnection() throws SQLException {
-        System.out.println("Obteniendo conexión a: " + DB_URL);
         if (connection == null || connection.isClosed()) {
-            System.out.println("Creando nueva conexión...");
             connection = DriverManager.getConnection(DB_URL);
             connection.setAutoCommit(true);
-            System.out.println("Conexión establecida");
         }
         return connection;
     }
@@ -49,14 +46,13 @@ public class DatabaseConfig {
 
     public static void initializeDatabase() {
         try (Connection conn = getConnection()) {
-            boolean isNewDB = !checkIfTablesExist(conn);
             conn.createStatement().execute(
                     "CREATE TABLE IF NOT EXISTS trips (" +
                             "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                             "origin TEXT NOT NULL," +
                             "destination TEXT NOT NULL," +
-                            "departure_date TEXT NOT NULL," +  // Nueva columna para fecha
-                            "departure_time TEXT NOT NULL," +  // Nueva columna para hora
+                            "departure_date TEXT NOT NULL," +
+                            "departure_time TEXT NOT NULL," +
                             "price REAL NOT NULL," +
                             "available INTEGER NOT NULL," +
                             "processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
@@ -81,26 +77,8 @@ public class DatabaseConfig {
                     "CREATE INDEX IF NOT EXISTS idx_trips_destination ON trips(destination)");
             conn.createStatement().execute(
                     "CREATE INDEX IF NOT EXISTS idx_hotels_city ON hotels(city)");
-            if (isNewDB) {
-                System.out.println("Nueva base de datos creada exitosamente");
-            } else {
-                System.out.println("Base de datos existente inicializada");
-            }
         } catch (SQLException e) {
             throw new RuntimeException("Error al inicializar la base de datos", e);
-        }
-    }
-
-    private static boolean checkIfTablesExist(Connection conn) throws SQLException {
-        try (ResultSet rs = conn.getMetaData().getTables(null, null, null, new String[]{"TABLE"})) {
-            boolean hasTrips = false;
-            boolean hasHotels = false;
-            while (rs.next()) {
-                String tableName = rs.getString("TABLE_NAME").toLowerCase();
-                if ("trips".equals(tableName)) hasTrips = true;
-                if ("hotels".equals(tableName)) hasHotels = true;
-            }
-            return hasTrips && hasHotels;
         }
     }
 }

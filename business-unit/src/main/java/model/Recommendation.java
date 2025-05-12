@@ -11,7 +11,6 @@ public class Recommendation {
         this.totalPrice = totalPrice;
     }
 
-    // Getters
     public Trip getTrip() { return trip; }
     public Hotel getHotel() { return hotel; }
     public double getTotalPrice() { return totalPrice; }

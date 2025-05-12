@@ -21,22 +21,14 @@ public class HotelRepository {
             "SELECT * FROM hotels WHERE city = ? ORDER BY start_date";
 
     public void save(Hotel hotel) throws SQLException {
-        logger.debug("Intentando guardar hotel: {}", hotel.getHotelName());
-
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
-
             setParameters(pstmt, hotel);
             int affectedRows = pstmt.executeUpdate();
-
             if (affectedRows == 0) {
-                logger.error("Error al insertar hotel, ninguna fila afectada");
                 throw new SQLException("Error al insertar hotel, ninguna fila afectada");
             }
-
             retrieveGeneratedId(pstmt, hotel);
-            logger.info("Hotel guardado exitosamente con ID: {}", hotel.getId());
-
         } catch (SQLException e) {
             logger.error("Error al guardar hotel en la base de datos", e);
             throw e;
@@ -57,6 +49,7 @@ public class HotelRepository {
         pstmt.setString(11, hotel.getCity());
     }
 
+    //TODO: Establecer key como id
     private void retrieveGeneratedId(PreparedStatement pstmt, Hotel hotel) throws SQLException {
         try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
             if (generatedKeys.next()) {

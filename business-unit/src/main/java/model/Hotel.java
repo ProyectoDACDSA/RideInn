@@ -69,10 +69,6 @@ public class Hotel {
     public String getCity() {return city;}
     public void setCity(String city) {this.city = city;}
 
-    public double getPricePerNight() {
-        long nights = startDate.until(endDate).getDays();
-        return nights > 0 ? totalPrice / nights : averagePricePerNight;
-    }
 
     @Override
     public String toString() {

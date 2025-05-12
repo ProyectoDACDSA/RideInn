@@ -23,12 +23,10 @@ public class ActiveMqConsumer {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private Connection connection;
 
-    // Configuración de ActiveMQ (podría moverse a properties)
     private static final String ACTIVEMQ_URL = "tcp://localhost:61616";
     private static final String BLABLACAR_TOPIC = "BlablacarTopic";
     private static final String XOTELO_TOPIC = "XoteloTopic";
 
-    // Instancia de Gson con adaptadores para tipos especiales
     private final Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDate.class, (JsonDeserializer<LocalDate>) (json, type, context) ->
                     LocalDate.parse(json.getAsJsonPrimitive().getAsString()))
@@ -36,9 +34,6 @@ public class ActiveMqConsumer {
                     LocalDateTime.parse(json.getAsJsonPrimitive().getAsString()))
             .create();
 
-    /**
-     * Inicia el consumidor de ActiveMQ en un hilo separado
-     */
     public void start() {
         executor.submit(() -> {
             try {
@@ -57,7 +52,6 @@ public class ActiveMqConsumer {
 
         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-        // Configuración de consumidores
         setupTopicConsumer(session, BLABLACAR_TOPIC, new TripMessageListener(this));
         setupTopicConsumer(session, XOTELO_TOPIC, new HotelMessageListener(this));
     }
@@ -69,9 +63,6 @@ public class ActiveMqConsumer {
         logger.info("Suscrito al topic: {}", topicName);
     }
 
-    /**
-     * Detiene el consumidor y libera recursos
-     */
     public void stop() {
         try {
             if (connection != null) {
@@ -84,9 +75,6 @@ public class ActiveMqConsumer {
         }
     }
 
-    /**
-     * Parsea un JSON a objeto Trip con validaciones
-     */
     private Trip parseTrip(String json) {
         JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
 
@@ -99,52 +87,19 @@ public class ActiveMqConsumer {
                 jsonObject.get("available").getAsInt());
     }
 
-    private void validateTripFields(Trip trip) {
-        if (trip.getDestination() == null || trip.getDestination().isEmpty()) {
-            throw new IllegalArgumentException("Trip destination cannot be empty");
-        }
-        if (trip.getDepartureTime() == null) {
-            throw new IllegalArgumentException("Departure time cannot be null");
-        }
-        if (trip.getPrice() <= 0) {
-            throw new IllegalArgumentException("Price must be positive");
-        }
-    }
 
-    /**
-     * Parsea un JSON a objeto Hotel con validaciones
-     */
     private Hotel parseHotel(String json) {
         if (json == null || json.trim().isEmpty()) {
             throw new IllegalArgumentException("JSON string cannot be null or empty");
         }
 
         try {
-            Hotel hotel = gson.fromJson(json, Hotel.class);
-
-            // Validaciones de campos obligatorios
-            validateHotelFields(hotel);
-            return hotel;
+            return gson.fromJson(json, Hotel.class);
         } catch (JsonSyntaxException | DateTimeParseException e) {
             throw new IllegalArgumentException("Formato JSON inválido para Hotel", e);
         }
     }
 
-    private void validateHotelFields(Hotel hotel) {
-        if (hotel.getCity() == null || hotel.getCity().isEmpty()) {
-            throw new IllegalArgumentException("Hotel city cannot be empty");
-        }
-        if (hotel.getStartDate() == null || hotel.getEndDate() == null) {
-            throw new IllegalArgumentException("Hotel dates cannot be null");
-        }
-        if (hotel.getStartDate().isAfter(hotel.getEndDate())) {
-            throw new IllegalArgumentException("Start date must be before end date");
-        }
-    }
-
-    /**
-     * MessageListener para mensajes de viajes (Blablacar)
-     */
     private static class TripMessageListener implements MessageListener {
         private final TripRepository tripRepository = new TripRepository();
         private final ActiveMqConsumer parent;
@@ -170,9 +125,6 @@ public class ActiveMqConsumer {
         }
     }
 
-    /**
-     * MessageListener para mensajes de hoteles (Xotelo)
-     */
     private static class HotelMessageListener implements MessageListener {
         private final HotelRepository hotelRepository = new HotelRepository();
         private final ActiveMqConsumer parent;

@@ -13,7 +13,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.stream.Stream;
 
@@ -48,22 +47,6 @@ public class EventStoreReader {
                             return LocalDate.parse(json.getAsString()).atStartOfDay();
                         }
                         throw e;
-                    }
-                })
-                .registerTypeAdapter(LocalTime.class, (JsonDeserializer<LocalTime>) (json, type, context) -> {
-                    try {
-                        String timeStr = json.getAsString();
-                        // Handle full datetime strings by extracting time part
-                        if (timeStr.contains("T")) {
-                            timeStr = timeStr.split("T")[1];
-                            // Remove timezone if present
-                            if (timeStr.contains("+")) {
-                                timeStr = timeStr.split("\\+")[0];
-                            }
-                        }
-                        return LocalTime.parse(timeStr);
-                    } catch (DateTimeParseException e) {
-                        throw new JsonParseException("Failed to parse LocalTime", e);
                     }
                 })
                 .create();
@@ -111,13 +94,19 @@ public class EventStoreReader {
 
     private void processTripLine(String line) {
         try {
-            Trip trip = gson.fromJson(line, Trip.class);
-            System.out.println("Se identifica");
-            System.out.println(trip.toString());
-            if (trip != null) {
-                tripRepository.save(trip);
-                logger.debug("Saved trip: {}", trip);
-            }
+            JsonObject obj = JsonParser.parseString(line).getAsJsonObject();
+            String departureTimeStr = obj.get("departureTime").getAsString();
+
+            Trip trip = new Trip(
+                    obj.get("origin").getAsString(),
+                    obj.get("destination").getAsString(),
+                    departureTimeStr.substring(11, 19),
+                    departureTimeStr.substring(0, 10),
+                    obj.get("price").getAsDouble(),
+                    obj.get("available").getAsInt()
+            );
+
+            tripRepository.save(trip);
         } catch (Exception e) {
             logger.error("Error processing trip line: {}", line, e);
         }
@@ -161,7 +150,6 @@ public class EventStoreReader {
             Hotel hotel = gson.fromJson(line, Hotel.class);
             if (hotel != null) {
                 hotelRepository.save(hotel);
-                logger.debug("Saved hotel: {}", hotel);
             }
         } catch (Exception e) {
             logger.error("Error processing hotel line: {}", line, e);
