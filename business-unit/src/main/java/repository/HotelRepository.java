@@ -38,6 +38,21 @@ public class HotelRepository {
         }
     }
 
+    public List<String> getAllCities() throws SQLException {
+        List<String> cities = new ArrayList<>();
+        String sql = "SELECT DISTINCT city FROM hotels";
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                cities.add(rs.getString("city"));
+            }
+        }
+        return cities;
+    }
+
     private void setParameters(PreparedStatement pstmt, Hotel hotel) throws SQLException {
         pstmt.setString(1, hotel.getHotelName());
         pstmt.setString(2, hotel.getKey());
@@ -71,23 +86,27 @@ public class HotelRepository {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    long id = rs.getLong("id");
-                    String hotelName = rs.getString("hotel_name");
-                    String key = rs.getString("key");
-                    String accommodationType = rs.getString("accommodation_type");
-                    String url = rs.getString("url");
-                    double rating = rs.getDouble("rating");
-                    double averagePricePerNight = rs.getDouble("average_price_per_night");
-                    LocalDate startDate = rs.getDate("start_date").toLocalDate();
-                    LocalDate endDate = rs.getDate("end_date").toLocalDate();
-                    double totalPrice = rs.getDouble("total_price");
-                    Hotel hotel = new Hotel(id, hotelName, key, accommodationType, url,
-                            rating, averagePricePerNight, startDate, endDate,
-                            totalPrice, city);
+                    Hotel hotel = new Hotel(
+                            rs.getLong("id"),
+                            rs.getString("hotel_name"),
+                            rs.getString("hotel_key"),
+                            rs.getString("accommodation_type"),
+                            rs.getString("url"),
+                            rs.getDouble("rating"),
+                            rs.getDouble("avg_price_per_night"),
+                            LocalDate.parse(rs.getString("start_date")),
+                            LocalDate.parse(rs.getString("end_date")),
+                            rs.getDouble("total_price"),
+                            city);
                     hotels.add(hotel);
                 }
             }
         }
         return hotels;
+    }
+
+    public List<Hotel> findByCityAndDateRange(String city, LocalDate startDate, LocalDate endDate) throws SQLException {
+        String sql = "SELECT * FROM hotels WHERE city = ? AND start_date BETWEEN ? AND ?";
+        return List.of();
     }
 }

@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,24 +48,31 @@ public class TripRepository {
         }
     }}
 
-    public List<Trip> findByDestination(String destination) throws SQLException {
+    public List<Trip> findByDestinationAndDateRange(String destination, LocalDate startDate, LocalDate endDate) throws SQLException {
+        String sql = "SELECT * FROM trips WHERE destination = ? AND departure_date BETWEEN ? AND ?";
+        return List.of();
+    }
+
+    public List<Trip> findByDestination(String city) throws SQLException {
         List<Trip> trips = new ArrayList<>();
+        String sql = "SELECT id, origin, destination, departure_date, departure_time, price, available " +
+                "FROM trips WHERE destination = ? ORDER BY departure_date, departure_time";
 
         try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(
-                     "SELECT * FROM trips WHERE destination = ? ORDER BY departure_date, departure_time")) {
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, destination);
+            pstmt.setString(1, city);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     Trip trip = new Trip(
                             rs.getString("origin"),
                             rs.getString("destination"),
-                            (rs.getString("departureTime")).substring(11,19),
-                            (rs.getString("departureTime")).substring(0,10),
+                            rs.getString("departure_time"),
+                            rs.getString("departure_date"),
                             rs.getDouble("price"),
                             rs.getInt("available"));
+                    trip.setId(rs.getLong("id"));
                     trips.add(trip);
                 }
             }

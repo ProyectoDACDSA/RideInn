@@ -74,9 +74,27 @@ public class DatabaseConfig {
                             "CONSTRAINT unique_book UNIQUE (hotel_key, start_date))");
 
             conn.createStatement().execute(
+                    "CREATE TABLE IF NOT EXISTS travel_packages (" +
+                            "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                            "city TEXT NOT NULL," +
+                            "trip_id INTEGER NOT NULL," +
+                            "hotel_id INTEGER NOT NULL," +
+                            "trip_date TEXT NOT NULL," +
+                            "hotel_check_in TEXT NOT NULL," +
+                            "hotel_check_out TEXT NOT NULL," +
+                            "total_price REAL NOT NULL," +
+                            "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                            "FOREIGN KEY(trip_id) REFERENCES trips(id)," +
+                            "FOREIGN KEY(hotel_id) REFERENCES hotels(id)," +
+                            "CONSTRAINT unique_package UNIQUE (trip_id, hotel_id, trip_date))");
+            conn.createStatement().execute(
                     "CREATE INDEX IF NOT EXISTS idx_trips_destination ON trips(destination)");
             conn.createStatement().execute(
                     "CREATE INDEX IF NOT EXISTS idx_hotels_city ON hotels(city)");
+            conn.createStatement().execute(
+                    "CREATE INDEX IF NOT EXISTS idx_packages_city ON travel_packages(city)");
+            conn.createStatement().execute(
+                    "CREATE INDEX IF NOT EXISTS idx_packages_dates ON travel_packages(trip_date, hotel_check_in)");
         } catch (SQLException e) {
             throw new RuntimeException("Error al inicializar la base de datos", e);
         }
