@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
+import java.time.LocalDateTime;
 
 public class TravelAnalysisCLI {
     private final AnalysisService analysisService;
@@ -39,9 +40,6 @@ public class TravelAnalysisCLI {
                         comparePriceTrends();
                         break;
                     case "4":
-                        showCityPackages();
-                        break;
-                    case "5":
                         System.out.println("Saliendo del sistema...");
                         return;
                     default:
@@ -56,19 +54,12 @@ public class TravelAnalysisCLI {
         }
     }
 
-    private void showCityPackages() throws SQLException {
-        System.out.print("\nIngrese ciudad para ver paquetes: ");
-        String city = scanner.nextLine();
-        new TravelPackageRepository().printPackagesForCity(city);
-    }
-
     private void printMenu() {
         System.out.println("\nMENU PRINCIPAL");
         System.out.println("1. Buscar recomendaciones actuales");
         System.out.println("2. Buscar recomendaciones históricas");
         System.out.println("3. Comparar evolución de precios");
-        System.out.println("4. Ver paquetes combinados por ciudad");
-        System.out.println("5. Salir");
+        System.out.println("4. Salir");
         System.out.print("Seleccione una opción: ");
     }
 
@@ -76,11 +67,21 @@ public class TravelAnalysisCLI {
         System.out.print("\nIngrese ciudad destino: ");
         String city = scanner.nextLine();
 
-        List<Recommendation> recommendations = analysisService.getTravelPackages(city);
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Recommendation> recommendations = analysisService.getTravelPackages(city)
+                .stream()
+                .filter(recommendation -> {
+                    LocalDateTime departure = recommendation.getTrip().getDepartureDateTime();
+                    return departure.isAfter(now) ||
+                            (departure.toLocalDate().equals(now.toLocalDate()) &&
+                                    departure.toLocalTime().isAfter(now.toLocalTime()));
+                })
+                .toList();
 
         System.out.println("\nRECOMENDACIONES ACTUALES PARA " + city.toUpperCase());
         if (recommendations.isEmpty()) {
-            System.out.println("No se encontraron recomendaciones");
+            System.out.println("No se encontraron recomendaciones disponibles");
         } else {
             recommendations.forEach(System.out::println);
         }
@@ -125,5 +126,4 @@ public class TravelAnalysisCLI {
             System.out.printf("%s: %.2f €%n", month, avgPrice);
         });
     }
-
 }
