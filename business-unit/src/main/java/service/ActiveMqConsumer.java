@@ -22,8 +22,8 @@ public class ActiveMqConsumer {
     private Connection connection;
 
     private static final String ACTIVEMQ_URL = "tcp://localhost:61616";
-    private static final String BLABLACAR_TOPIC = "BlablacarTopic";
-    private static final String XOTELO_TOPIC = "XoteloTopic";
+    private static final String BLABLACAR_TOPIC = "Blablacar";
+    private static final String XOTELO_TOPIC = "Xotelo";
 
     private final Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDate.class, (JsonDeserializer<LocalDate>) (json, type, context) ->
@@ -113,7 +113,6 @@ public class ActiveMqConsumer {
                     String json = textMessage.getText();
                     Trip trip = parent.parseTrip(json);
                     tripRepository.save(trip);
-                    logger.info("Nuevo viaje procesado - Origen: {}, Destino: {}, Horario: {}", trip.getOrigin(), trip.getDestination(), trip.getDepartureTime());
                 } else {
                     logger.warn("Tipo de mensaje no soportado: {}", message.getClass().getSimpleName());
                 }
@@ -138,7 +137,6 @@ public class ActiveMqConsumer {
                     String json = textMessage.getText();
                     Hotel hotel = parent.parseHotel(json);
                     hotelRepository.save(hotel);
-                    logger.info("Nuevo hotel procesado - ID: {}, Ciudad: {}", hotel.getId(), hotel.getCity());
                 } else {
                     logger.warn("Tipo de mensaje no soportado: {}", message.getClass().getSimpleName());
                 }

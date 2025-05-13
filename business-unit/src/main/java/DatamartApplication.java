@@ -9,7 +9,6 @@ import service.EventStoreReader;
 
 public class DatamartApplication {
     private static final Logger logger = LoggerFactory.getLogger(DatamartApplication.class);
-    private static final int JAVALIN_PORT = 7070;
 
     public static void main(String[] args) {
         try {
@@ -26,15 +25,6 @@ public class DatamartApplication {
             logger.info("Iniciando consumidor de ActiveMQ...");
             ActiveMqConsumer mqConsumer = new ActiveMqConsumer();
             mqConsumer.start();
-
-            logger.info("Iniciando API REST...");
-            Javalin app = Javalin.create(config -> {
-                config.plugins.enableDevLogging();
-            });
-            new ApiController(app, new AnalysisService());
-            app.start(JAVALIN_PORT);
-
-            logger.info("Sistema completamente operativo");
 
             Thread.currentThread().join();
 

@@ -5,7 +5,6 @@ import java.time.LocalDate;
 
 public class Hotel {
     private Long id;
-    private long timestamp;
     @SerializedName(value = "hotelName", alternate = "hotel")
     private String hotelName;
     private String key;
@@ -18,9 +17,8 @@ public class Hotel {
     private double totalPrice;
     private String city;
 
-    public Hotel(long id, long timestamp, String hotelName, String key, String accommodationType, String url, Double rating, double averagePricePerNight, LocalDate startDate, LocalDate endDate, double totalPrice, String city) {
+    public Hotel(long id,String hotelName, String key, String accommodationType, String url, Double rating, double averagePricePerNight, LocalDate startDate, LocalDate endDate, double totalPrice, String city) {
         this.id = id;
-        this.timestamp = timestamp;
         this.hotelName = hotelName;
         this.key = key;
         this.accommodationType = accommodationType;
@@ -35,9 +33,6 @@ public class Hotel {
 
     public long getId() {return id;}
     public void setId(Long id) {this.id = id;}
-
-    public long getTimestamp() {return timestamp;}
-    public void setTimestamp(long timestamp) {this.timestamp = timestamp;}
 
     public String getHotelName() {return hotelName;}
     public void setHotelName(String hotelName) {this.hotelName = hotelName;}

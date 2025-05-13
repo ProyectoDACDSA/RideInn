@@ -2,12 +2,15 @@ package repository;
 
 import config.DatabaseConfig;
 import model.Trip;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TripRepository {
+    private static final Logger logger = LoggerFactory.getLogger(TripRepository.class);
     private static final String INSERT_SQL =
             "INSERT INTO trips(origin, destination, departure_date, departure_time, price, available) " +
                     "VALUES(?, ?, ?, ?, ?, ?)";
@@ -36,8 +39,13 @@ public class TripRepository {
                 }
             }
 
+        } catch (SQLException e) {
+        if (e.getMessage().contains("UNIQUE constraint failed: trips.origin, trips.destination, trips.departure_date, trips.departure_time")) {
+            logger.info("Viaje ya insertado - Origen: {}, Destino: {}, Hora {}", trip.getOrigin(), trip.getDestination(), trip.getDepartureTime());
+        } else {
+            logger.error("Error al guardar hotel en la base de datos", e);
         }
-    }
+    }}
 
     public List<Trip> findByDestination(String destination) throws SQLException {
         List<Trip> trips = new ArrayList<>();

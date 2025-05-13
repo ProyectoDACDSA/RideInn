@@ -60,7 +60,6 @@ public class DatabaseConfig {
             conn.createStatement().execute(
                     "CREATE TABLE IF NOT EXISTS hotels (" +
                             "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                            "timestamp BIGINT NOT NULL," +
                             "hotel_name TEXT NOT NULL," +
                             "hotel_key TEXT NOT NULL," +
                             "accommodation_type TEXT NOT NULL," +
