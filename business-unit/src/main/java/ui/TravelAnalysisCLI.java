@@ -68,9 +68,20 @@ public class TravelAnalysisCLI {
         System.out.println("══════════════════════════════════════════");
 
         System.out.print("\nIngrese ciudad destino: ");
-        String city = scanner.nextLine();
+        String destinationCity = scanner.nextLine();
 
-        // Preguntar por fecha de salida (usamos variables finales)
+        // Nueva pregunta: Ciudad de origen
+        final String originCity;
+        System.out.print("¿Desea insertar ciudad de origen? (si/no): ");
+        String respuestaOrigen = scanner.nextLine().trim().toLowerCase();
+        if (respuestaOrigen.equals("si")) {
+            System.out.print("Ingrese ciudad de origen: ");
+            originCity = scanner.nextLine();
+        } else {
+            originCity = null;
+        }
+
+        // Preguntar por fecha de salida
         final LocalDate finalDepartureDateFilter;
         System.out.print("¿Desea insertar fecha de salida? (si/no): ");
         String respuestaFecha = scanner.nextLine().trim().toLowerCase();
@@ -82,7 +93,6 @@ public class TravelAnalysisCLI {
             finalDepartureDateFilter = null;
         }
 
-        // Preguntar por intervalo de precios (usamos variables finales)
         final Double finalMinPrice;
         final Double finalMaxPrice;
         System.out.print("¿Desea establecer intervalo de precio? (si/no): ");
@@ -99,33 +109,36 @@ public class TravelAnalysisCLI {
 
         final LocalDateTime now = LocalDateTime.now();
 
-        List<Recommendation> recommendations = analysisService.getTravelPackages(city)
+        List<Recommendation> recommendations = analysisService.getTravelPackages(destinationCity)
                 .stream()
                 .filter(recommendation -> {
-                    // Filtro por fecha actual/futura
+                    boolean originValid = (originCity == null) ||
+                            recommendation.getTrip().getOrigin().equalsIgnoreCase(originCity);
+
                     LocalDateTime departure = recommendation.getTrip().getDepartureDateTime();
-                    boolean fechaValida = departure.isAfter(now) ||
+                    boolean dateValid = departure.isAfter(now) ||
                             (departure.toLocalDate().equals(now.toLocalDate()) &&
                                     departure.toLocalTime().isAfter(now.toLocalTime()));
 
-                    // Filtro por fecha específica si se especificó
                     if (finalDepartureDateFilter != null) {
-                        fechaValida = fechaValida && departure.toLocalDate().equals(finalDepartureDateFilter);
+                        dateValid = dateValid && departure.toLocalDate().equals(finalDepartureDateFilter);
                     }
 
-                    // Filtro por precio si se especificó
                     if (finalMinPrice != null && finalMaxPrice != null) {
-                        fechaValida = fechaValida &&
+                        dateValid = dateValid &&
                                 recommendation.getTotalPrice() >= finalMinPrice &&
                                 recommendation.getTotalPrice() <= finalMaxPrice;
                     }
 
-                    return fechaValida;
+                    return originValid && dateValid;
                 })
                 .toList();
 
         System.out.println("\n══════════════════════════════════════════");
-        System.out.println("   RECOMENDACIONES ACTUALES PARA " + city.toUpperCase());
+        System.out.println("   RECOMENDACIONES ACTUALES PARA " + destinationCity.toUpperCase());
+        if (originCity != null) {
+            System.out.println("   Origen: " + originCity.toUpperCase());
+        }
         if (finalDepartureDateFilter != null) {
             System.out.println("   Fecha de salida: " + finalDepartureDateFilter.format(dateFormatter));
         }
@@ -136,8 +149,8 @@ public class TravelAnalysisCLI {
         System.out.println("══════════════════════════════════════════");
 
         if (recommendations.isEmpty()) {
-            System.out.println("\nNo se encontraron recomendaciones disponibles para " + city);
-            if (finalDepartureDateFilter != null || finalMinPrice != null) {
+            System.out.println("\nNo se encontraron recomendaciones disponibles para " + destinationCity);
+            if (originCity != null || finalDepartureDateFilter != null || finalMinPrice != null) {
                 System.out.println("   con los filtros especificados");
             } else {
                 System.out.println("   (No hay viajes futuros a esta ciudad)");
