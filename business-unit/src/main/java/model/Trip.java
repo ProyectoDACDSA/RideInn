@@ -27,7 +27,6 @@ public class Trip {
         this.available = available;
     }
 
-    // Constructor alternativo para casos donde ya tienes los objetos temporales
     public Trip(String origin, String destination,
                 LocalTime departureTime, LocalDate departureDate,
                 double price, int available) {

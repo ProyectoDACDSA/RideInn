@@ -105,6 +105,7 @@ public class TravelAnalysisCLI {
                 System.out.println("Hotel: " + recommendation.getHotel().getHotelName() +
                         " (" + "Valoración: " + recommendation.getHotel().getRating() + "/5)");
                 System.out.println("Precio total: " + String.format("%.2f", recommendation.getTotalPrice()) + "€");
+                System.out.println("Para reservar el hotel consulte en: " + recommendation.getHotel().getUrl());
                 System.out.println("--------------------------------------------------");
             });
 
