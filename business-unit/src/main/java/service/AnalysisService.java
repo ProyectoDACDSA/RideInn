@@ -26,20 +26,15 @@ public class AnalysisService {
     }
 
     public void generateTravelPackages() throws SQLException {
-        // Obtener todas las ciudades únicas con hoteles
         List<String> cities = hotelRepo.getAllCities();
 
         for (String city : cities) {
-            // Buscar viajes cuyo destino sea la ciudad del hotel
             List<Trip> trips = tripRepo.findByDestination(city);
 
-            // Buscar hoteles en esa ciudad
             List<Hotel> hotels = hotelRepo.findByCity(city);
 
-            // Generar combinaciones válidas
             for (Trip trip : trips) {
                 for (Hotel hotel : hotels) {
-                    // Comprobar si el viaje coincide con fechas de hotel
                     if (isValidCombination(trip, hotel)) {
                         double totalPrice = trip.getPrice() + hotel.getTotalPrice();
 
@@ -59,10 +54,8 @@ public class AnalysisService {
     }
 
     private boolean isValidCombination(Trip trip, Hotel hotel) {
-        // Combinación 1: Viaje coincide con check-in del hotel
         boolean combo1 = trip.getDepartureDate().equals(hotel.getStartDate());
 
-        // Combinación 2: Viaje coincide con check-out del hotel (para vuelta)
         boolean combo2 = trip.getDepartureDate().equals(hotel.getEndDate());
 
         return combo1 || combo2;

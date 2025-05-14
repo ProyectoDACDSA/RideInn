@@ -64,6 +64,10 @@ public class TravelAnalysisCLI {
     }
 
     private void searchCurrentRecommendations() throws SQLException {
+        System.out.println("\n══════════════════════════════════════════");
+        System.out.println("      BUSCAR RECOMENDACIONES ACTUALES      ");
+        System.out.println("══════════════════════════════════════════");
+
         System.out.print("\nIngrese ciudad destino: ");
         String city = scanner.nextLine();
 
@@ -79,12 +83,35 @@ public class TravelAnalysisCLI {
                 })
                 .toList();
 
-        System.out.println("\nRECOMENDACIONES ACTUALES PARA " + city.toUpperCase());
+        System.out.println("\n══════════════════════════════════════════");
+        System.out.println("   RECOMENDACIONES ACTUALES PARA " + city.toUpperCase());
+        System.out.println("   Fecha actual: " + now.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+        System.out.println("══════════════════════════════════════════");
+
         if (recommendations.isEmpty()) {
-            System.out.println("No se encontraron recomendaciones disponibles");
+            System.out.println("\nNo se encontraron recomendaciones disponibles para " + city);
+            System.out.println("   (No hay viajes futuros a esta ciudad)");
         } else {
-            recommendations.forEach(System.out::println);
+            System.out.println("\nSe encontraron " + recommendations.size() + " recomendaciones:");
+            System.out.println("--------------------------------------------------");
+
+            recommendations.forEach(recommendation -> {
+                System.out.println("Viaje ID: " + recommendation.getTrip().getId());
+                System.out.println("Origen: " + recommendation.getTrip().getOrigin());
+                System.out.println("Fecha salida: " + recommendation.getTrip().getDepartureDateTime()
+                        .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+                System.out.println("CheckIn: " + recommendation.getTrip().getDepartureDate());
+                System.out.println("CheckOut: " + recommendation.getTrip().getDepartureDate().plusDays(3));
+                System.out.println("Hotel: " + recommendation.getHotel().getHotelName() +
+                        " (" + "Valoración: " + recommendation.getHotel().getRating() + "/5)");
+                System.out.println("Precio total: " + String.format("%.2f", recommendation.getTotalPrice()) + "€");
+                System.out.println("--------------------------------------------------");
+            });
+
+            System.out.println("\nMostrando " + recommendations.size() + " resultados");
         }
+
+        System.out.println("\n══════════════════════════════════════════");
     }
 
     private void searchHistoricalRecommendations() throws SQLException {
