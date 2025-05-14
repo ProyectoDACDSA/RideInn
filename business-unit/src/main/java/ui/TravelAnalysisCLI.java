@@ -8,6 +8,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.ArrayList;
 
 public class TravelAnalysisCLI {
     private final RecommendationAnalysisService analysisService;
@@ -33,32 +38,31 @@ public class TravelAnalysisCLI {
                         searchCurrentRecommendations();
                         break;
                     case "2":
-                        searchHistoricalRecommendations();
+                        findBestValueTrips();
                         break;
                     case "3":
-                        comparePriceTrends();
-                        break;
-                    case "4":
                         System.out.println("Saliendo del sistema...");
                         return;
                     default:
                         System.out.println("Opción no válida");
+                        continue;
                 }
             } catch (SQLException e) {
                 System.err.println("Error al acceder a la base de datos: " + e.getMessage());
+            } catch (NumberFormatException e) {
+                System.err.println("Error en formato numérico: " + e.getMessage());
             }
 
-            System.out.println("\nPresione Enter para continuar...");
+            System.out.print("\nPresione Enter para continuar...");
             scanner.nextLine();
         }
     }
 
     private void printMenu() {
         System.out.println("\nMENU PRINCIPAL");
-        System.out.println("1. Buscar recomendaciones actuales");
-        System.out.println("2. Buscar recomendaciones históricas");
-        System.out.println("3. Comparar evolución de precios");
-        System.out.println("4. Salir");
+        System.out.println("1. Buscar recomendaciones actuales (con filtros)");
+        System.out.println("2. Encontrar viajes con mejor relación calidad-precio");
+        System.out.println("3. Salir");
         System.out.print("Seleccione una opción: ");
     }
 
@@ -68,35 +72,20 @@ public class TravelAnalysisCLI {
         System.out.println("══════════════════════════════════════════");
 
         System.out.print("\nIngrese ciudad destino: ");
-        String destinationCity = scanner.nextLine();
+        final String destinationCity = scanner.nextLine();
 
-        // Nueva pregunta: Ciudad de origen
-        final String originCity;
         System.out.print("¿Desea insertar ciudad de origen? (si/no): ");
-        String respuestaOrigen = scanner.nextLine().trim().toLowerCase();
-        if (respuestaOrigen.equals("si")) {
-            System.out.print("Ingrese ciudad de origen: ");
-            originCity = scanner.nextLine();
-        } else {
-            originCity = null;
-        }
+        final String respuestaOrigen = scanner.nextLine().trim().toLowerCase();
+        final String originCity = respuestaOrigen.equals("si") ? scanner.nextLine() : null;
 
-        // Preguntar por fecha de salida
-        final LocalDate finalDepartureDateFilter;
         System.out.print("¿Desea insertar fecha de salida? (si/no): ");
-        String respuestaFecha = scanner.nextLine().trim().toLowerCase();
-        if (respuestaFecha.equals("si")) {
-            System.out.print("Ingrese fecha de salida (dd/MM/yyyy): ");
-            String fechaStr = scanner.nextLine();
-            finalDepartureDateFilter = LocalDate.parse(fechaStr, dateFormatter);
-        } else {
-            finalDepartureDateFilter = null;
-        }
+        final String respuestaFecha = scanner.nextLine().trim().toLowerCase();
+        final LocalDate finalDepartureDateFilter = respuestaFecha.equals("si") ?
+                LocalDate.parse(scanner.nextLine(), dateFormatter) : null;
 
-        final Double finalMinPrice;
-        final Double finalMaxPrice;
         System.out.print("¿Desea establecer intervalo de precio? (si/no): ");
-        String respuestaPrecio = scanner.nextLine().trim().toLowerCase();
+        final String respuestaPrecio = scanner.nextLine().trim().toLowerCase();
+        final Double finalMinPrice, finalMaxPrice;
         if (respuestaPrecio.equals("si")) {
             System.out.print("Ingrese precio mínimo: ");
             finalMinPrice = Double.parseDouble(scanner.nextLine());
@@ -112,7 +101,7 @@ public class TravelAnalysisCLI {
         List<Recommendation> recommendations = analysisService.getTravelPackages(destinationCity)
                 .stream()
                 .filter(recommendation -> {
-                    boolean originValid = (originCity == null) ||
+                    boolean originValid = originCity == null ||
                             recommendation.getTrip().getOrigin().equalsIgnoreCase(originCity);
 
                     LocalDateTime departure = recommendation.getTrip().getDepartureDateTime();
@@ -132,7 +121,7 @@ public class TravelAnalysisCLI {
 
                     return originValid && dateValid;
                 })
-                .toList();
+                .collect(Collectors.toList());
 
         System.out.println("\n══════════════════════════════════════════");
         System.out.println("   RECOMENDACIONES ACTUALES PARA " + destinationCity.toUpperCase());
@@ -164,58 +153,104 @@ public class TravelAnalysisCLI {
                 System.out.println("Origen: " + recommendation.getTrip().getOrigin());
                 System.out.println("Fecha salida: " + recommendation.getTrip().getDepartureDateTime()
                         .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
-                System.out.println("CheckIn: " + recommendation.getTrip().getDepartureDate());
-                System.out.println("CheckOut: " + recommendation.getTrip().getDepartureDate().plusDays(3));
                 System.out.println("Hotel: " + recommendation.getHotel().getHotelName() +
                         " (" + "Valoración: " + recommendation.getHotel().getRating() + "/5)");
                 System.out.println("Precio total: " + String.format("%.2f", recommendation.getTotalPrice()) + "€");
-                System.out.println("Para reservar el hotel consulte en: " + recommendation.getHotel().getUrl());
                 System.out.println("--------------------------------------------------");
             });
-
-            System.out.println("\nMostrando " + recommendations.size() + " resultados");
         }
+    }
+
+    private void findBestValueTrips() throws SQLException {
+        System.out.println("\n══════════════════════════════════════════");
+        System.out.println("  VIAJES CON MEJOR RELACIÓN CALIDAD-PRECIO ");
+        System.out.println("══════════════════════════════════════════");
+
+        System.out.print("\nIngrese ciudad destino: ");
+        final String city = scanner.nextLine();
+
+        System.out.print("¿Incluir solo hoteles con rating mínimo? (si/no): ");
+        final boolean filterByRating = scanner.nextLine().trim().equalsIgnoreCase("si");
+
+        final Double minRating;
+        if (filterByRating) {
+            System.out.print("Ingrese rating mínimo (1-5): ");
+            minRating = Double.parseDouble(scanner.nextLine());
+        } else {
+            minRating = null;
+        }
+
+        System.out.print("Número máximo de resultados a mostrar: ");
+        final int maxResults = Integer.parseInt(scanner.nextLine());
+
+        List<Recommendation> recommendations = analysisService.getTravelPackages(city)
+                .stream()
+                .filter(r -> !filterByRating ||
+                        (r.getHotel().getRating() != null && r.getHotel().getRating() >= minRating))
+                .sorted(Comparator.comparingDouble(r -> {
+                    return r.getHotel().getRating() != null ?
+                            (r.getTotalPrice() / r.getHotel().getRating()) :
+                            Double.MAX_VALUE;
+                }))
+                .collect(Collectors.toList());
+
+        Map<String, Recommendation> uniqueRecommendations = new LinkedHashMap<>();
+        for (Recommendation rec : recommendations) {
+            String key = rec.getHotel().getHotelName() + "-" + rec.getTotalPrice();
+            uniqueRecommendations.putIfAbsent(key, rec);
+        }
+
+        List<Recommendation> uniqueResults = new ArrayList<>(uniqueRecommendations.values())
+                .stream()
+                .limit(maxResults)
+                .collect(Collectors.toList());
 
         System.out.println("\n══════════════════════════════════════════");
-    }
+        System.out.println("   MEJORES OFERTAS EN " + city.toUpperCase() +
+                (filterByRating ? " (Rating ≥ " + minRating + ")" : ""));
+        System.out.println("══════════════════════════════════════════");
 
-    private void searchHistoricalRecommendations() throws SQLException {
-        System.out.print("\nIngrese ciudad destino: ");
-        String city = scanner.nextLine();
-
-        System.out.print("Fecha inicio (dd/MM/yyyy): ");
-        LocalDate startDate = LocalDate.parse(scanner.nextLine(), dateFormatter);
-
-        System.out.print("Fecha fin (dd/MM/yyyy): ");
-        LocalDate endDate = LocalDate.parse(scanner.nextLine(), dateFormatter);
-
-        List<Recommendation> recommendations = analysisService.getHistoricalTrends(city, startDate, endDate);
-
-        System.out.printf("\nRECOMENDACIONES HISTÓRICAS PARA %s (%s a %s)%n",
-                city.toUpperCase(), startDate.format(dateFormatter), endDate.format(dateFormatter));
-
-        if (recommendations.isEmpty()) {
-            System.out.println("No se encontraron recomendaciones en este período");
+        if (uniqueResults.isEmpty()) {
+            System.out.println("\nNo se encontraron recomendaciones" +
+                    (filterByRating ? " con rating ≥ " + minRating : "") +
+                    " en " + city);
         } else {
-            recommendations.forEach(System.out::println);
+            System.out.printf("\n%7s | %-12s | %-15s | %-15s | %-35s | %8s | %10s\n",
+                    "Ratio", "Valoración", "Origen", "Destino", "Hotel", "Rating", "Precio");
+            System.out.println("--------------------------------------------------------------------------------------------------------------------------");
+
+            uniqueResults.forEach(rec -> {
+                double ratio = rec.getHotel().getRating() != null ?
+                        rec.getTotalPrice() / rec.getHotel().getRating() : 0;
+
+                String valoracion;
+                if (ratio < 100) {
+                    valoracion = "★ Alta";
+                } else if (ratio < 150) {
+                    valoracion = "▲ Media";
+                } else {
+                    valoracion = "▼ Baja";
+                }
+
+                String nombreHotel = rec.getHotel().getHotelName();
+                if (nombreHotel.length() > 30) {
+                    nombreHotel = nombreHotel.substring(0, 27) + "...";
+                }
+
+                System.out.printf("%7.2f | %-12s | %-15s | %-15s | %-35s | %6.1f/5 | %10.2f€\n",
+                        ratio,
+                        valoracion,
+                        rec.getTrip().getOrigin(),
+                        rec.getTrip().getDestination(),
+                        nombreHotel,
+                        rec.getHotel().getRating(),
+                        rec.getTotalPrice());
+            });
+
+            System.out.println("\nLeyenda (ajustada para Francia):");
+            System.out.println("★ Alta  - Ratio < 100 (Excelente relación calidad-precio)");
+            System.out.println("▲ Media - Ratio 100-150 (Buena relación calidad-precio)");
+            System.out.println("▼ Baja  - Ratio > 150 (Relación calidad-precio no óptima)");
         }
-    }
-
-    private void comparePriceTrends() throws SQLException {
-        System.out.print("\nIngrese ciudad destino: ");
-        String city = scanner.nextLine();
-
-        System.out.print("Número de meses a analizar: ");
-        int months = Integer.parseInt(scanner.nextLine());
-
-        LocalDate endDate = LocalDate.now();
-        LocalDate startDate = endDate.minusMonths(months);
-
-        System.out.printf("\nEVOLUCIÓN DE PRECIOS EN %s (%s a %s)%n",
-                city.toUpperCase(), startDate.format(dateFormatter), endDate.format(dateFormatter));
-
-        analysisService.getPriceEvolution(city, months).forEach((month, avgPrice) -> {
-            System.out.printf("%s: %.2f €%n", month, avgPrice);
-        });
     }
 }

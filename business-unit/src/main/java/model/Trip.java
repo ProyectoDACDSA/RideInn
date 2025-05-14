@@ -11,15 +11,15 @@ public class Trip {
     private String destination;
     private final LocalDate departureDate;
     private final LocalTime departureTime;
-    private final LocalDateTime departureDateTime; // Ahora es final
+    private final LocalDateTime departureDateTime;
     private double price;
     private int available;
 
     public Trip(String origin, String destination,
                 String departureTime, String departureDate,
                 double price, int available) {
-        this.origin = Objects.requireNonNull(origin, "Origin cannot be null");
-        this.destination = Objects.requireNonNull(destination, "Destination cannot be null");
+        this.origin = Objects.requireNonNull(origin);
+        this.destination = Objects.requireNonNull(destination);
         this.departureTime = LocalTime.parse(Objects.requireNonNull(departureTime));
         this.departureDate = LocalDate.parse(Objects.requireNonNull(departureDate));
         this.departureDateTime = LocalDateTime.of(this.departureDate, this.departureTime);
@@ -27,27 +27,18 @@ public class Trip {
         this.available = available;
     }
 
-    public long getId() {
-        return id;
-    }
+    public long getId() { return id; }
+    public String getOrigin() { return origin; }
+    public String getDestination() { return destination; }
+    public double getPrice() { return price; }
+    public LocalDate getDepartureDate() { return departureDate; }
+    public LocalTime getDepartureTime() { return departureTime; }
+    public LocalDateTime getDepartureDateTime() { return departureDateTime; }
+    public int getAvailable() { return available; }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
-
-    public String getOrigin() { return origin; }
-
-    public String getDestination() { return destination; }
-
-    public double getPrice() { return price; }
-
-    public LocalDate getDepartureDate() { return departureDate; }
-
-    public LocalTime getDepartureTime() { return departureTime; }
-
-    public LocalDateTime getDepartureDateTime() { return departureDateTime; }
-
-    public int getAvailable() { return available; }
 
     @Override
     public String toString() {

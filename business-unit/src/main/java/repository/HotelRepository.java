@@ -28,12 +28,19 @@ public class HotelRepository {
             if (affectedRows == 0) {
                 throw new SQLException("Error al insertar hotel, ninguna fila afectada");
             }
-            retrieveGeneratedId(pstmt, hotel);
+            try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    hotel.setId(generatedKeys.getLong(1));
+                } else {
+                    logger.warn("No se obtuvieron claves generadas para el hotel insertado");
+                }
+            }
         } catch (SQLException e) {
             if (e.getMessage().contains("UNIQUE constraint failed: hotels.hotel_key, hotels.start_date")) {
                 logger.info("Hotel ya insertado - Clave: {}, Fecha inicio: {}", hotel.getKey(), hotel.getStartDate());
             } else {
                 logger.error("Error al guardar hotel en la base de datos", e);
+                throw e;
             }
         }
     }
@@ -58,22 +65,16 @@ public class HotelRepository {
         pstmt.setString(2, hotel.getKey());
         pstmt.setString(3, hotel.getAccommodationType());
         pstmt.setString(4, hotel.getUrl());
-        pstmt.setObject(5, hotel.getRating(), Types.DOUBLE);
+        if (hotel.getRating() != null) {
+            pstmt.setDouble(5, hotel.getRating());
+        } else {
+            pstmt.setNull(5, Types.DOUBLE);
+        }
         pstmt.setDouble(6, hotel.getAveragePricePerNight());
         pstmt.setString(7, hotel.getStartDate().toString());
         pstmt.setString(8, hotel.getEndDate().toString());
         pstmt.setDouble(9, hotel.getTotalPrice());
         pstmt.setString(10, hotel.getCity());
-    }
-
-    private void retrieveGeneratedId(PreparedStatement pstmt, Hotel hotel) throws SQLException {
-        try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
-            if (generatedKeys.next()) {
-                hotel.setId(generatedKeys.getLong(1));
-            } else {
-                logger.warn("No se obtuvieron claves generadas para el hotel insertado");
-            }
-        }
     }
 
     public List<Hotel> findByCity(String city) throws SQLException {
@@ -92,7 +93,7 @@ public class HotelRepository {
                             rs.getString("hotel_key"),
                             rs.getString("accommodation_type"),
                             rs.getString("url"),
-                            rs.getDouble("rating"),
+                            rs.getObject("rating", Double.class), // Manejo seguro de nulos
                             rs.getDouble("avg_price_per_night"),
                             LocalDate.parse(rs.getString("start_date")),
                             LocalDate.parse(rs.getString("end_date")),
@@ -106,7 +107,34 @@ public class HotelRepository {
     }
 
     public List<Hotel> findByCityAndDateRange(String city, LocalDate startDate, LocalDate endDate) throws SQLException {
-        String sql = "SELECT * FROM hotels WHERE city = ? AND start_date BETWEEN ? AND ?";
-        return List.of();
+        String sql = "SELECT * FROM hotels WHERE city = ? AND start_date BETWEEN ? AND ? ORDER BY start_date";
+        List<Hotel> hotels = new ArrayList<>();
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, city);
+            pstmt.setString(2, startDate.toString());
+            pstmt.setString(3, endDate.toString());
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Hotel hotel = new Hotel(
+                            rs.getLong("id"),
+                            rs.getString("hotel_name"),
+                            rs.getString("hotel_key"),
+                            rs.getString("accommodation_type"),
+                            rs.getString("url"),
+                            rs.getObject("rating", Double.class),
+                            rs.getDouble("avg_price_per_night"),
+                            LocalDate.parse(rs.getString("start_date")),
+                            LocalDate.parse(rs.getString("end_date")),
+                            rs.getDouble("total_price"),
+                            city);
+                    hotels.add(hotel);
+                }
+            }
+        }
+        return hotels;
     }
 }

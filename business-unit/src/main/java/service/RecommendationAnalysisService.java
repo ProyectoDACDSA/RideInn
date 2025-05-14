@@ -2,6 +2,7 @@ package service;
 
 import model.Hotel;
 import model.Trip;
+import model.Recommendation;
 import repository.HotelRepository;
 import repository.TripRepository;
 import java.sql.SQLException;
@@ -10,8 +11,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import model.Recommendation;
 
 public class RecommendationAnalysisService {
     private final TripRepository tripRepo;
@@ -28,17 +27,17 @@ public class RecommendationAnalysisService {
         return combineData(trips, hotels);
     }
 
+    public List<Hotel> getHotelsByCity(String city) throws SQLException {
+        return hotelRepo.findByCity(city);
+    }
+
     private List<Recommendation> combineData(List<Trip> trips, List<Hotel> hotels) {
         List<Recommendation> recommendations = new ArrayList<>();
 
         for (Trip trip : trips) {
             for (Hotel hotel : hotels) {
                 double totalPrice = trip.getPrice() + hotel.getTotalPrice();
-                recommendations.add(new Recommendation(
-                        trip,
-                        hotel,
-                        totalPrice
-                ));
+                recommendations.add(new Recommendation(trip, hotel, totalPrice));
             }
         }
         return recommendations;
