@@ -61,18 +61,6 @@ public class ActiveMqConsumer {
         logger.info("Suscrito al topic: {}", topicName);
     }
 
-    public void stop() {
-        try {
-            if (connection != null) {
-                connection.close();
-            }
-            executor.shutdown();
-            logger.info("Consumidor de ActiveMQ detenido correctamente");
-        } catch (JMSException e) {
-            logger.error("Error al detener el consumidor", e);
-        }
-    }
-
     private Trip parseTrip(String json) {
         JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
 
