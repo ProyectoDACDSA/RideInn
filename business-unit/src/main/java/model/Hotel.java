@@ -32,38 +32,28 @@ public class Hotel {
     }
 
     public long getId() {return id;}
+
     public void setId(Long id) {this.id = id;}
 
     public String getHotelName() {return hotelName;}
-    public void setHotelName(String hotelName) {this.hotelName = hotelName;}
 
     public String getKey() {return key;}
-    public void setKey(String key) {this.key = key;}
 
     public String getUrl() {return url;}
-    public void setUrl(String url) {this.url = url;}
 
     public String getAccommodationType() {return accommodationType;}
-    public void setAccommodationType(String accommodationType) {this.accommodationType = accommodationType;}
 
     public Double getRating() {return rating;}
-    public void setRating(Double rating) {this.rating = rating;}
 
     public double getAveragePricePerNight() {return averagePricePerNight;}
-    public void setAveragePricePerNight(double averagePricePerNight) {this.averagePricePerNight = averagePricePerNight;}
 
     public LocalDate getStartDate() {return startDate;}
-    public void setStartDate(LocalDate startDate) {this.startDate = startDate;}
 
     public LocalDate getEndDate() {return endDate;}
-    public void setEndDate(LocalDate endDate) {this.endDate = endDate;}
 
     public double getTotalPrice() {return totalPrice;}
-    public void setTotalPrice(double totalPrice) {this.totalPrice = totalPrice;}
 
     public String getCity() {return city;}
-    public void setCity(String city) {this.city = city;}
-
 
     @Override
     public String toString() {

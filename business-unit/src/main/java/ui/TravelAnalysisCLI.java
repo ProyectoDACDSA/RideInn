@@ -1,7 +1,6 @@
 package ui;
 
 import model.Recommendation;
-import repository.TravelPackageRepository;
 import service.AnalysisService;
 import java.sql.SQLException;
 import java.time.LocalDate;

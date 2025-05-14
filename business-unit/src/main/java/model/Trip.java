@@ -27,18 +27,6 @@ public class Trip {
         this.available = available;
     }
 
-    public Trip(String origin, String destination,
-                LocalTime departureTime, LocalDate departureDate,
-                double price, int available) {
-        this.origin = Objects.requireNonNull(origin);
-        this.destination = Objects.requireNonNull(destination);
-        this.departureTime = Objects.requireNonNull(departureTime);
-        this.departureDate = Objects.requireNonNull(departureDate);
-        this.departureDateTime = LocalDateTime.of(departureDate, departureTime);
-        this.price = price;
-        this.available = available;
-    }
-
     public long getId() {
         return id;
     }
@@ -48,13 +36,10 @@ public class Trip {
     }
 
     public String getOrigin() { return origin; }
-    public void setOrigin(String origin) { this.origin = origin; }
 
     public String getDestination() { return destination; }
-    public void setDestination(String destination) { this.destination = destination; }
 
     public double getPrice() { return price; }
-    public void setPrice(double price) { this.price = price; }
 
     public LocalDate getDepartureDate() { return departureDate; }
 
@@ -63,7 +48,6 @@ public class Trip {
     public LocalDateTime getDepartureDateTime() { return departureDateTime; }
 
     public int getAvailable() { return available; }
-    public void setAvailable(int available) { this.available = available; }
 
     @Override
     public String toString() {

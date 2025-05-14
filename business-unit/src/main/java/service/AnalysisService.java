@@ -3,7 +3,6 @@ package service;
 import model.Hotel;
 import model.Trip;
 import repository.HotelRepository;
-import repository.TravelPackageRepository;
 import repository.TripRepository;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -17,48 +16,10 @@ import model.Recommendation;
 public class AnalysisService {
     private final TripRepository tripRepo;
     private final HotelRepository hotelRepo;
-    private final TravelPackageRepository packageRepo;
 
     public AnalysisService() {
         this.tripRepo = new TripRepository();
         this.hotelRepo = new HotelRepository();
-        this.packageRepo = new TravelPackageRepository();
-    }
-
-    public void generateTravelPackages() throws SQLException {
-        List<String> cities = hotelRepo.getAllCities();
-
-        for (String city : cities) {
-            List<Trip> trips = tripRepo.findByDestination(city);
-
-            List<Hotel> hotels = hotelRepo.findByCity(city);
-
-            for (Trip trip : trips) {
-                for (Hotel hotel : hotels) {
-                    if (isValidCombination(trip, hotel)) {
-                        double totalPrice = trip.getPrice() + hotel.getTotalPrice();
-
-                        packageRepo.savePackage(
-                                city,
-                                trip.getId(),
-                                hotel.getId(),
-                                trip.getDepartureDate(),
-                                hotel.getStartDate(),
-                                hotel.getEndDate(),
-                                totalPrice
-                        );
-                    }
-                }
-            }
-        }
-    }
-
-    private boolean isValidCombination(Trip trip, Hotel hotel) {
-        boolean combo1 = trip.getDepartureDate().equals(hotel.getStartDate());
-
-        boolean combo2 = trip.getDepartureDate().equals(hotel.getEndDate());
-
-        return combo1 || combo2;
     }
 
     public List<Recommendation> getTravelPackages(String city) throws SQLException {
