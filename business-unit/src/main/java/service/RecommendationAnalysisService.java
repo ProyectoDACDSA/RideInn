@@ -13,11 +13,11 @@ import java.util.Map;
 
 import model.Recommendation;
 
-public class AnalysisService {
+public class RecommendationAnalysisService {
     private final TripRepository tripRepo;
     private final HotelRepository hotelRepo;
 
-    public AnalysisService() {
+    public RecommendationAnalysisService() {
         this.tripRepo = new TripRepository();
         this.hotelRepo = new HotelRepository();
     }

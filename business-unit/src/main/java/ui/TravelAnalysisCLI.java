@@ -1,7 +1,7 @@
 package ui;
 
 import model.Recommendation;
-import service.AnalysisService;
+import service.RecommendationAnalysisService;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -10,12 +10,12 @@ import java.util.Scanner;
 import java.time.LocalDateTime;
 
 public class TravelAnalysisCLI {
-    private final AnalysisService analysisService;
+    private final RecommendationAnalysisService analysisService;
     private final Scanner scanner;
     private final DateTimeFormatter dateFormatter;
 
     public TravelAnalysisCLI() {
-        this.analysisService = new AnalysisService();
+        this.analysisService = new RecommendationAnalysisService();
         this.scanner = new Scanner(System.in);
         this.dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     }
@@ -70,26 +70,78 @@ public class TravelAnalysisCLI {
         System.out.print("\nIngrese ciudad destino: ");
         String city = scanner.nextLine();
 
-        LocalDateTime now = LocalDateTime.now();
+        // Preguntar por fecha de salida (usamos variables finales)
+        final LocalDate finalDepartureDateFilter;
+        System.out.print("¿Desea insertar fecha de salida? (si/no): ");
+        String respuestaFecha = scanner.nextLine().trim().toLowerCase();
+        if (respuestaFecha.equals("si")) {
+            System.out.print("Ingrese fecha de salida (dd/MM/yyyy): ");
+            String fechaStr = scanner.nextLine();
+            finalDepartureDateFilter = LocalDate.parse(fechaStr, dateFormatter);
+        } else {
+            finalDepartureDateFilter = null;
+        }
+
+        // Preguntar por intervalo de precios (usamos variables finales)
+        final Double finalMinPrice;
+        final Double finalMaxPrice;
+        System.out.print("¿Desea establecer intervalo de precio? (si/no): ");
+        String respuestaPrecio = scanner.nextLine().trim().toLowerCase();
+        if (respuestaPrecio.equals("si")) {
+            System.out.print("Ingrese precio mínimo: ");
+            finalMinPrice = Double.parseDouble(scanner.nextLine());
+            System.out.print("Ingrese precio máximo: ");
+            finalMaxPrice = Double.parseDouble(scanner.nextLine());
+        } else {
+            finalMinPrice = null;
+            finalMaxPrice = null;
+        }
+
+        final LocalDateTime now = LocalDateTime.now();
 
         List<Recommendation> recommendations = analysisService.getTravelPackages(city)
                 .stream()
                 .filter(recommendation -> {
+                    // Filtro por fecha actual/futura
                     LocalDateTime departure = recommendation.getTrip().getDepartureDateTime();
-                    return departure.isAfter(now) ||
+                    boolean fechaValida = departure.isAfter(now) ||
                             (departure.toLocalDate().equals(now.toLocalDate()) &&
                                     departure.toLocalTime().isAfter(now.toLocalTime()));
+
+                    // Filtro por fecha específica si se especificó
+                    if (finalDepartureDateFilter != null) {
+                        fechaValida = fechaValida && departure.toLocalDate().equals(finalDepartureDateFilter);
+                    }
+
+                    // Filtro por precio si se especificó
+                    if (finalMinPrice != null && finalMaxPrice != null) {
+                        fechaValida = fechaValida &&
+                                recommendation.getTotalPrice() >= finalMinPrice &&
+                                recommendation.getTotalPrice() <= finalMaxPrice;
+                    }
+
+                    return fechaValida;
                 })
                 .toList();
 
         System.out.println("\n══════════════════════════════════════════");
         System.out.println("   RECOMENDACIONES ACTUALES PARA " + city.toUpperCase());
+        if (finalDepartureDateFilter != null) {
+            System.out.println("   Fecha de salida: " + finalDepartureDateFilter.format(dateFormatter));
+        }
+        if (finalMinPrice != null && finalMaxPrice != null) {
+            System.out.println("   Rango de precios: " + finalMinPrice + "€ - " + finalMaxPrice + "€");
+        }
         System.out.println("   Fecha actual: " + now.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
         System.out.println("══════════════════════════════════════════");
 
         if (recommendations.isEmpty()) {
             System.out.println("\nNo se encontraron recomendaciones disponibles para " + city);
-            System.out.println("   (No hay viajes futuros a esta ciudad)");
+            if (finalDepartureDateFilter != null || finalMinPrice != null) {
+                System.out.println("   con los filtros especificados");
+            } else {
+                System.out.println("   (No hay viajes futuros a esta ciudad)");
+            }
         } else {
             System.out.println("\nSe encontraron " + recommendations.size() + " recomendaciones:");
             System.out.println("--------------------------------------------------");

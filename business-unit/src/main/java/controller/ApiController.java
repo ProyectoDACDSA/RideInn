@@ -1,11 +1,11 @@
 package controller;
 
 import io.javalin.Javalin;
-import service.AnalysisService;
+import service.RecommendationAnalysisService;
 import java.sql.SQLException;
 
 public class ApiController {
-    public ApiController(Javalin app, AnalysisService service) {
+    public ApiController(Javalin app, RecommendationAnalysisService service) {
         app.get("/recommendations/{city}", ctx -> {
             try {
                 String city = ctx.pathParam("city");
