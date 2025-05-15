@@ -12,9 +12,9 @@ public class CLI {
 
             while (!exit) {
                 System.out.println("\n=== MENÚ DE ANÁLISIS DE VIAJES ===");
-                System.out.println("1. Viajes Mejor Valorados");
-                System.out.println("2. Viajes Más Baratos");
-                System.out.println("3. Recomendaciones Actuales");
+                System.out.println("1. Recomendaciones Actuales");
+                System.out.println("2. Viajes Mejor Valorados");
+                System.out.println("3. Viajes Más Baratos");
                 System.out.println("0. Salir");
                 System.out.print("Seleccione una opción: ");
 
@@ -22,6 +22,17 @@ public class CLI {
 
                 switch (input) {
                     case "1":
+                        try {
+                            CurrentRecommendations currentRecommendations = new CurrentRecommendations(scanner);
+                            currentRecommendations.execute();
+                        } catch (SQLException e) {
+                            System.err.println("Error en la base de datos: " + e.getMessage());
+                        } catch (Exception e) {
+                            System.err.println("Error inesperado: " + e.getMessage());
+                            e.printStackTrace();
+                        }
+                        break;
+                    case "2":
                         try {
                             BestValueTrips bestValueTrips = new BestValueTrips(scanner);
                             bestValueTrips.execute();
@@ -32,21 +43,10 @@ public class CLI {
                             e.printStackTrace();
                         }
                         break;
-                    case "2":
+                    case "3":
                         try {
                             CheapestTrips cheapestTrips = new CheapestTrips(scanner);
                             cheapestTrips.execute();
-                        } catch (SQLException e) {
-                            System.err.println("Error en la base de datos: " + e.getMessage());
-                        } catch (Exception e) {
-                            System.err.println("Error inesperado: " + e.getMessage());
-                            e.printStackTrace();
-                        }
-                        break;
-                    case "3":
-                        try {
-                            CurrentRecommendations currentRecommendations = new CurrentRecommendations(scanner);
-                            currentRecommendations.execute();
                         } catch (SQLException e) {
                             System.err.println("Error en la base de datos: " + e.getMessage());
                         } catch (Exception e) {

@@ -62,7 +62,7 @@ public class BestValueTrips {
             System.out.printf("\n%7s | %-12s | %-20s | %-15s | %-15s | %-25s | %6s | %10s | %10s | %12s\n",
                     "Ratio", "Valoración", "Fecha y Hora Viaje", "Origen", "Destino",
                     "Hotel", "Rating", "Precio Viaje", specifyStay ? "Precio Hotel" : "Precio Noche", "TOTAL");
-            System.out.println("-----------------------------------------------------------------------------------------------------------------------------------------------");
+            System.out.println("-------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
 
             results.forEach(rec -> {
                 double ratio = rec.getTotalPrice() / (rec.getHotel().getRating() != null ? rec.getHotel().getRating() : 1.0);
@@ -102,9 +102,10 @@ public class BestValueTrips {
     }
 
     public void execute() throws SQLException {
-        System.out.println("\n══════════════════════════════════════════");
+        System.out.println("\n══════════════════════════════════════════════");
         System.out.println("  VIAJES CON MEJOR RELACIÓN CALIDAD-PRECIO ");
-        System.out.println("══════════════════════════════════════════");
+        System.out.println(" (Paris, Toulouse, Niza, Lyon, Estrasburgo) ");
+        System.out.println("══════════════════════════════════════════════");
 
         System.out.print("\nIngrese ciudad destino: ");
         final String city = scanner.nextLine();
