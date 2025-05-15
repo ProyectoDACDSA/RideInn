@@ -5,11 +5,8 @@ import model.Recommendation;
 import model.Trip;
 import service.RecommendationAnalysisService;
 import java.sql.SQLException;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Scanner;
 import java.time.LocalDateTime;
@@ -17,7 +14,6 @@ import java.util.Comparator;
 import java.util.stream.Collectors;
 import java.util.Map;
 import java.util.LinkedHashMap;
-import java.util.ArrayList;
 import java.util.function.Function;
 
 public class TravelAnalysisCLI {
@@ -125,7 +121,7 @@ public class TravelAnalysisCLI {
                                         ? existing : replacement
                 ));
 
-        displayResults(destinationCity, originCity, finalDepartureDateFilter,
+        displayResultsForBestFiltredTrips(destinationCity, originCity, finalDepartureDateFilter,
                 finalReturnDateFilter, finalMinPrice, finalMaxPrice, now,
                 latestHotelRecommendations, allRecommendations);
     }
@@ -166,11 +162,11 @@ public class TravelAnalysisCLI {
         }
     }
 
-    private void displayResults(String destinationCity, String originCity,
-                                LocalDate departureDateFilter, LocalDate returnDateFilter,
-                                Double minPrice, Double maxPrice, LocalDateTime now,
-                                Map<String, Recommendation> latestRecommendations,
-                                List<Recommendation> allRecommendations) {
+    private void displayResultsForBestFiltredTrips(String destinationCity, String originCity,
+                                                   LocalDate departureDateFilter, LocalDate returnDateFilter,
+                                                   Double minPrice, Double maxPrice, LocalDateTime now,
+                                                   Map<String, Recommendation> latestRecommendations,
+                                                   List<Recommendation> allRecommendations) {
 
         System.out.println("\n══════════════════════════════════════════");
         System.out.println("   RECOMENDACIONES ACTUALES PARA " + destinationCity.toUpperCase());
@@ -206,13 +202,7 @@ public class TravelAnalysisCLI {
                 System.out.println("  - Valoración: " + hotel.getRating() + "/5");
                 System.out.println("  - Tipo: " + hotel.getAccommodationType());
                 System.out.println("  - Precio medio/noche: " + String.format("%.2f€", hotel.getAveragePricePerNight()));
-
-                if (hotel.getStartDate() != null && hotel.getEndDate() != null) {
-                    long nights = ChronoUnit.DAYS.between(hotel.getStartDate(), hotel.getEndDate());
-                    System.out.println("  - Estancia recomendada: " + nights + " noches");
-                    System.out.println("  - Precio total hotel: " + String.format("%.2f€", hotel.getTotalPrice()));
-                }
-
+                System.out.println("  - Reserva y consulta disponibilidad en: " + String.format(hotel.getUrl()));
                 System.out.println("\n  Opciones de viaje disponibles:");
                 allRecommendations.stream()
                         .filter(rec -> rec.getHotel().getKey().equals(hotel.getKey()))
@@ -224,7 +214,7 @@ public class TravelAnalysisCLI {
                             System.out.println("      Precio viaje: " + String.format("%.2f€", trip.getPrice()));
 
                             if (hotel.getStartDate() != null && hotel.getEndDate() != null) {
-                                System.out.println("      Precio combinado: " +
+                                System.out.println("      Precio total de la combinación sugerida: " +
                                         String.format("%.2f€", rec.getTotalPrice()));
                             }
                         });
@@ -242,89 +232,132 @@ public class TravelAnalysisCLI {
         System.out.print("\nIngrese ciudad destino: ");
         final String city = scanner.nextLine();
 
-        System.out.print("¿Incluir solo hoteles con rating mínimo? (si/no): ");
-        final boolean filterByRating = scanner.nextLine().trim().equalsIgnoreCase("si");
+        System.out.print("\n¿Desea filtrar por ciudad de origen? (si/no): ");
+        final boolean filterByOrigin = scanner.nextLine().trim().equalsIgnoreCase("si");
+        final String originCity = filterByOrigin ? askForCity(scanner) : null;
 
-        final Double minRating;
-        if (filterByRating) {
-            System.out.print("Ingrese rating mínimo (1-5): ");
-            minRating = Double.parseDouble(scanner.nextLine());
-        } else {
-            minRating = null;
-        }
+        System.out.print("¿Desea especificar duración de estancia? (si/no): ");
+        final boolean specifyStay = scanner.nextLine().trim().equalsIgnoreCase("si");
+        final int stayDuration = specifyStay ? askForStayDuration(scanner) : 3; // Default 3 días
+
+        System.out.print("¿Filtrar por rating mínimo del hotel? (si/no): ");
+        final boolean filterByRating = scanner.nextLine().trim().equalsIgnoreCase("si");
+        final Double minRating = filterByRating ? askForMinRating(scanner) : null;
 
         System.out.print("Número máximo de resultados a mostrar: ");
         final int maxResults = Integer.parseInt(scanner.nextLine());
 
-        List<Recommendation> recommendations = analysisService.getTravelPackages(city)
-                .stream()
-                .filter(r -> !filterByRating ||
-                        (r.getHotel().getRating() != null && r.getHotel().getRating() >= minRating))
+        RecommendationAnalysisService analysisService = new RecommendationAnalysisService();
+        List<Recommendation> allRecommendations = analysisService.getTravelPackages(city);
+
+        List<Recommendation> processedRecommendations = allRecommendations.stream()
+                .filter(r -> originCity == null || r.getTrip().getOrigin().equalsIgnoreCase(originCity))
+                .filter(r -> !filterByRating || (r.getHotel().getRating() != null && r.getHotel().getRating() >= minRating))
+                .peek(r -> {
+                    if (specifyStay) {
+                        LocalDate startDate = r.getTrip().getDepartureDateTime().toLocalDate();
+                        r.getHotel().setStartDate(startDate);
+                        r.getHotel().setEndDate(startDate.plusDays(stayDuration));
+                        r.getHotel().calculateTotalPrice();
+                        r.setTotalPrice();
+                    } else {
+                        r.setTotalPrice();
+                    }
+                })
                 .sorted(Comparator.comparingDouble(r -> {
-                    return r.getHotel().getRating() != null ?
-                            (r.getTotalPrice() / r.getHotel().getRating()) :
-                            Double.MAX_VALUE;
+                    double rating = r.getHotel().getRating() != null ? r.getHotel().getRating() : 1.0;
+                    return r.getTotalPrice() / rating;
                 }))
                 .collect(Collectors.toList());
 
-        Map<String, Recommendation> uniqueRecommendations = new LinkedHashMap<>();
-        for (Recommendation rec : recommendations) {
-            String key = rec.getHotel().getHotelName() + "-" + rec.getTotalPrice();
-            uniqueRecommendations.putIfAbsent(key, rec);
-        }
-
-        List<Recommendation> uniqueResults = new ArrayList<>(uniqueRecommendations.values())
-                .stream()
+        Map<String, Recommendation> uniqueRecommendations = processedRecommendations.stream()
+                .collect(Collectors.toMap(
+                        r -> r.getHotel().getKey() + "-" + r.getTrip().getId(),
+                        Function.identity(),
+                        (existing, replacement) -> existing.getTotalPrice() < replacement.getTotalPrice() ? existing : replacement,
+                        LinkedHashMap::new
+                ));
+        List<Recommendation> finalResults = uniqueRecommendations.values().stream()
                 .limit(maxResults)
                 .collect(Collectors.toList());
 
-        System.out.println("\n══════════════════════════════════════════");
-        System.out.println("   MEJORES OFERTAS EN " + city.toUpperCase() +
-                (filterByRating ? " (Rating ≥ " + minRating + ")" : ""));
-        System.out.println("══════════════════════════════════════════");
+        displayResultsForBestTrips(finalResults, originCity, stayDuration, minRating, specifyStay);
+    }
 
-        if (uniqueResults.isEmpty()) {
-            System.out.println("\nNo se encontraron recomendaciones" +
-                    (filterByRating ? " con rating ≥ " + minRating : "") +
-                    " en " + city);
+    private int askForStayDuration(Scanner scanner) {
+        System.out.print("Ingrese duración de estancia (noches): ");
+        return Integer.parseInt(scanner.nextLine());
+    }
+
+    private double askForMinRating(Scanner scanner) {
+        System.out.print("Ingrese rating mínimo (1-5): ");
+        return Double.parseDouble(scanner.nextLine());
+    }
+
+    private void displayResultsForBestTrips(List<Recommendation> results, String originCity,
+                                                   int stayDuration, Double minRating, boolean specifyStay) {
+
+        System.out.println("\n══════════════════════════════════════════════════════════════════════");
+        System.out.println("                      MEJORES OFERTAS" +
+                (originCity != null ? " DESDE " + originCity.toUpperCase() : "") +
+                (minRating != null ? " (Rating ≥ " + minRating + ")" : ""));
+        if (specifyStay) {
+            System.out.println("                      Estancia: " + stayDuration + " noches");
+        }
+        System.out.println("══════════════════════════════════════════════════════════════════════");
+
+        if (results.isEmpty()) {
+            System.out.println("\nNo se encontraron recomendaciones con los criterios especificados");
         } else {
-            System.out.printf("\n%7s | %-12s | %-15s | %-15s | %-35s | %8s | %10s\n",
-                    "Ratio", "Valoración", "Origen", "Destino", "Hotel", "Rating", "Precio");
-            System.out.println("--------------------------------------------------------------------------------------------------------------------------");
+            System.out.printf("\n%7s | %-12s | %-20s | %-15s | %-15s | %-25s | %6s | %10s | %10s | %12s\n",
+                    "Ratio", "Valoración", "Fecha y Hora Viaje", "Origen", "Destino",
+                    "Hotel", "Rating", "Precio Viaje", specifyStay ? "Precio Hotel" : "Precio Noche", "TOTAL");
+            System.out.println("-----------------------------------------------------------------------------------------------------------------------------------------------");
 
-            uniqueResults.forEach(rec -> {
-                double ratio = rec.getHotel().getRating() != null ?
-                        rec.getTotalPrice() / rec.getHotel().getRating() : 0;
+            results.forEach(rec -> {
+                double ratio = rec.getTotalPrice() / (rec.getHotel().getRating() != null ? rec.getHotel().getRating() : 1.0);
+                String valoracion = getValueRating(ratio);
+                String hotelName = truncate(rec.getHotel().getHotelName(), 25);
+                String fechaHoraViaje = rec.getTrip().getDepartureDateTime()
+                        .format(DateTimeFormatter.ofPattern("dd/MM HH:mm"));
 
-                String valoracion;
-                if (ratio < 100) {
-                    valoracion = "★ Alta";
-                } else if (ratio < 150) {
-                    valoracion = "▲ Media";
-                } else {
-                    valoracion = "▼ Baja";
-                }
+                double precioHotel = specifyStay ? rec.getHotel().getTotalPrice() : rec.getHotel().getAveragePricePerNight();
+                rec.setTotalPrice();
+                double precioTotal = rec.getTotalPrice();
 
-                String nombreHotel = rec.getHotel().getHotelName();
-                if (nombreHotel.length() > 30) {
-                    nombreHotel = nombreHotel.substring(0, 27) + "...";
-                }
-
-                System.out.printf("%7.2f | %-12s | %-15s | %-15s | %-35s | %6.1f/5 | %10.2f€\n",
+                System.out.printf("%7.2f | %-12s | %-20s | %-15s | %-15s | %-25s | %6.1f/5 | %10.2f€ | %10.2f€ | %12.2f€\n",
                         ratio,
                         valoracion,
+                        fechaHoraViaje,
                         rec.getTrip().getOrigin(),
                         rec.getTrip().getDestination(),
-                        nombreHotel,
-                        rec.getHotel().getRating(),
-                        rec.getTotalPrice());
+                        hotelName,
+                        rec.getHotel().getRating() != null ? rec.getHotel().getRating() : 0.0,
+                        rec.getTrip().getPrice(),
+                        precioHotel,
+                        precioTotal);
             });
 
-            System.out.println("\nLeyenda (ajustada para Francia):");
-            System.out.println("★ Alta  - Ratio < 100 (Excelente relación calidad-precio)");
-            System.out.println("▲ Media - Ratio 100-150 (Buena relación calidad-precio)");
-            System.out.println("▼ Baja  - Ratio > 150 (Relación calidad-precio no óptima)");
+            System.out.println("\nLeyenda:");
+            System.out.println("★ Excelente - Ratio < 100 (Mejor relación calidad-precio)");
+            System.out.println("▲ Bueno     - Ratio 100-150");
+            System.out.println("▼ Regular   - Ratio > 150");
+            if (specifyStay) {
+                System.out.println("\n* Precio Total incluye viaje + " + stayDuration + " noches de hotel");
+            } else {
+                System.out.println("\n* Precio Noche muestra el costo promedio por noche del hotel");
+            }
         }
+    }
+
+    private String getValueRating(double ratio) {
+        if (ratio < 100) return "★ Excelente";
+        if (ratio < 150) return "▲ Bueno";
+        return "▼ Regular";
+    }
+
+    private String truncate(String text, int length) {
+        return text.length() > length ? text.substring(0, length-3) + "..." : text;
     }
 
     private static String askForCity(Scanner scanner) {
