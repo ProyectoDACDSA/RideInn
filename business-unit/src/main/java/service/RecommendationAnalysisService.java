@@ -25,16 +25,20 @@ public class RecommendationAnalysisService {
     }
 
     private List<Recommendation> combineData(List<Trip> trips, List<Hotel> hotels) {
-        List<Recommendation> recommendations = new ArrayList<>();
+        Map<String, Recommendation> uniqueMap = new LinkedHashMap<>();
 
         for (Trip trip : trips) {
             for (Hotel hotel : hotels) {
-                if(Objects.equals(hotel.getCity(), trip.getDestination())) {
-                    double totalPrice = trip.getPrice() + hotel.getTotalPrice();
-                    recommendations.add(new Recommendation(trip, hotel, totalPrice));
+                if (Objects.equals(hotel.getCity(), trip.getDestination())) {
+                    String key = trip.getId() + "-" + hotel.getKey();
+                    if (!uniqueMap.containsKey(key)) {
+                        double totalPrice = trip.getPrice() + hotel.getTotalPrice();
+                        uniqueMap.put(key, new Recommendation(trip, hotel, totalPrice));
+                    }
                 }
             }
         }
-        return recommendations;
+        return new ArrayList<>(uniqueMap.values());
     }
+
 }

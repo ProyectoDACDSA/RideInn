@@ -7,6 +7,7 @@ import service.RecommendationAnalysisService;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Scanner;
 import java.time.LocalDateTime;
@@ -43,6 +44,9 @@ public class TravelAnalysisCLI {
                         findBestValueTrips();
                         break;
                     case "3":
+                        findCheapestTrips();
+                        break;
+                    case "4":
                         System.out.println("Saliendo del sistema...");
                         return;
                     default:
@@ -64,7 +68,8 @@ public class TravelAnalysisCLI {
         System.out.println("\nMENU PRINCIPAL");
         System.out.println("1. Buscar recomendaciones actuales (con filtros)");
         System.out.println("2. Encontrar viajes con mejor relación calidad-precio");
-        System.out.println("3. Salir");
+        System.out.println("3. Mostrar viajes más baratos");
+        System.out.println("4. Salir");
         System.out.print("Seleccione una opción: ");
     }
 
@@ -238,7 +243,7 @@ public class TravelAnalysisCLI {
 
         System.out.print("¿Desea especificar duración de estancia? (si/no): ");
         final boolean specifyStay = scanner.nextLine().trim().equalsIgnoreCase("si");
-        final int stayDuration = specifyStay ? askForStayDuration(scanner) : 3; // Default 3 días
+        final int stayDuration = specifyStay ? askForStayDuration(scanner) : 1;
 
         System.out.print("¿Filtrar por rating mínimo del hotel? (si/no): ");
         final boolean filterByRating = scanner.nextLine().trim().equalsIgnoreCase("si");
@@ -254,15 +259,11 @@ public class TravelAnalysisCLI {
                 .filter(r -> originCity == null || r.getTrip().getOrigin().equalsIgnoreCase(originCity))
                 .filter(r -> !filterByRating || (r.getHotel().getRating() != null && r.getHotel().getRating() >= minRating))
                 .peek(r -> {
-                    if (specifyStay) {
-                        LocalDate startDate = r.getTrip().getDepartureDateTime().toLocalDate();
-                        r.getHotel().setStartDate(startDate);
-                        r.getHotel().setEndDate(startDate.plusDays(stayDuration));
-                        r.getHotel().calculateTotalPrice();
-                        r.setTotalPrice();
-                    } else {
-                        r.setTotalPrice();
-                    }
+                    LocalDate startDate = r.getTrip().getDepartureDateTime().toLocalDate();
+                    r.getHotel().setStartDate(startDate);
+                    r.getHotel().setEndDate(startDate.plusDays(stayDuration));
+                    r.getHotel().calculateTotalPrice();
+                    r.setTotalPrice();
                 })
                 .sorted(Comparator.comparingDouble(r -> {
                     double rating = r.getHotel().getRating() != null ? r.getHotel().getRating() : 1.0;
@@ -345,7 +346,8 @@ public class TravelAnalysisCLI {
             if (specifyStay) {
                 System.out.println("\n* Precio Total incluye viaje + " + stayDuration + " noches de hotel");
             } else {
-                System.out.println("\n* Precio Noche muestra el costo promedio por noche del hotel");
+                System.out.println("\n* Precio Noche muestra el costo aproximado por noche del hotel");
+                System.out.println("\n* Precio Total incluye viaje + " + stayDuration + " noches de hotel por defecto");
             }
         }
     }
@@ -370,4 +372,125 @@ public class TravelAnalysisCLI {
         String dateStr = scanner.nextLine().trim();
         return LocalDate.parse(dateStr, formatter);
     }
+
+    private void findCheapestTrips() throws SQLException {
+        System.out.println("\n═════════════════════════════════════");
+        System.out.println("      VIAJES MÁS BARATOS DISPONIBLES");
+        System.out.println("═════════════════════════════════════");
+
+        System.out.print("\nIngrese ciudad destino: ");
+        final String city = scanner.nextLine();
+
+        System.out.print("¿Desea filtrar por ciudad de origen? (si/no): ");
+        final String respuestaOrigen = scanner.nextLine().trim().toLowerCase();
+        final String originCity = respuestaOrigen.equals("si") ? askForCity(scanner) : null;
+
+        System.out.print("¿Desea insertar fecha de salida? (si/no): ");
+        final String respuestaSalida = scanner.nextLine().trim().toLowerCase();
+        final LocalDate departureDate = respuestaSalida.equals("si") ? askForDate(scanner, dateFormatter) : null;
+
+        System.out.print("¿Desea insertar fecha de regreso? (si/no): ");
+        final String respuestaRegreso = scanner.nextLine().trim().toLowerCase();
+        final LocalDate returnDate = respuestaRegreso.equals("si") ? askForDate(scanner, dateFormatter) : null;
+
+        System.out.print("Número máximo de resultados a mostrar: ");
+        final int maxResults = Integer.parseInt(scanner.nextLine());
+
+        List<Recommendation> allRecommendations = analysisService.getTravelPackages(city);
+
+        final LocalDateTime now = LocalDateTime.now();
+
+        List<Recommendation> processedRecommendations = allRecommendations.stream()
+                .filter(r -> (originCity == null || r.getTrip().getOrigin().equalsIgnoreCase(originCity)))
+                .filter(r -> {
+                    LocalDateTime departure = r.getTrip().getDepartureDateTime();
+                    boolean valid = departure.isAfter(now) || (departure.toLocalDate().equals(now.toLocalDate())
+                            && departure.toLocalTime().isAfter(now.toLocalTime()));
+
+                    if (departureDate != null) {
+                        valid = valid && departure.toLocalDate().equals(departureDate);
+                    }
+                    return valid;
+                })
+                .peek(r -> {
+                    LocalDate start = departureDate != null ?
+                            departureDate :
+                            r.getTrip().getDepartureDateTime().toLocalDate();
+
+                    LocalDate end = returnDate != null ?
+                            returnDate :
+                            start.plusDays(1);
+                    r.getHotel().setStartDate(start);
+                    r.getHotel().setEndDate(end);
+                    r.getHotel().calculateTotalPrice();
+                    r.setTotalPrice();
+                })
+                .sorted(Comparator.comparingDouble(Recommendation::getTotalPrice))
+                .collect(Collectors.toList());
+
+        Map<String, Recommendation> uniqueRecommendations = processedRecommendations.stream()
+                .collect(Collectors.toMap(
+                        r -> r.getHotel().getKey() + "-" + r.getTrip().getId(),
+                        Function.identity(),
+                        (existing, replacement) -> existing.getTotalPrice() < replacement.getTotalPrice() ? existing : replacement,
+                        LinkedHashMap::new
+                ));
+
+        List<Recommendation> finalResults = uniqueRecommendations.values().stream()
+                .limit(maxResults)
+                .collect(Collectors.toList());
+
+        displayCheapestTrips(finalResults, originCity, departureDate, returnDate);
+    }
+    private void displayCheapestTrips(List<Recommendation> results, String originCity,
+                                      LocalDate departureDate, LocalDate returnDate) {
+        System.out.println("\n══════════════════════════════════════════════════════════════");
+        System.out.println("                   VIAJES MÁS BARATOS" +
+                (originCity != null ? " DESDE " + originCity.toUpperCase() : ""));
+        if (departureDate != null) {
+            System.out.println("                   Fecha de salida: " + departureDate.format(dateFormatter));
+        }
+        if (returnDate != null) {
+            System.out.println("                   Fecha de regreso: " + returnDate.format(dateFormatter));
+        }
+        System.out.println("══════════════════════════════════════════════════════════════");
+
+        if (results.isEmpty()) {
+            System.out.println("\nNo se encontraron recomendaciones con los criterios especificados.");
+        } else {
+            System.out.printf("\n%-20s | %-12s | %-12s | %-22s | %5s | %10s | %10s | %10s\n",
+                    "Fecha", "Origen", "Destino", "Hotel", "⭐", "Precio viaje", "Precio hotel", "Total");
+            System.out.println("--------------------------------------------------------------------------------------------------------");
+
+            for (Recommendation rec : results) {
+                Trip trip = rec.getTrip();
+                Hotel hotel = rec.getHotel();
+                String fecha = trip.getDepartureDateTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+                double hotelTotal = hotel.getTotalPrice();
+
+                System.out.printf("%-20s | %-12s | %-12s | %-22s | %5.1f | %10.2f€ | %10.2f€ | %10.2f€\n",
+                        fecha,
+                        trip.getOrigin(),
+                        trip.getDestination(),
+                        truncate(hotel.getHotelName(), 22),
+                        hotel.getRating() != null ? hotel.getRating() : 0.0,
+                        trip.getPrice(),
+                        hotelTotal,
+                        rec.getTotalPrice());
+            }
+            System.out.println("\n------------------------------------------------------------");
+
+            int stayDuration;
+            boolean specifyStay = (departureDate != null && returnDate != null);
+            if (specifyStay) {
+                stayDuration = (int) ChronoUnit.DAYS.between(departureDate, returnDate);
+                System.out.println("* Total incluye viaje + " + stayDuration + " noche" + (stayDuration > 1 ? "s" : "") + " de hotel");
+            } else {
+                stayDuration = 1;
+                System.out.println("* Precio hotel muestra el costo aproximado por noche del hotel");
+                System.out.println("* Total incluye viaje + " + stayDuration + " noche de hotel por defecto");
+            }
+        }
+    }
+
 }
