@@ -1,7 +1,68 @@
-import ui.TravelAnalysisCLI;
+import ui.BestValueTrips;
+import ui.CheapestTrips;
+import ui.CurrentRecommendations;
+
+import java.sql.SQLException;
+import java.util.Scanner;
 
 public class CLI {
     public static void main(String[] args) {
-    new TravelAnalysisCLI().start();
-}
+        try (Scanner scanner = new Scanner(System.in)) {
+            boolean exit = false;
+
+            while (!exit) {
+                System.out.println("\n=== MENÚ DE ANÁLISIS DE VIAJES ===");
+                System.out.println("1. Viajes Mejor Valorados");
+                System.out.println("2. Viajes Más Baratos");
+                System.out.println("3. Recomendaciones Actuales");
+                System.out.println("0. Salir");
+                System.out.print("Seleccione una opción: ");
+
+                String input = scanner.nextLine();
+
+                switch (input) {
+                    case "1":
+                        try {
+                            BestValueTrips bestValueTrips = new BestValueTrips(scanner);
+                            bestValueTrips.execute();
+                        } catch (SQLException e) {
+                            System.err.println("Error en la base de datos: " + e.getMessage());
+                        } catch (Exception e) {
+                            System.err.println("Error inesperado: " + e.getMessage());
+                            e.printStackTrace();
+                        }
+                        break;
+                    case "2":
+                        try {
+                            CheapestTrips cheapestTrips = new CheapestTrips(scanner);
+                            cheapestTrips.execute();
+                        } catch (SQLException e) {
+                            System.err.println("Error en la base de datos: " + e.getMessage());
+                        } catch (Exception e) {
+                            System.err.println("Error inesperado: " + e.getMessage());
+                            e.printStackTrace();
+                        }
+                        break;
+                    case "3":
+                        try {
+                            CurrentRecommendations currentRecommendations = new CurrentRecommendations(scanner);
+                            currentRecommendations.execute();
+                        } catch (SQLException e) {
+                            System.err.println("Error en la base de datos: " + e.getMessage());
+                        } catch (Exception e) {
+                            System.err.println("Error inesperado: " + e.getMessage());
+                            e.printStackTrace();
+                        }
+                        break;
+                    case "0":
+                        exit = true;
+                        System.out.println("Saliendo del programa...");
+                        break;
+                    default:
+                        System.out.println("Opción inválida. Intente de nuevo.");
+                        break;
+                }
+            }
+        }
+    }
 }

@@ -73,8 +73,6 @@ public class Hotel {
         }
     }
 
-
-
     @Override
     public String toString() {
         return String.format("Hotel[id=%d, name=%s, city=%s, rating=%.1f, price=%.2f]",
