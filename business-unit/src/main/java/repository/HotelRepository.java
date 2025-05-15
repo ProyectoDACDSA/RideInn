@@ -57,7 +57,6 @@ public class HotelRepository {
         }
         pstmt.setDouble(6, hotel.getAveragePricePerNight());
         pstmt.setString(7, hotel.getCity());
-        pstmt.setTimestamp(8, hotel.getTimestamp());
     }
 
     public List<Hotel> findByCity(String city) throws SQLException {
