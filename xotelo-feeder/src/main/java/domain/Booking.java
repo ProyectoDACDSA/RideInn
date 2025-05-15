@@ -12,13 +12,9 @@ public class Booking {
     private String url;
     private double rating;
     private int averagePricePerNight;
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private int totalPrice;
     private String city;
 
-    public Booking(long ts, String ss, Hotel hotel,
-                   LocalDate today, int days) {
+    public Booking(long ts, String ss, Hotel hotel) {
         int averagePrice = (hotel.getPriceMin()+ hotel.getPriceMax())/2;
         this.ts = ts;
         this.ss = ss;
@@ -28,9 +24,6 @@ public class Booking {
         this.url = hotel.getUrl();
         this.rating = hotel.getRating();
         this.averagePricePerNight = averagePrice;
-        this.startDate = today;
-        this.endDate = today.plusDays(days);
-        this.totalPrice = averagePrice*days;
         this.city = hotel.getCity();
     }
 
@@ -50,12 +43,6 @@ public class Booking {
 
     public int getAveragePricePerNight() {return averagePricePerNight;}
 
-    public LocalDate getStartDate() {return startDate;}
-
-    public LocalDate getEndDate() {return endDate;}
-
-    public int getTotalPrice() {return totalPrice;}
-
     public String getCity() {return city;}
 
     public String toJson() {
@@ -68,9 +55,6 @@ public class Booking {
         json.addProperty("url", url);
         json.addProperty("rating", rating);
         json.addProperty("averagePricePerNight", averagePricePerNight);
-        json.addProperty("startDate", startDate.toString());
-        json.addProperty("endDate", endDate.toString());
-        json.addProperty("totalPrice", totalPrice);
         json.addProperty("city", city);
         return json.toString();
     }

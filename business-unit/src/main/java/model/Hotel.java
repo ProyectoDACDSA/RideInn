@@ -1,25 +1,29 @@
 package model;
 
 import com.google.gson.annotations.SerializedName;
+
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 public class Hotel {
     private Long id;
     @SerializedName(value = "hotelName", alternate = "hotel")
-    private String hotelName;
-    private String key;
-    private String accommodationType;
-    private String url;
-    private Double rating;
-    private double averagePricePerNight;
+    private final String hotelName;
+    private final String key;
+    private final String accommodationType;
+    private final String url;
+    private final Double rating;
+    private final double averagePricePerNight;
     private LocalDate startDate;
     private LocalDate endDate;
     private double totalPrice;
-    private String city;
+    private final String city;
+    private final LocalDateTime timestamp;
 
     public Hotel(long id, String hotelName, String key, String accommodationType,
-                 String url, Double rating, double averagePricePerNight,
-                 LocalDate startDate, LocalDate endDate, double totalPrice, String city) {
+                 String url, Double rating, double averagePricePerNight, String city, LocalDateTime timestamp) {
         this.id = id;
         this.hotelName = hotelName;
         this.key = key;
@@ -27,18 +31,13 @@ public class Hotel {
         this.url = url;
         this.rating = rating;
         this.averagePricePerNight = averagePricePerNight;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.totalPrice = totalPrice;
         this.city = city;
+        this.timestamp = timestamp;
     }
 
-    // Asegúrate de que este método exista
     public Double getRating() {
         return rating;
     }
-
-    // Resto de getters
     public long getId() { return id; }
     public String getHotelName() { return hotelName; }
     public String getKey() { return key; }
@@ -49,10 +48,31 @@ public class Hotel {
     public LocalDate getEndDate() { return endDate; }
     public double getTotalPrice() { return totalPrice; }
     public String getCity() { return city; }
+    public Timestamp getTimestamp(){return Timestamp.valueOf(timestamp);}
 
     public void setId(Long id) {
         this.id = id;
     }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+        calculateTotalPrice();
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+        calculateTotalPrice();
+    }
+
+    public void calculateTotalPrice() {
+        if (this.startDate != null && this.endDate != null && !this.endDate.isBefore(this.startDate)) {
+            long nights = ChronoUnit.DAYS.between(this.startDate, this.endDate);
+            this.totalPrice = this.averagePricePerNight * nights;
+        } else {
+            this.totalPrice = this.averagePricePerNight;
+        }
+    }
+
 
     @Override
     public String toString() {

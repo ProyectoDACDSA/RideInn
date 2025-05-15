@@ -3,7 +3,7 @@ package model;
 public class Recommendation {
     private final Trip trip;
     private final Hotel hotel;
-    private final double totalPrice;
+    private double totalPrice;
 
     public Recommendation(Trip trip, Hotel hotel, double totalPrice) {
         this.trip = trip;
@@ -14,6 +14,11 @@ public class Recommendation {
     public Trip getTrip() { return trip; }
     public Hotel getHotel() { return hotel; }
     public double getTotalPrice() { return totalPrice; }
+
+    public void setTotalPrice(){
+        this.totalPrice = this.hotel.getTotalPrice() + this.trip.getPrice();
+    }
+
 
     @Override
     public String toString() {

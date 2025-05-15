@@ -41,12 +41,12 @@ public class TripRepository {
             }
 
         } catch (SQLException e) {
-        if (e.getMessage().contains("UNIQUE constraint failed: trips.origin, trips.destination, trips.departure_date, trips.departure_time")) {
-            logger.info("Viaje ya insertado - Origen: {}, Destino: {}, Hora {}", trip.getOrigin(), trip.getDestination(), trip.getDepartureTime());
-        } else {
-            logger.error("Error al guardar hotel en la base de datos", e);
-        }
-    }}
+            if (e.getMessage().contains("UNIQUE constraint failed: trips.origin, trips.destination, trips.departure_date, trips.departure_time")) {
+                logger.info("Viaje ya insertado - Origen: {}, Destino: {}, Hora {}", trip.getOrigin(), trip.getDestination(), trip.getDepartureTime());
+            } else {
+                logger.error("Error al guardar hotel en la base de datos", e);
+            }
+        }}
 
     public List<Trip> findByDestinationAndDateRange(String destination, LocalDate startDate, LocalDate endDate) throws SQLException {
         String sql = "SELECT * FROM trips WHERE destination = ? AND departure_date BETWEEN ? AND ?";
@@ -80,4 +80,3 @@ public class TripRepository {
         return trips;
     }
 }
-

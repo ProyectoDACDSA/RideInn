@@ -26,9 +26,7 @@ public class Controller {
                     Booking booking = new Booking(
                             System.currentTimeMillis(),
                             "Xotelo",
-                            hotel,
-                            LocalDate.now(),
-                            3
+                            hotel
                     );
                     bookingStorage.store(booking);
                     System.out.println("Created booking for: " + hotel.getName());

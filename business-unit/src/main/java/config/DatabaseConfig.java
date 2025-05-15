@@ -16,6 +16,22 @@ public class DatabaseConfig {
         return connection;
     }
 
+    public static void commit() throws SQLException {
+        if (connection != null && !connection.isClosed()) {
+            connection.commit();
+        }
+    }
+
+    public static void rollback() {
+        try {
+            if (connection != null && !connection.isClosed()) {
+                connection.rollback();
+            }
+        } catch (SQLException e) {
+            System.err.println("Error during rollback: " + e.getMessage());
+        }
+    }
+
     public static void closeConnection() {
         try {
             if (connection != null && !connection.isClosed()) {
@@ -50,12 +66,9 @@ public class DatabaseConfig {
                             "url TEXT," +
                             "rating REAL," +
                             "avg_price_per_night REAL NOT NULL," +
-                            "start_date TEXT NOT NULL," +
-                            "end_date TEXT NOT NULL," +
-                            "total_price REAL NOT NULL," +
                             "city TEXT NOT NULL," +
                             "processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"+
-                            "CONSTRAINT unique_book UNIQUE (hotel_key, start_date))");
+                            "CONSTRAINT unique_book UNIQUE (hotel_key, avg_price_per_night))");
 
             conn.createStatement().execute(
                     "CREATE INDEX IF NOT EXISTS idx_trips_destination ON trips(destination)");
