@@ -1,7 +1,7 @@
 package ports;
 
-import domain.HotelEvent;
+import domain.Booking;
 
 public interface BookingStorage {
-    void store(HotelEvent booking);
+    void store(Booking booking);
 }

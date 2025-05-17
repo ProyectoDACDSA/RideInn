@@ -2,14 +2,13 @@ import ports.*;
 import domain.*;
 import static org.mockito.Mockito.*;
 import java.util.*;
-import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 
 public class ControllerTest {
     @Test
     public void testExecute() {
         HotelProvider mockHotelProvider = mock(HotelProvider.class);
-        BookingStorage mockBookingStorage = mock(BookingStorage.class);
+        HotelEventStorage mockBookingStorage = mock(HotelEventStorage.class);
 
         when(mockHotelProvider.getCityUrls())
                 .thenReturn(Map.of("Paris", "http://fake-api.com"));
@@ -21,6 +20,6 @@ public class ControllerTest {
         Controller controller = new Controller(mockHotelProvider, mockBookingStorage);
         controller.execute();
 
-        verify(mockBookingStorage, atLeastOnce()).store(any(Booking.class));
+        verify(mockBookingStorage, atLeastOnce()).store(any(HotelEvent.class));
     }
 }

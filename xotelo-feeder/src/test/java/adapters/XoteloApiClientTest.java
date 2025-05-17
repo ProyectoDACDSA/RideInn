@@ -5,12 +5,11 @@ import static org.mockito.Mockito.*;
 import java.io.ByteArrayInputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedConstruction;
 
 public class XoteloApiClientTest {
-    //TODO
+
     @Test
     public void testFetchHotelData_Success() throws Exception {
         String mockResponse = "{\"result\":{\"list\":[]}}";
