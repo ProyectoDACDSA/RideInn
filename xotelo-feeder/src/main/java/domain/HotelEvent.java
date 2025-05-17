@@ -1,48 +1,39 @@
 package domain;
 
 import com.google.gson.JsonObject;
-import java.time.LocalDate;
 
-public class Booking {
-    private long ts;
-    private String ss;
-    private String hotelName;
-    private String key;
-    private String accommodationType;
-    private String url;
-    private double rating;
-    private int averagePricePerNight;
-    private String city;
+public class HotelEvent {
+    private final long ts;
+    private final String ss;
+    private final String hotelName;
+    private final String key;
+    private final String accommodationType;
+    private final String url;
+    private final double rating;
+    private final int averagePricePerNight;
+    private final String city;
 
-    public Booking(long ts, String ss, Hotel hotel) {
-        int averagePrice = (hotel.getPriceMin()+ hotel.getPriceMax())/2;
+    public HotelEvent(long ts, String ss, Hotel hotel) {
+        int averagePrice = (hotel.priceMin()+ hotel.priceMax())/2;
         this.ts = ts;
         this.ss = ss;
-        this.hotelName = hotel.getName();
-        this.key = hotel.getKey();
-        this.accommodationType = hotel.getAccommodationType();
-        this.url = hotel.getUrl();
-        this.rating = hotel.getRating();
+        this.hotelName = hotel.name();
+        this.key = hotel.key();
+        this.accommodationType = hotel.accommodationType();
+        this.url = hotel.url();
+        this.rating = hotel.rating();
         this.averagePricePerNight = averagePrice;
-        this.city = hotel.getCity();
+        this.city = hotel.city();
     }
 
     public long getTs() { return ts; }
-
     public String getSs() { return ss; }
-
     public String getKey() { return key; }
-
     public String getHotelName() { return hotelName;}
-
     public String getAccommodationType() { return accommodationType;}
-
     public String getUrl() {return url;}
-
     public double getRating() {return rating;}
-
     public int getAveragePricePerNight() {return averagePricePerNight;}
-
     public String getCity() {return city;}
 
     public String toJson() {

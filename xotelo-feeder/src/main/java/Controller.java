@@ -1,35 +1,34 @@
+import domain.HotelEvent;
 import ports.HotelProvider;
-import ports.BookingStorage;
+import ports.HotelEventStorage;
 import domain.Hotel;
-import domain.Booking;
-import java.time.LocalDate;
+
 import java.util.List;
 import java.util.concurrent.*;
 
 public class Controller {
     private final HotelProvider hotelProvider;
-    private final BookingStorage bookingStorage;
+    private final HotelEventStorage hotelEventStorage;
 
-    public Controller(HotelProvider hotelProvider, BookingStorage bookingStorage) {
+    public Controller(HotelProvider hotelProvider, HotelEventStorage hotelEventStorage) {
         this.hotelProvider = hotelProvider;
-        this.bookingStorage = bookingStorage;
+        this.hotelEventStorage = hotelEventStorage;
     }
 
     public void execute() {
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-
         scheduler.scheduleAtFixedRate(() -> {
             System.out.println("Fetching hotel data and creating bookings...");
             hotelProvider.getCityUrls().forEach((city, url) -> {
                 List<Hotel> hotels = hotelProvider.fetchHotelsForCity(city, url);
                 hotels.forEach(hotel -> {
-                    Booking booking = new Booking(
+                    HotelEvent hotelEvent = new HotelEvent(
                             System.currentTimeMillis(),
                             "Xotelo",
                             hotel
                     );
-                    bookingStorage.store(booking);
-                    System.out.println("Created booking for: " + hotel.getName());
+                    hotelEventStorage.store(hotelEvent);
+                    System.out.println("Created hotelEvent for: " + hotel.name());
                 });
             });
         }, 0, 1, TimeUnit.DAYS);

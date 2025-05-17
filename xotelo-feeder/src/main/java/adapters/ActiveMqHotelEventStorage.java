@@ -1,16 +1,16 @@
 package adapters;
 
-import domain.Booking;
-import ports.BookingStorage;
+import domain.HotelEvent;
+import ports.HotelEventStorage;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import javax.jms.*;
 
-public class ActiveMqBookingStorage implements BookingStorage {
+public class ActiveMqHotelEventStorage implements HotelEventStorage {
     private static final String BROKER_URL = "tcp://localhost:61616";
     private static final String TOPIC_NAME = "Xotelo";
 
     @Override
-    public void store(Booking booking) {
+    public void store(HotelEvent hotelEvent) {
         try {
             ConnectionFactory factory = new ActiveMQConnectionFactory(BROKER_URL);
             Connection connection = factory.createConnection();
@@ -22,13 +22,13 @@ public class ActiveMqBookingStorage implements BookingStorage {
             MessageProducer producer = session.createProducer(destinationTopic);
             producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
-            TextMessage message = session.createTextMessage(booking.toJson());
+            TextMessage message = session.createTextMessage(hotelEvent.toJson());
             producer.send(message);
 
             session.close();
             connection.close();
         } catch (JMSException e) {
-            throw new RuntimeException("Failed to store booking", e);
+            throw new RuntimeException("Failed to store hotelEvent", e);
         }
     }
 }

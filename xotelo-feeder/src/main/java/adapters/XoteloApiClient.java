@@ -5,11 +5,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.logging.Logger;
-import java.text.SimpleDateFormat;
 
 public class XoteloApiClient {
     private static final Logger LOGGER = Logger.getLogger(XoteloApiClient.class.getName());
-    private static final SimpleDateFormat SDF = new SimpleDateFormat("MMM dd, yyyy h:mm:ss a");
 
     public String fetchHotelData(String apiUrl) {
         try {
