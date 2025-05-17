@@ -7,13 +7,13 @@ import java.util.Objects;
 
 public class Trip {
     private long id;
-    private String origin;
-    private String destination;
+    private final String origin;
+    private final String destination;
     private final LocalDate departureDate;
     private final LocalTime departureTime;
     private final LocalDateTime departureDateTime;
-    private double price;
-    private int available;
+    private final double price;
+    private final int available;
 
     public Trip(String origin, String destination,
                 String departureTime, String departureDate,

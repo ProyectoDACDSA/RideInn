@@ -1,7 +1,6 @@
 package model;
 
 import com.google.gson.annotations.SerializedName;
-
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,6 +20,7 @@ public class Hotel {
     private double totalPrice;
     private final String city;
     private final LocalDateTime timestamp;
+    private long nights = 1;
 
     public Hotel(long id, String hotelName, String key, String accommodationType,
                  String url, Double rating, double averagePricePerNight, String city, LocalDateTime timestamp) {
@@ -38,7 +38,6 @@ public class Hotel {
     public Double getRating() {
         return rating;
     }
-    public long getId() { return id; }
     public String getHotelName() { return hotelName; }
     public String getKey() { return key; }
     public String getUrl() { return url; }
@@ -64,14 +63,18 @@ public class Hotel {
         calculateTotalPrice();
     }
 
-    public void calculateTotalPrice() {
-        if (this.startDate != null && this.endDate != null && !this.endDate.isBefore(this.startDate)) {
-            long nights = ChronoUnit.DAYS.between(this.startDate, this.endDate);
-            this.totalPrice = this.averagePricePerNight * nights;
-        } else {
-            this.totalPrice = this.averagePricePerNight;
-        }
+    public long getNights() {
+        return nights;
     }
+
+    public void setNights(long nights) {
+        this.nights = nights;
+    }
+
+    public void calculateTotalPrice() {
+        this.totalPrice = this.averagePricePerNight * this.nights;
+    }
+
 
     @Override
     public String toString() {

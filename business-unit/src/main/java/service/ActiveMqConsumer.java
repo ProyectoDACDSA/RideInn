@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.HotelRepository;
 import repository.TripRepository;
-
 import javax.jms.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,7 +18,6 @@ import java.util.concurrent.Executors;
 public class ActiveMqConsumer {
     private static final Logger logger = LoggerFactory.getLogger(ActiveMqConsumer.class);
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
-    private Connection connection;
 
     private static final String ACTIVEMQ_URL = "tcp://localhost:61616";
     private static final String BLABLACAR_TOPIC = "Blablacar";
@@ -45,11 +43,9 @@ public class ActiveMqConsumer {
 
     private void initializeActiveMQConnection() throws JMSException {
         ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(ACTIVEMQ_URL);
-        connection = factory.createConnection();
+        Connection connection = factory.createConnection();
         connection.start();
-
         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
         setupTopicConsumer(session, BLABLACAR_TOPIC, new TripMessageListener(this));
         setupTopicConsumer(session, XOTELO_TOPIC, new HotelMessageListener(this));
     }
@@ -63,7 +59,6 @@ public class ActiveMqConsumer {
 
     private Trip parseTrip(String json) {
         JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
-
         return new Trip(
                 jsonObject.get("origin").getAsString(),
                 jsonObject.get("destination").getAsString(),
@@ -78,7 +73,6 @@ public class ActiveMqConsumer {
         if (json == null || json.trim().isEmpty()) {
             throw new IllegalArgumentException("JSON string cannot be null or empty");
         }
-
         try {
             return gson.fromJson(json, Hotel.class);
         } catch (JsonSyntaxException | DateTimeParseException e) {
@@ -114,9 +108,7 @@ public class ActiveMqConsumer {
         private final HotelRepository hotelRepository = new HotelRepository();
         private final ActiveMqConsumer parent;
 
-        public HotelMessageListener(ActiveMqConsumer parent) {
-            this.parent = parent;
-        }
+        public HotelMessageListener(ActiveMqConsumer parent) {this.parent = parent;}
 
         @Override
         public void onMessage(Message message) {

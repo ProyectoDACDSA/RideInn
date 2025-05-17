@@ -16,22 +16,6 @@ public class DatabaseConfig {
         return connection;
     }
 
-    public static void commit() throws SQLException {
-        if (connection != null && !connection.isClosed()) {
-            connection.commit();
-        }
-    }
-
-    public static void rollback() {
-        try {
-            if (connection != null && !connection.isClosed()) {
-                connection.rollback();
-            }
-        } catch (SQLException e) {
-            System.err.println("Error during rollback: " + e.getMessage());
-        }
-    }
-
     public static void closeConnection() {
         try {
             if (connection != null && !connection.isClosed()) {
@@ -41,7 +25,6 @@ public class DatabaseConfig {
             System.err.println("Error closing connection: " + e.getMessage());
         }
     }
-
 
     public static void initializeDatabase() {
         try (Connection conn = getConnection()) {

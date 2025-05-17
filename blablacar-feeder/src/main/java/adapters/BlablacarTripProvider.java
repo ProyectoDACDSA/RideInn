@@ -9,7 +9,7 @@ import org.json.JSONObject;
 
 public class BlablacarTripProvider {
     private static final Logger LOGGER = Logger.getLogger(BlablacarTripProvider.class.getName());
-    private static final int MAX_TRIPS_PER_ROUTE = 25;
+    private static final int MAX_TRIPS_PER_ROUTE = 50;
 
     private static final Map<String, Integer> CITY_IDS = Map.of(
             "Paris", 90,

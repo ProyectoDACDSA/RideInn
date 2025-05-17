@@ -4,9 +4,7 @@ import config.DatabaseConfig;
 import model.Hotel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,18 +21,18 @@ public class HotelRepository {
     public void save(Hotel hotel) throws SQLException {
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
-            setParameters(pstmt, hotel);
-            int affectedRows = pstmt.executeUpdate();
-            if (affectedRows == 0) {
-                throw new SQLException("Error al insertar hotel, ninguna fila afectada");
-            }
-            try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    hotel.setId(generatedKeys.getLong(1));
-                } else {
-                    logger.warn("No se obtuvieron claves generadas para el hotel insertado");
+                setParameters(pstmt, hotel);
+                int affectedRows = pstmt.executeUpdate();
+                if (affectedRows == 0) {
+                    throw new SQLException("Error al insertar hotel, ninguna fila afectada");
                 }
-            }
+                try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        hotel.setId(generatedKeys.getLong(1));
+                    } else {
+                        logger.warn("No se obtuvieron claves generadas para el hotel insertado");
+                    }
+                }
         } catch (SQLException e) {
             if (e.getMessage().contains("UNIQUE constraint failed")) {
                 logger.info("Hotel ya insertado con mismo precio - Clave: {}", hotel.getKey());
@@ -61,15 +59,12 @@ public class HotelRepository {
 
     public List<Hotel> findByCity(String city) throws SQLException {
         List<Hotel> hotels = new ArrayList<>();
-
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(SELECT_BY_CITY_SQL)) {
-
-            pstmt.setString(1, city);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    Hotel hotel = new Hotel(
+                pstmt.setString(1, city);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    while (rs.next()) {
+                        Hotel hotel = new Hotel(
                             rs.getLong("id"),
                             rs.getString("hotel_name"),
                             rs.getString("hotel_key"),

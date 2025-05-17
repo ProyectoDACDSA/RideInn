@@ -18,7 +18,6 @@ import java.util.stream.Stream;
 
 public class EventStoreReader {
     private static final Logger logger = LoggerFactory.getLogger(EventStoreReader.class);
-
     private final String blablacarPath;
     private final String xoteloPath;
     private final TripRepository tripRepository;
@@ -63,12 +62,10 @@ public class EventStoreReader {
         try {
             logger.info("Processing Blablacar events from: {}", blablacarPath);
             Path path = Paths.get(blablacarPath);
-
             if (!Files.exists(path)) {
                 logger.warn("Blablacar directory does not exist: {}", blablacarPath);
                 return;
             }
-
             try (Stream<Path> paths = Files.walk(path)) {
                 paths.filter(Files::isRegularFile)
                         .filter(p -> p.toString().endsWith(".events"))
@@ -81,12 +78,11 @@ public class EventStoreReader {
 
     private void processBlablacarFile(Path file) {
         try {
-            logger.debug("Processing file: {}", file);
+            logger.debug("Processing Blablacar file: {}", file);
             long lineCount = Files.lines(file)
                     .peek(this::processTripLine)
                     .count();
-
-            logger.info("File {} processed: {} lines", file, lineCount);
+            logger.info("File for trips {} processed: {} lines", file, lineCount);
         } catch (IOException e) {
             logger.error("Error processing file: {}", file, e);
         }
@@ -96,7 +92,6 @@ public class EventStoreReader {
         try {
             JsonObject obj = JsonParser.parseString(line).getAsJsonObject();
             String departureTimeStr = obj.get("departureTime").getAsString();
-
             Trip trip = new Trip(
                     obj.get("origin").getAsString(),
                     obj.get("destination").getAsString(),
@@ -105,7 +100,6 @@ public class EventStoreReader {
                     obj.get("price").getAsDouble(),
                     obj.get("available").getAsInt()
             );
-
             tripRepository.save(trip);
         } catch (Exception e) {
             logger.error("Error processing trip line: {}", line, e);
@@ -116,12 +110,10 @@ public class EventStoreReader {
         try {
             logger.info("Processing Xotelo events from: {}", xoteloPath);
             Path path = Paths.get(xoteloPath);
-
             if (!Files.exists(path)) {
                 logger.warn("Xotelo directory does not exist: {}", xoteloPath);
                 return;
             }
-
             try (Stream<Path> paths = Files.walk(path)) {
                 paths.filter(Files::isRegularFile)
                         .filter(p -> p.toString().endsWith(".events"))
@@ -134,12 +126,11 @@ public class EventStoreReader {
 
     private void processXoteloFile(Path file) {
         try {
-            logger.debug("Processing file: {}", file);
+            logger.debug("Processing Xotelo file: {}", file);
             long lineCount = Files.lines(file)
                     .peek(this::processHotelLine)
                     .count();
-
-            logger.info("File {} processed: {} lines", file, lineCount);
+            logger.info("File for hotels {} processed: {} lines", file, lineCount);
         } catch (IOException e) {
             logger.error("Error processing file: {}", file, e);
         }

@@ -19,7 +19,6 @@ public class DatamartApplication {
             );
             eventReader.processAllHistoricalEvents();
 
-
             logger.info("Iniciando consumidor de ActiveMQ...");
             ActiveMqConsumer mqConsumer = new ActiveMqConsumer();
             mqConsumer.start();

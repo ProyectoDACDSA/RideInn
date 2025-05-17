@@ -2,7 +2,6 @@ package ui;
 
 import model.Recommendation;
 import service.RecommendationAnalysisService;
-
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -47,14 +46,14 @@ public class BestValueTrips {
     private void displayResultsForBestTrips(List<Recommendation> results, String originCity,
                                             int stayDuration, Double minRating, boolean specifyStay) {
 
-        System.out.println("\n══════════════════════════════════════════════════════════════════════");
+        System.out.println("\n═════════════════════════════════════════════════════════════════════════");
         System.out.println("                      MEJORES OFERTAS" +
                 (originCity != null ? " DESDE " + originCity.toUpperCase() : "") +
                 (minRating != null ? " (Rating ≥ " + minRating + ")" : ""));
         if (specifyStay) {
             System.out.println("                      Estancia: " + stayDuration + " noches");
         }
-        System.out.println("══════════════════════════════════════════════════════════════════════");
+        System.out.println("═════════════════════════════════════════════════════════════════════════");
 
         if (results.isEmpty()) {
             System.out.println("\nNo se encontraron recomendaciones con los criterios especificados");
@@ -70,10 +69,14 @@ public class BestValueTrips {
                 String hotelName = truncate(rec.getHotel().getHotelName(), 25);
                 String fechaHoraViaje = rec.getTrip().getDepartureDateTime()
                         .format(DateTimeFormatter.ofPattern("dd/MM HH:mm"));
+                double precioHotel = specifyStay ?
+                        (rec.getHotel().getAveragePricePerNight() * stayDuration) :
+                        rec.getHotel().getAveragePricePerNight();
+                double precioTotal = rec.getTrip().getPrice() +
+                        (specifyStay ?
+                                (rec.getHotel().getAveragePricePerNight() * stayDuration) :
+                                rec.getHotel().getAveragePricePerNight());
 
-                double precioHotel = specifyStay ? rec.getHotel().getTotalPrice() : rec.getHotel().getAveragePricePerNight();
-                rec.setTotalPrice();
-                double precioTotal = rec.getTotalPrice();
 
                 System.out.printf("%7.2f | %-12s | %-20s | %-15s | %-15s | %-25s | %6.1f/5 | %10.2f€ | %10.2f€ | %12.2f€\n",
                         ratio,
@@ -84,7 +87,7 @@ public class BestValueTrips {
                         hotelName,
                         rec.getHotel().getRating() != null ? rec.getHotel().getRating() : 0.0,
                         rec.getTrip().getPrice(),
-                        precioHotel,
+                        rec.getHotel().getAveragePricePerNight(),
                         precioTotal);
             });
 
@@ -134,15 +137,16 @@ public class BestValueTrips {
                     LocalDate startDate = r.getTrip().getDepartureDateTime().toLocalDate();
                     r.getHotel().setStartDate(startDate);
                     r.getHotel().setEndDate(startDate.plusDays(stayDuration));
-                    r.getHotel().calculateTotalPrice();
-                    r.setTotalPrice();
                 })
                 .sorted(Comparator.comparingDouble(r -> {
+                    double hotelPrice = specifyStay ?
+                            (r.getHotel().getAveragePricePerNight() * stayDuration) :
+                            r.getHotel().getAveragePricePerNight();
+                    double totalPrice = r.getTrip().getPrice() + hotelPrice;
                     double rating = r.getHotel().getRating() != null ? r.getHotel().getRating() : 1.0;
-                    return r.getTotalPrice() / rating;
+                    return totalPrice / rating;
                 }))
-                .collect(Collectors.toList());
-
+                .toList();
         Map<String, Recommendation> uniqueRecommendations = processedRecommendations.stream()
                 .collect(Collectors.toMap(
                         r -> r.getHotel().getKey() + "-" + r.getTrip().getId(),
@@ -150,11 +154,9 @@ public class BestValueTrips {
                         (existing, replacement) -> existing.getTotalPrice() < replacement.getTotalPrice() ? existing : replacement,
                         LinkedHashMap::new
                 ));
-
         List<Recommendation> finalResults = uniqueRecommendations.values().stream()
                 .limit(maxResults)
                 .collect(Collectors.toList());
-
         displayResultsForBestTrips(finalResults, originCity, stayDuration, minRating, specifyStay);
     }
 }

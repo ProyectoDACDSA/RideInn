@@ -4,7 +4,6 @@ import model.Hotel;
 import model.Recommendation;
 import model.Trip;
 import service.RecommendationAnalysisService;
-
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
@@ -81,19 +80,18 @@ public class CheapestTrips {
         System.out.println(" (Paris, Toulouse, Niza, Lyon, Estrasburgo) ");
         System.out.println("══════════════════════════════════════════════");
 
-        System.out.print("\nIngrese ciudad destino: ");
+        System.out.print("Ingrese ciudad destino: ");
         final String city = scanner.nextLine();
 
-        System.out.print("\n¿Desea filtrar por ciudad de origen? (si/no): ");
+        System.out.print("¿Desea filtrar por ciudad de origen? (si/no): ");
         final boolean filterByOrigin = scanner.nextLine().trim().equalsIgnoreCase("si");
         final String originCity = filterByOrigin ? askForCity(scanner) : null;
 
-        System.out.print("\n¿Desea especificar duración de estancia? (si/no): ");
+        System.out.print("¿Desea especificar duración de estancia? (si/no): ");
         final boolean specifyStay = scanner.nextLine().trim().equalsIgnoreCase("si");
         final int stayDuration = specifyStay ? askForStayDuration(scanner) : 1;
 
         List<Recommendation> allRecommendations = analysisService.getTravelPackages(city);
-
         List<Recommendation> filteredRecommendations = allRecommendations.stream()
                 .filter(r -> originCity == null || r.getTrip().getOrigin().equalsIgnoreCase(originCity))
                 .peek(r -> {
@@ -105,7 +103,6 @@ public class CheapestTrips {
                 .sorted(Comparator.comparingDouble(Recommendation::getTotalPrice))
                 .limit(10)
                 .collect(Collectors.toList());
-
         displayCheapestTrips(filteredRecommendations, originCity, stayDuration);
     }
 }
