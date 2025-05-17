@@ -1,19 +1,22 @@
 package domain;
 
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
-public class HotelTest {
-    @Test
-    public void testHotelCreation() {
-        Hotel hotel = new Hotel(
-                "Grand Hotel", "key123", 100, 200, 4.5,
-                "Hotel", "http://example.com", "Paris"
-        );
+import static org.junit.jupiter.api.Assertions.*;
 
-        assertEquals("Grand Hotel", hotel.getName());
-        assertEquals(100, hotel.getPriceMin());
-        assertEquals(4.5, hotel.getRating());
-        assertEquals("Paris", hotel.getCity());
+class HotelTest {
+
+    @Test
+    void constructor_ShouldSetAllFields() {
+        Hotel hotel = new Hotel("Test Hotel", "test123", 100, 200, 4.5, "Hotel", "http://test.com", "Paris");
+
+        assertEquals("Test Hotel", hotel.name());
+        assertEquals("test123", hotel.key());
+        assertEquals(100, hotel.priceMin());
+        assertEquals(200, hotel.priceMax());
+        assertEquals(4.5, hotel.rating());
+        assertEquals("Hotel", hotel.accommodationType());
+        assertEquals("http://test.com", hotel.url());
+        assertEquals("Paris", hotel.city());
     }
 }
