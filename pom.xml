@@ -13,7 +13,7 @@
         <module>blablacar-feeder</module>
         <module>xotelo-feeder</module>
         <module>event-store-builder</module>
-        <module>TravelPackages</module>
+        <module>travel-packages</module>
     </modules>
 
     <properties>

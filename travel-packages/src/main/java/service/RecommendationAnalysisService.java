@@ -6,7 +6,6 @@ import model.Recommendation;
 import repository.HotelRepository;
 import repository.TripRepository;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.*;
 
 public class RecommendationAnalysisService {

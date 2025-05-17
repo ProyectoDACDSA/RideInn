@@ -4,7 +4,6 @@ import com.google.gson.annotations.SerializedName;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 
 public class Hotel {
     private Long id;
@@ -15,8 +14,8 @@ public class Hotel {
     private final String url;
     private final Double rating;
     private final double averagePricePerNight;
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private LocalDate startDate = LocalDate.now();
+    private LocalDate endDate = LocalDate.now();
     private double totalPrice;
     private final String city;
     private final LocalDateTime timestamp;
@@ -33,6 +32,7 @@ public class Hotel {
         this.averagePricePerNight = averagePricePerNight;
         this.city = city;
         this.timestamp = timestamp;
+        calculateTotalPrice();
     }
 
     public Double getRating() {
@@ -57,12 +57,12 @@ public class Hotel {
     }
 
     public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate;
+        this.startDate = (startDate != null) ? startDate : LocalDate.now();
         calculateTotalPrice();
     }
 
     public void setEndDate(LocalDate endDate) {
-        this.endDate = endDate;
+        this.endDate = (endDate != null) ? endDate : LocalDate.now();
         calculateTotalPrice();
     }
 
@@ -77,7 +77,6 @@ public class Hotel {
     public void calculateTotalPrice() {
         this.totalPrice = this.averagePricePerNight * this.nights;
     }
-
 
     @Override
     public String toString() {
