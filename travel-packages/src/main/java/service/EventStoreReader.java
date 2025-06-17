@@ -7,10 +7,9 @@ import repository.HotelRepository;
 import repository.TripRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -18,85 +17,72 @@ import java.util.stream.Stream;
 
 public class EventStoreReader {
     private static final Logger logger = LoggerFactory.getLogger(EventStoreReader.class);
-    private final String blablacarPath;
-    private final String xoteloPath;
-    private final TripRepository tripRepository;
-    private final HotelRepository hotelRepository;
-    private final Gson gson;
+    private final String blablacarPath, xoteloPath;
+    private final TripRepository tripRepository = new TripRepository();
+    private final HotelRepository hotelRepository = new HotelRepository();
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDate.class, (JsonDeserializer<LocalDate>) (json, type, ctx) -> {
+                try {
+                    return LocalDate.parse(json.getAsString());
+                } catch (DateTimeParseException e) {
+                    return LocalDate.parse(json.getAsString().split("T")[0]);
+                }
+            })
+            .registerTypeAdapter(LocalDateTime.class, (JsonDeserializer<LocalDateTime>) (json, type, ctx) -> {
+                try {
+                    return LocalDateTime.parse(json.getAsString());
+                } catch (DateTimeParseException e) {
+                    if (!json.getAsString().contains("T"))
+                        return LocalDate.parse(json.getAsString()).atStartOfDay();
+                    throw e;
+                }
+            })
+            .create();
 
     public EventStoreReader(String blablacarPath, String xoteloPath) {
         this.blablacarPath = blablacarPath;
         this.xoteloPath = xoteloPath;
-        this.tripRepository = new TripRepository();
-        this.hotelRepository = new HotelRepository();
-        this.gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDate.class, (JsonDeserializer<LocalDate>) (json, type, context) -> {
-                    try {
-                        return LocalDate.parse(json.getAsString());
-                    } catch (DateTimeParseException e) {
-                        String datePart = json.getAsString().split("T")[0];
-                        return LocalDate.parse(datePart);
-                    }
-                })
-                .registerTypeAdapter(LocalDateTime.class, (JsonDeserializer<LocalDateTime>) (json, type, context) -> {
-                    try {
-                        return LocalDateTime.parse(json.getAsString());
-                    } catch (DateTimeParseException e) {
-                        if (!json.getAsString().contains("T")) {
-                            return LocalDate.parse(json.getAsString()).atStartOfDay();
-                        }
-                        throw e;
-                    }
-                })
-                .create();
     }
 
     public void processAllHistoricalEvents() {
         logger.info("Processing all historical events...");
-        processBlablacarEvents();
-        processXoteloEvents();
+        processEvents(blablacarPath, this::processTripLine, "Blablacar");
+        processEvents(xoteloPath, this::processHotelLine, "Xotelo");
         logger.info("Finished processing historical events");
     }
 
-    private void processBlablacarEvents() {
-        try {
-            logger.info("Processing Blablacar events from: {}", blablacarPath);
-            Path path = Paths.get(blablacarPath);
-            if (!Files.exists(path)) {
-                logger.warn("Blablacar directory does not exist: {}", blablacarPath);
-                return;
-            }
-            try (Stream<Path> paths = Files.walk(path)) {
-                paths.filter(Files::isRegularFile)
-                        .filter(p -> p.toString().endsWith(".events"))
-                        .forEach(this::processBlablacarFile);
-            }
-        } catch (IOException e) {
-            logger.error("Error processing Blablacar events", e);
+    private void processEvents(String dir, java.util.function.Consumer<String> lineProcessor, String source) {
+        Path path = Paths.get(dir);
+        if (!Files.exists(path)) {
+            logger.warn("{} directory does not exist: {}", source, dir);
+            return;
         }
-    }
-
-    private void processBlablacarFile(Path file) {
-        try {
-            logger.debug("Processing Blablacar file: {}", file);
-            long lineCount = Files.lines(file)
-                    .peek(this::processTripLine)
-                    .count();
-            logger.info("File for trips {} processed: {} lines", file, lineCount);
+        try (Stream<Path> files = Files.walk(path)) {
+            files.filter(Files::isRegularFile)
+                    .filter(f -> f.toString().endsWith(".events"))
+                    .forEach(f -> {
+                        logger.debug("Processing {} file: {}", source, f);
+                        try {
+                            long count = Files.lines(f).peek(lineProcessor).count();
+                            logger.info("File for {} {} processed: {} lines", source.toLowerCase(), f, count);
+                        } catch (IOException e) {
+                            logger.error("Error processing file: {}", f, e);
+                        }
+                    });
         } catch (IOException e) {
-            logger.error("Error processing file: {}", file, e);
+            logger.error("Error processing {} events", source, e);
         }
     }
 
     private void processTripLine(String line) {
         try {
             JsonObject obj = JsonParser.parseString(line).getAsJsonObject();
-            String departureTimeStr = obj.get("departureTime").getAsString();
+            String dep = obj.get("departureTime").getAsString();
             Trip trip = new Trip(
                     obj.get("origin").getAsString(),
                     obj.get("destination").getAsString(),
-                    departureTimeStr.substring(11, 19),
-                    departureTimeStr.substring(0, 10),
+                    dep.substring(11, 19),
+                    dep.substring(0, 10),
                     obj.get("price").getAsDouble(),
                     obj.get("available").getAsInt()
             );
@@ -106,42 +92,10 @@ public class EventStoreReader {
         }
     }
 
-    private void processXoteloEvents() {
-        try {
-            logger.info("Processing Xotelo events from: {}", xoteloPath);
-            Path path = Paths.get(xoteloPath);
-            if (!Files.exists(path)) {
-                logger.warn("Xotelo directory does not exist: {}", xoteloPath);
-                return;
-            }
-            try (Stream<Path> paths = Files.walk(path)) {
-                paths.filter(Files::isRegularFile)
-                        .filter(p -> p.toString().endsWith(".events"))
-                        .forEach(this::processXoteloFile);
-            }
-        } catch (IOException e) {
-            logger.error("Error processing Xotelo events", e);
-        }
-    }
-
-    private void processXoteloFile(Path file) {
-        try {
-            logger.debug("Processing Xotelo file: {}", file);
-            long lineCount = Files.lines(file)
-                    .peek(this::processHotelLine)
-                    .count();
-            logger.info("File for hotels {} processed: {} lines", file, lineCount);
-        } catch (IOException e) {
-            logger.error("Error processing file: {}", file, e);
-        }
-    }
-
     private void processHotelLine(String line) {
         try {
             Hotel hotel = gson.fromJson(line, Hotel.class);
-            if (hotel != null) {
-                hotelRepository.save(hotel);
-            }
+            if (hotel != null) hotelRepository.save(hotel);
         } catch (Exception e) {
             logger.error("Error processing hotel line: {}", line, e);
         }

@@ -1,23 +1,48 @@
 import org.junit.jupiter.api.Test;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+
+import java.io.*;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CLITest {
 
-    @Test
-    public void testMenuOptionExit() {
-        String input = "0\n";
-        ByteArrayInputStream in = new ByteArrayInputStream(input.getBytes());
-        System.setIn(in);
+    private final InputStream systemIn = System.in;
+    private final PrintStream systemOut = System.out;
+    private ByteArrayInputStream testIn;
+    private ByteArrayOutputStream testOut;
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(out));
+    @BeforeEach
+    public void setUpOutput() {
+        testOut = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(testOut));
+    }
+
+    private void provideInput(String data) {
+        testIn = new ByteArrayInputStream(data.getBytes());
+        System.setIn(testIn);
+    }
+
+    private String getOutput() {
+        return testOut.toString();
+    }
+
+    @AfterEach
+    public void restoreSystem() {
+        System.setIn(systemIn);
+        System.setOut(systemOut);
+    }
+
+    @Test
+    public void testInvalidThenExitOption() {
+        provideInput("0\n3\n");
 
         CLI.main(new String[]{});
 
-        String output = out.toString();
-        assert output.contains("Saliendo del programa");
+        String output = getOutput();
+        assertTrue(output.contains("Opción inválida"));
+        assertTrue(output.contains("Saliendo del programa"));
     }
 
     @Test
@@ -29,19 +54,15 @@ public class CLITest {
                 "no",
                 "no",
                 "5",
-                "0"
+                "3"
         ) + "\n";
 
-        ByteArrayInputStream in = new ByteArrayInputStream(input.getBytes());
-        System.setIn(in);
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(out));
+        provideInput(input);
 
         CLI.main(new String[]{});
 
-        String output = out.toString();
-        assert output.contains("VIAJES CON MEJOR RELACIÓN CALIDAD-PRECIO");
-        assert output.contains("Saliendo del programa");
+        String output = getOutput();
+        assertTrue(output.contains("VIAJES CON MEJOR RELACIÓN CALIDAD-PRECIO"));
+        assertTrue(output.contains("Saliendo del programa"));
     }
 }

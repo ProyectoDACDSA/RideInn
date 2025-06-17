@@ -9,6 +9,7 @@ import java.util.concurrent.*;
 public class Controller {
     private final HotelProvider hotelProvider;
     private final HotelEventStorage hotelEventStorage;
+    private ScheduledExecutorService scheduler;
 
     public Controller(HotelProvider hotelProvider, HotelEventStorage hotelEventStorage) {
         this.hotelProvider = hotelProvider;
@@ -16,21 +17,33 @@ public class Controller {
     }
 
     public void execute() {
-        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-        scheduler.scheduleAtFixedRate(() -> {
-            System.out.println("Fetching hotel data and creating bookings...");
-            hotelProvider.getCityUrls().forEach((city, url) -> {
-                List<Hotel> hotels = hotelProvider.fetchHotelsForCity(city, url);
-                hotels.forEach(hotel -> {
-                    HotelEvent hotelEvent = new HotelEvent(
-                            System.currentTimeMillis(),
-                            "Xotelo",
-                            hotel
-                    );
-                    hotelEventStorage.store(hotelEvent);
-                    System.out.println("Created hotelEvent for: " + hotel.name());
-                });
+        fetchAndStoreHotelEvents();
+    }
+
+    public void start() {
+        scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.scheduleAtFixedRate(this::fetchAndStoreHotelEvents, 0, 1, TimeUnit.DAYS);
+    }
+
+    public void shutdown() {
+        if (scheduler != null) {
+            scheduler.shutdown();
+        }
+    }
+
+    private void fetchAndStoreHotelEvents() {
+        System.out.println("Fetching hotel data and creating bookings...");
+        hotelProvider.getCityUrls().forEach((city, url) -> {
+            List<Hotel> hotels = hotelProvider.fetchHotelsForCity(city, url);
+            hotels.forEach(hotel -> {
+                HotelEvent hotelEvent = new HotelEvent(
+                        System.currentTimeMillis(),
+                        "Xotelo",
+                        hotel
+                );
+                hotelEventStorage.store(hotelEvent);
+                System.out.println("Created hotelEvent for: " + hotel.name());
             });
-        }, 0, 1, TimeUnit.DAYS);
+        });
     }
 }

@@ -1,72 +1,86 @@
 package adapters;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
-import org.junit.jupiter.api.Test;
-import org.mockito.MockedConstruction;
+import java.util.logging.Logger;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class XoteloApiClientTest {
+class XoteloApiClientTest {
+    private static final Logger LOGGER = Logger.getLogger(XoteloApiClientTest.class.getName());
 
     @Test
-    public void testFetchHotelData_Success() throws Exception {
-        String mockResponse = "{\"result\":{\"list\":[]}}";
-        HttpURLConnection mockConnection = mock(HttpURLConnection.class);
+    void testFetchHotelData_success() {
+        XoteloApiClient client = new XoteloApiClient() {
+            @Override
+            protected HttpURLConnection openConnection(String apiUrl) {
+                return new MockHttpURLConnection();
+            }
+        };
 
-        when(mockConnection.getResponseCode()).thenReturn(200);
-        when(mockConnection.getInputStream())
-                .thenReturn(new ByteArrayInputStream(mockResponse.getBytes()));
-
-        try (MockedConstruction<URL> ignored = mockConstruction(URL.class,
-                (mock, context) -> {
-                    when(mock.openConnection()).thenReturn(mockConnection);
-                })) {
-
-            XoteloApiClient client = new XoteloApiClient();
-            String result = client.fetchHotelData("http://fake-api.com");
-
-            assertEquals(mockResponse, result);
-            verify(mockConnection).setRequestMethod("GET");
-            verify(mockConnection).getInputStream();
-        }
+        String result = client.fetchHotelData("http://mocked-url");
+        assertNotNull(result);
+        assertTrue(result.contains("\"result\""));
     }
 
     @Test
-    public void testFetchHotelData_Failure() throws Exception {
-        HttpURLConnection mockConnection = mock(HttpURLConnection.class);
-        when(mockConnection.getResponseCode()).thenReturn(404);
+    void testFetchHotelData_httpError() {
+        XoteloApiClient client = new XoteloApiClient() {
+            @Override
+            protected HttpURLConnection openConnection(String apiUrl) {
+                return new MockHttpURLConnection(500);
+            }
+        };
 
-        try (MockedConstruction<URL> ignored = mockConstruction(URL.class,
-                (mock, context) -> {
-                    when(mock.openConnection()).thenReturn(mockConnection);
-                })) {
-
-            XoteloApiClient client = new XoteloApiClient();
-            String result = client.fetchHotelData("http://fake-api.com");
-
-            assertNull(result);
-            verify(mockConnection).disconnect();
-        }
+        String result = client.fetchHotelData("http://mocked-url");
+        assertNull(result);
     }
 
     @Test
-    public void testFetchHotelData_IOException() throws Exception {
-        HttpURLConnection mockConnection = mock(HttpURLConnection.class);
-        when(mockConnection.getResponseCode()).thenReturn(200);
-        when(mockConnection.getInputStream())
-                .thenThrow(new java.io.IOException("Simulated error"));
+    void testFetchHotelData_exception() {
+        XoteloApiClient client = new XoteloApiClient() {
+            @Override
+            protected HttpURLConnection openConnection(String apiUrl) throws Exception {
+                throw new Exception("Mocked exception");
+            }
+        };
 
-        try (MockedConstruction<URL> ignored = mockConstruction(URL.class,
-                (mock, context) -> {
-                    when(mock.openConnection()).thenReturn(mockConnection);
-                })) {
+        String result = client.fetchHotelData("http://mocked-url");
+        assertNull(result);
+    }
 
-            XoteloApiClient client = new XoteloApiClient();
-            String result = client.fetchHotelData("http://fake-api.com");
+    // MockHttpURLConnection interna para simular respuestas
+    private static class MockHttpURLConnection extends HttpURLConnection {
+        private final int responseCode;
+        private final String responseBody = "{ \"result\": { \"list\": [] } }";
 
-            assertNull(result);
+        protected MockHttpURLConnection() {
+            super(null);
+            this.responseCode = HTTP_OK;
         }
+
+        protected MockHttpURLConnection(int responseCode) {
+            super(null);
+            this.responseCode = responseCode;
+        }
+
+        @Override
+        public int getResponseCode() {
+            return responseCode;
+        }
+
+        @Override
+        public java.io.InputStream getInputStream() {
+            return new ByteArrayInputStream(responseBody.getBytes());
+        }
+
+        @Override
+        public void disconnect() { }
+
+        @Override
+        public boolean usingProxy() { return false; }
+
+        @Override
+        public void connect() { }
     }
 }

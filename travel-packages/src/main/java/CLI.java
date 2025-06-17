@@ -1,5 +1,4 @@
 import ui.BestValueTrips;
-import ui.CheapestTrips;
 import ui.CurrentRecommendations;
 import java.sql.SQLException;
 import java.util.Scanner;
@@ -12,8 +11,7 @@ public class CLI {
                 System.out.println("\n=== MENÚ DE ANÁLISIS DE VIAJES ===");
                 System.out.println("1. Recomendaciones Actuales");
                 System.out.println("2. Viajes Mejor Valorados");
-                System.out.println("3. Viajes Más Baratos");
-                System.out.println("0. Salir");
+                System.out.println("3. Salir");
                 System.out.print("Seleccione una opción: ");
                 String input = scanner.nextLine();
                 switch (input) {
@@ -40,17 +38,6 @@ public class CLI {
                         }
                         break;
                     case "3":
-                        try {
-                            CheapestTrips cheapestTrips = new CheapestTrips(scanner);
-                            cheapestTrips.execute();
-                        } catch (SQLException e) {
-                            System.err.println("Error en la base de datos: " + e.getMessage());
-                        } catch (Exception e) {
-                            System.err.println("Error inesperado: " + e.getMessage());
-                            e.printStackTrace();
-                        }
-                        break;
-                    case "0":
                         exit = true;
                         System.out.println("Saliendo del programa...");
                         break;

@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.HotelRepository;
 import repository.TripRepository;
+
 import javax.jms.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,113 +17,66 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ActiveMqConsumer {
-    private static final Logger logger = LoggerFactory.getLogger(ActiveMqConsumer.class);
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
-
-    private static final String ACTIVEMQ_URL = "tcp://localhost:61616";
-    private static final String BLABLACAR_TOPIC = "Blablacar";
-    private static final String XOTELO_TOPIC = "Xotelo";
-
+    private static final Logger log = LoggerFactory.getLogger(ActiveMqConsumer.class);
+    private static final String URL = "tcp://localhost:61616", TOPIC_BLAB = "Blablacar", TOPIC_XOT = "Xotelo";
+    private final ExecutorService exec = Executors.newSingleThreadExecutor();
     private final Gson gson = new GsonBuilder()
-            .registerTypeAdapter(LocalDate.class, (JsonDeserializer<LocalDate>) (json, type, context) ->
-                    LocalDate.parse(json.getAsJsonPrimitive().getAsString()))
-            .registerTypeAdapter(LocalDateTime.class, (JsonDeserializer<LocalDateTime>) (json, type, context) ->
-                    LocalDateTime.parse(json.getAsJsonPrimitive().getAsString()))
+            .registerTypeAdapter(LocalDate.class, (JsonDeserializer<LocalDate>) (j, t, c) -> LocalDate.parse(j.getAsString()))
+            .registerTypeAdapter(LocalDateTime.class, (JsonDeserializer<LocalDateTime>) (j, t, c) -> LocalDateTime.parse(j.getAsString()))
             .create();
 
     public void start() {
-        executor.submit(() -> {
+        exec.submit(() -> {
             try {
-                initializeActiveMQConnection();
-                logger.info("Consumidor de ActiveMQ iniciado correctamente");
+                var conn = new ActiveMQConnectionFactory(URL).createConnection();
+                conn.start();
+                var sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+                setupConsumer(sess, TOPIC_BLAB, new TripListener());
+                setupConsumer(sess, TOPIC_XOT, new HotelListener());
+                log.info("ActiveMQ consumer started");
             } catch (JMSException e) {
-                logger.error("Error al iniciar el consumidor de ActiveMQ", e);
+                log.error("Failed to start ActiveMQ consumer", e);
             }
         });
     }
 
-    private void initializeActiveMQConnection() throws JMSException {
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(ACTIVEMQ_URL);
-        Connection connection = factory.createConnection();
-        connection.start();
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        setupTopicConsumer(session, BLABLACAR_TOPIC, new TripMessageListener(this));
-        setupTopicConsumer(session, XOTELO_TOPIC, new HotelMessageListener(this));
-    }
-
-    private void setupTopicConsumer(Session session, String topicName, MessageListener listener) throws JMSException {
-        Topic topic = session.createTopic(topicName);
-        MessageConsumer consumer = session.createConsumer(topic);
+    private void setupConsumer(Session sess, String topic, MessageListener listener) throws JMSException {
+        var consumer = sess.createConsumer(sess.createTopic(topic));
         consumer.setMessageListener(listener);
-        logger.info("Suscrito al topic: {}", topicName);
+        log.info("Subscribed to topic: {}", topic);
     }
 
     private Trip parseTrip(String json) {
-        JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
-        return new Trip(
-                jsonObject.get("origin").getAsString(),
-                jsonObject.get("destination").getAsString(),
-                (jsonObject.get("departureTime").getAsString().substring(11,19)),
-                (jsonObject.get("departureTime").getAsString().substring(0,10)),
-                jsonObject.get("price").getAsDouble(),
-                jsonObject.get("available").getAsInt());
+        var o = JsonParser.parseString(json).getAsJsonObject();
+        var dt = o.get("departureTime").getAsString();
+        return new Trip(o.get("origin").getAsString(), o.get("destination").getAsString(),
+                dt.substring(11,19), dt.substring(0,10),
+                o.get("price").getAsDouble(), o.get("available").getAsInt());
     }
-
 
     private Hotel parseHotel(String json) {
-        if (json == null || json.trim().isEmpty()) {
-            throw new IllegalArgumentException("JSON string cannot be null or empty");
-        }
-        try {
-            return gson.fromJson(json, Hotel.class);
-        } catch (JsonSyntaxException | DateTimeParseException e) {
-            throw new IllegalArgumentException("Formato JSON inválido para Hotel", e);
+        if (json == null || json.isBlank()) throw new IllegalArgumentException("Empty JSON");
+        try { return gson.fromJson(json, Hotel.class); }
+        catch (JsonSyntaxException | DateTimeParseException e) { throw new IllegalArgumentException("Invalid Hotel JSON", e); }
+    }
+
+    private class TripListener implements MessageListener {
+        private final TripRepository repo = new TripRepository();
+        public void onMessage(Message m) {
+            try {
+                if (m instanceof TextMessage tm) repo.save(parseTrip(tm.getText()));
+                else log.warn("Unsupported message: {}", m.getClass().getSimpleName());
+            } catch (Exception e) { log.error("Trip processing error", e); }
         }
     }
 
-    private static class TripMessageListener implements MessageListener {
-        private final TripRepository tripRepository = new TripRepository();
-        private final ActiveMqConsumer parent;
-
-        public TripMessageListener(ActiveMqConsumer parent) {
-            this.parent = parent;
-        }
-
-        @Override
-        public void onMessage(Message message) {
+    private class HotelListener implements MessageListener {
+        private final HotelRepository repo = new HotelRepository();
+        public void onMessage(Message m) {
             try {
-                if (message instanceof TextMessage textMessage) {
-                    String json = textMessage.getText();
-                    Trip trip = parent.parseTrip(json);
-                    tripRepository.save(trip);
-                } else {
-                    logger.warn("Tipo de mensaje no soportado: {}", message.getClass().getSimpleName());
-                }
-            } catch (Exception e) {
-                logger.error("Error procesando mensaje de viaje", e);
-            }
-        }
-    }
-
-    private static class HotelMessageListener implements MessageListener {
-        private final HotelRepository hotelRepository = new HotelRepository();
-        private final ActiveMqConsumer parent;
-
-        public HotelMessageListener(ActiveMqConsumer parent) {this.parent = parent;}
-
-        @Override
-        public void onMessage(Message message) {
-            try {
-                if (message instanceof TextMessage textMessage) {
-                    String json = textMessage.getText();
-                    Hotel hotel = parent.parseHotel(json);
-                    hotelRepository.save(hotel);
-                } else {
-                    logger.warn("Tipo de mensaje no soportado: {}", message.getClass().getSimpleName());
-                }
-            } catch (Exception e) {
-                logger.error("Error procesando mensaje de hotel", e);
-            }
+                if (m instanceof TextMessage tm) repo.save(parseHotel(tm.getText()));
+                else log.warn("Unsupported message: {}", m.getClass().getSimpleName());
+            } catch (Exception e) { log.error("Hotel processing error", e); }
         }
     }
 }

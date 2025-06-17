@@ -8,18 +8,20 @@ public class ControllerTest {
     @Test
     public void testExecute() {
         HotelProvider mockHotelProvider = mock(HotelProvider.class);
-        HotelEventStorage mockBookingStorage = mock(HotelEventStorage.class);
+        HotelEventStorage mockHotelEventStorage = mock(HotelEventStorage.class);
 
         when(mockHotelProvider.getCityUrls())
                 .thenReturn(Map.of("Paris", "http://fake-api.com"));
+
         when(mockHotelProvider.fetchHotelsForCity(anyString(), anyString()))
                 .thenReturn(List.of(
-                        new Hotel("Hotel A", "key1", 100, 200, 4.5, "Hotel", "http://a.com", "Paris")
+                        new Hotel("Hotel A", "key1", 100, 200, 4.5,
+                                "Hotel", "http://a.com", "Paris")
                 ));
 
-        Controller controller = new Controller(mockHotelProvider, mockBookingStorage);
+        Controller controller = new Controller(mockHotelProvider, mockHotelEventStorage);
         controller.execute();
 
-        verify(mockBookingStorage, atLeastOnce()).store(any(HotelEvent.class));
+        verify(mockHotelEventStorage, atLeastOnce()).store(any(HotelEvent.class));
     }
 }

@@ -15,15 +15,12 @@ class CurrentRecommendationTest {
 
     @BeforeEach
     void setUp() {
-        // Creamos mocks de Trip y Hotel
         trip = mock(Trip.class);
         hotel = mock(Hotel.class);
 
-        // Definimos comportamiento esperado para los mocks
         when(trip.getPrice()).thenReturn(150.0);
         when(hotel.getTotalPrice()).thenReturn(300.0);
 
-        // Creamos la recomendación con los mocks
         recommendation = new Recommendation(trip, hotel, trip.getPrice() + hotel.getTotalPrice());
     }
 
@@ -44,9 +41,7 @@ class CurrentRecommendationTest {
 
     @Test
     void testSetTotalPrice_Recalculate() {
-        // Cambiamos el comportamiento del mock del hotel
         when(hotel.getTotalPrice()).thenReturn(350.0);
-        // Recalculamos precio total
         recommendation.setTotalPrice();
         assertEquals(500.0, recommendation.getTotalPrice(), 0.001);
     }
