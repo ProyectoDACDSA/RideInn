@@ -1,5 +1,6 @@
-package adapters;
+package application;
 
+import adapters.XoteloApiClient;
 import domain.Hotel;
 import ports.HotelProvider;
 import java.util.*;

@@ -1,8 +1,9 @@
-package adapters;
+package application;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import java.util.Map;
+
 import org.junit.jupiter.api.Test;
 import ports.ApiClient;
 import ports.EventSender;

@@ -1,6 +1,7 @@
 import adapters.ActiveMqHotelEventStorage;
+import adapters.Controller;
 import adapters.XoteloApiClient;
-import adapters.XoteloHotelProvider;
+import application.XoteloHotelProvider;
 import ports.HotelEventStorage;
 import ports.HotelProvider;
 

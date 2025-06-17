@@ -1,6 +1,7 @@
 import adapters.ActiveMqEventSender;
 import adapters.BlablacarApiClient;
-import adapters.BlablacarTripProvider;
+import adapters.Controller;
+import application.BlablacarTripProvider;
 import ports.EventSender;
 
 public class Main {

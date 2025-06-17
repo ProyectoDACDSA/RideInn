@@ -1,4 +1,6 @@
-import adapters.BlablacarTripProvider;
+package adapters;
+
+import application.BlablacarTripProvider;
 import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.*;
 

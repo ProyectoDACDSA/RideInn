@@ -1,8 +1,9 @@
-package adapters;
+package application;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import adapters.XoteloApiClient;
 import domain.Hotel;
 import org.junit.jupiter.api.Test;
 

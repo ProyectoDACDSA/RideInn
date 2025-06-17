@@ -1,4 +1,4 @@
-package adapters;
+package application;
 
 import ports.ApiClient;
 import ports.EventSender;

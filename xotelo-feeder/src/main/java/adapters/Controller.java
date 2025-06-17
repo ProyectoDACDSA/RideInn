@@ -1,3 +1,5 @@
+package adapters;
+
 import domain.HotelEvent;
 import ports.HotelProvider;
 import ports.HotelEventStorage;
