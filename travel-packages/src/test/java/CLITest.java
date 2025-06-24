@@ -66,3 +66,4 @@ public class CLITest {
         assertTrue(output.contains("Saliendo del programa"));
     }
 }
+

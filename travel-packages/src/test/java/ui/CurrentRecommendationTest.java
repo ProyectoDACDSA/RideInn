@@ -46,3 +46,4 @@ class CurrentRecommendationTest {
         assertEquals(500.0, recommendation.getTotalPrice(), 0.001);
     }
 }
+

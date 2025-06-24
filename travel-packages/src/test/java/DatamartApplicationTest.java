@@ -1,4 +1,4 @@
-import config.DatabaseConfig;
+import configuration.DatabaseConfig;
 import org.junit.jupiter.api.*;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -35,3 +35,4 @@ public class DatamartApplicationTest {
         databaseConfigMock.verify(DatabaseConfig::closeConnection, times(1));
     }
 }
+

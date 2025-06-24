@@ -1,6 +1,6 @@
 package repository;
 
-import config.DatabaseConfig;
+import configuration.DatabaseConfig;
 import model.Hotel;
 import org.junit.jupiter.api.*;
 
@@ -85,3 +85,4 @@ class HotelRepositoryTest {
         assertEquals("Lyon", lyonHotels.get(0).getCity());
     }
 }
+

@@ -1,6 +1,6 @@
 package repository;
 
-import config.DatabaseConfig;
+import configuration.DatabaseConfig;
 import model.Trip;
 import org.junit.jupiter.api.*;
 
@@ -81,3 +81,4 @@ class TripRepositoryTest {
         assertEquals("Estrasburgo", estrasburgoTrips.get(0).getDestination());
     }
 }
+
