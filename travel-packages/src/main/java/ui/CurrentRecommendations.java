@@ -42,10 +42,16 @@ public class CurrentRecommendations {
     private void updatePrices(Recommendation r, LocalDate start, LocalDate end) {
         Hotel h = r.getHotel();
         if (start != null && end != null) {
-            h.setStartDate(start); h.setEndDate(end); h.setNights(nights(start, end));
+            h.setStartDate(start);
+            h.setEndDate(end);
+            h.setNights(java.time.temporal.ChronoUnit.DAYS.between(start, end));
+        } else {
+            h.setNights(1);
         }
-        h.calculateTotalPrice(); r.setTotalPrice();
+        h.calculateTotalPrice();
+        r.setTotalPrice();
     }
+
 
     private List<Recommendation> filterRecs(List<Recommendation> recs, String orig, LocalDate depF,
                                             Double minP, Double maxP, LocalDateTime now, LocalDate start, LocalDate end) {
@@ -84,8 +90,8 @@ public class CurrentRecommendations {
         System.out.println("\n Opciones de viaje:");
         recs.stream().filter(r -> r.getHotel().getKey().equals(key)).forEach(r -> {
             Trip t = r.getTrip(); Hotel h = r.getHotel(); long n = h.getNights();
-            System.out.printf("  ✈ %s → %s\n    Salida: %s\n    Regreso: %s\n    Noches: %d\n    Precio viaje: %.2f€\n    Precio hotel: %.2f€\n    Total: %.2f€\n",
-                    t.getOrigin(), t.getDestination(), t.getDepartureDateTime().format(dtf), h.getEndDate().format(df),
+            System.out.printf("  ✈ %s → %s\n    Salida: %s\n    Noches: %d\n    Precio viaje: %.2f€\n    Precio hotel: %.2f€\n    Total: %.2f€\n",
+                    t.getOrigin(), t.getDestination(), t.getDepartureDateTime().format(dtf),
                     n, t.getPrice(), h.getTotalPrice(), r.getTotalPrice());
         });
     }
@@ -114,10 +120,26 @@ public class CurrentRecommendations {
 
     private List<Trip> findReturnTrips(String origin, String dest, LocalDateTime now, LocalDate depF, LocalDate retF) throws SQLException {
         Set<String> keys = new HashSet<>();
+        LocalDateTime minDeparture = null;
+        List<Recommendation> idaRecommendations = analysisService.getTravelPackages(dest).stream()
+                .filter(r -> r.getTrip().getOrigin().equalsIgnoreCase(origin))
+                .collect(Collectors.toList());
+        if (depF != null) {
+            minDeparture = depF.atStartOfDay();
+        } else if (!idaRecommendations.isEmpty()) {
+            minDeparture = idaRecommendations.stream()
+                    .map(r -> r.getTrip().getDepartureDateTime())
+                    .min(LocalDateTime::compareTo)
+                    .orElse(now);
+        } else {
+            minDeparture = now;
+        }
+        LocalDateTime finalMinDeparture = minDeparture;
         return analysisService.getTravelPackages(origin).stream()
                 .map(Recommendation::getTrip)
                 .filter(t -> t.getOrigin().equalsIgnoreCase(dest) && t.getDestination().equalsIgnoreCase(origin))
                 .filter(t -> validReturn(t, now, depF, retF))
+                .filter(t -> t.getDepartureDateTime().isAfter(finalMinDeparture))  // << AQUI FILTRAMOS que el regreso sea después de la ida
                 .filter(t -> keys.add(t.getOrigin() + t.getDestination() + t.getDepartureDateTime()))
                 .sorted(Comparator.comparing(Trip::getDepartureDateTime))
                 .collect(Collectors.toList());
@@ -141,15 +163,11 @@ public class CurrentRecommendations {
         String dest = ask("\nCiudad destino: ");
         String orig = yes("¿Insertar ciudad de origen? (si/no): ") ? ask("Ciudad origen: ") : null;
 
-        LocalDate depF = null, retF = null;
+        LocalDate depF = null;
+        Long numNoches = 1L;  // por defecto 1 noche
         if (yes("¿Insertar fecha salida? (si/no): ")) {
             depF = askDate("Fecha salida (dd/mm/yyyy): ");
-            if (yes("¿Insertar fecha regreso? (si/no): ")) {
-                do {
-                    retF = askDate("Fecha regreso (dd/mm/yyyy): ");
-                    if (!retF.isAfter(depF)) System.out.println("Fecha regreso debe ser posterior a salida!");
-                } while (!retF.isAfter(depF));
-            }
+            numNoches = (long) Integer.parseInt(ask("Número de noches de estancia: "));
         }
 
         Double minP = null, maxP = null;
@@ -159,12 +177,15 @@ public class CurrentRecommendations {
         }
 
         LocalDateTime now = LocalDateTime.now();
-        List<Recommendation> allRecs = filterRecs(analysisService.getTravelPackages(dest), orig, depF, minP, maxP, now, depF, retF);
+        LocalDate endDate = (depF != null) ? depF.plusDays(numNoches) : null;
+
+        List<Recommendation> allRecs = filterRecs(analysisService.getTravelPackages(dest), orig, depF, minP, maxP, now, depF, endDate);
         Map<String, Recommendation> latest = latestRecs(allRecs);
-        displayResults(dest, orig, depF, retF, minP, maxP, now, latest, allRecs);
+        displayResults(dest, orig, depF, endDate, minP, maxP, now, latest, allRecs);
 
         if (orig != null && yes("\n¿Buscar viajes regreso (" + dest + " → " + orig + ")? (si/no): ")) {
-            printReturnTrips(findReturnTrips(orig, dest, now, depF, retF));
+            printReturnTrips(findReturnTrips(orig, dest, now, depF, endDate));
         }
     }
+
 }
