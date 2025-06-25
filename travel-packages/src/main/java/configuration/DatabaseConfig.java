@@ -5,10 +5,14 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConfig {
-    private static final String DB_URL = "jdbc:sqlite:datamart.db";
+    private static final String DB_URL = System.getenv("DB_URL");
     private static Connection connection;
 
     public static synchronized Connection getConnection() throws SQLException {
+        if (DB_URL == null || DB_URL.isEmpty()) {
+            throw new IllegalStateException("La variable de entorno DB_URL no está definida.");
+        }
+
         if (connection == null || connection.isClosed()) {
             connection = DriverManager.getConnection(DB_URL);
             connection.setAutoCommit(true);
@@ -50,7 +54,7 @@ public class DatabaseConfig {
                             "rating REAL," +
                             "avg_price_per_night REAL NOT NULL," +
                             "city TEXT NOT NULL," +
-                            "processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"+
+                            "processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
                             "CONSTRAINT unique_book UNIQUE (hotel_key, avg_price_per_night))");
 
             conn.createStatement().execute(
