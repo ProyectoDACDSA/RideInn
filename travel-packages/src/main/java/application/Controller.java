@@ -1,13 +1,20 @@
-package ui;
+package application;
 
-import application.CurrentRecommendations;
-import application.BestValueTrips;
+import domain.ports.RecommendationInputPort;
+import domain.service.RecommendationAnalysisService;
 import java.sql.SQLException;
 import java.util.Scanner;
 
-public class CLI {
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+public class Controller {
+    private final Scanner scanner;
+    private final RecommendationInputPort recommendationService;
+
+    public Controller() {
+        this.scanner = new Scanner(System.in);
+        this.recommendationService = new RecommendationAnalysisService();
+    }
+
+    public void start() {
         boolean exit = false;
 
         while (!exit) {
@@ -17,10 +24,10 @@ public class CLI {
             try {
                 switch (input) {
                     case "1":
-                        new CurrentRecommendations(scanner).execute();
+                        showCurrentRecommendations();
                         break;
                     case "2":
-                        new BestValueTrips(scanner).execute();
+                        showBestValueTrips();
                         break;
                     case "3":
                         exit = true;
@@ -37,15 +44,26 @@ public class CLI {
                 e.printStackTrace();
             }
         }
-
         scanner.close();
     }
 
-    private static void printMainMenu() {
+    private void showCurrentRecommendations() throws SQLException {
+        new CurrentRecommendations(scanner, recommendationService).execute();
+    }
+
+    private void showBestValueTrips() throws SQLException {
+        new BestValueTrips(scanner, recommendationService).execute();
+    }
+
+    private void printMainMenu() {
         System.out.println("\n=== MENÚ DE ANÁLISIS DE VIAJES ===");
         System.out.println("1. Recomendaciones Actuales");
         System.out.println("2. Viajes Mejor Valorados");
         System.out.println("3. Salir");
         System.out.print("Seleccione una opción: ");
+    }
+
+    public static void main(String[] args) {
+        new Controller().start();
     }
 }

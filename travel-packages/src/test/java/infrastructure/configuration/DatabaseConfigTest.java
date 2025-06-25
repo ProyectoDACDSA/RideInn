@@ -1,5 +1,6 @@
-package configuration;
+package infrastructure.configuration;
 
+import infrastructure.configuration.DatabaseConfig;
 import org.junit.jupiter.api.*;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;

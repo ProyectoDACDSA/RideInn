@@ -1,9 +1,9 @@
 package application;
 
-import domain.model.Hotel;
+import domain.ports.RecommendationInputPort;
 import domain.model.Recommendation;
 import domain.model.Trip;
-import domain.service.RecommendationAnalysisService;
+import domain.model.Hotel;  // Importación añadida
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,12 +12,15 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class CurrentRecommendations {
-    private final RecommendationAnalysisService analysisService = new RecommendationAnalysisService();
+    private final RecommendationInputPort recommendationService;
     private final Scanner scanner;
     private final DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-    public CurrentRecommendations(Scanner scanner) { this.scanner = scanner; }
+    public CurrentRecommendations(Scanner scanner, RecommendationInputPort recommendationService) {
+        this.scanner = scanner;
+        this.recommendationService = recommendationService;
+    }
 
     private String ask(String p) { System.out.print(p); return scanner.nextLine().trim(); }
     private boolean yes(String p) { return ask(p).equalsIgnoreCase("si"); }
@@ -65,7 +68,8 @@ public class CurrentRecommendations {
     private Map<String, Recommendation> latestRecs(List<Recommendation> recs) {
         return recs.stream()
                 .collect(Collectors.toMap(r -> r.getHotel().getKey(), r -> r,
-                        (a, b) -> a.getHotel().getTimestamp().compareTo(b.getHotel().getTimestamp()) > 0 ? a : b));
+                        (a, b) -> a.getHotel().getTimestamp().toLocalDateTime()
+                                .compareTo(b.getHotel().getTimestamp().toLocalDateTime()) > 0 ? a : b));
     }
 
     private void printHeader(String dest, String orig, LocalDate dep, LocalDate ret, Double min, Double max, LocalDateTime now) {
@@ -81,16 +85,27 @@ public class CurrentRecommendations {
 
     private void printHotel(Hotel h) {
         System.out.printf("\n★ %s ★\n - Valoración: %s/5\n - Tipo: %s\n - Precio/noche: %.2f€\n - Reserva: %s\n",
-                h.getHotelName(), h.getRating(), h.getAccommodationType(), h.getAveragePricePerNight(), h.getUrl());
+                h.getHotelName(),
+                h.getRating() != null ? h.getRating() : "N/A",
+                h.getAccommodationType(),
+                h.getAveragePricePerNight(),
+                h.getUrl());
     }
 
     private void printTrips(List<Recommendation> recs, String key) {
         System.out.println("\n Opciones de viaje:");
         recs.stream().filter(r -> r.getHotel().getKey().equals(key)).forEach(r -> {
-            Trip t = r.getTrip(); Hotel h = r.getHotel(); long n = h.getNights();
+            Trip t = r.getTrip();
+            Hotel h = r.getHotel();
+            long n = h.getNights();
             System.out.printf("  ✈ %s → %s\n    Salida: %s\n    Noches: %d\n    Precio viaje: %.2f€\n    Precio hotel: %.2f€\n    Total: %.2f€\n",
-                    t.getOrigin(), t.getDestination(), t.getDepartureDateTime().format(dtf),
-                    n, t.getPrice(), h.getTotalPrice(), r.getTotalPrice());
+                    t.getOrigin(),
+                    t.getDestination(),
+                    t.getDepartureDateTime().format(dtf),
+                    n,
+                    t.getPrice(),
+                    h.getTotalPrice(),
+                    r.getTotalPrice());
         });
     }
 
@@ -103,53 +118,12 @@ public class CurrentRecommendations {
         } else {
             System.out.println("\n" + latest.size() + " hoteles únicos encontrados:");
             System.out.println("---------------------------------------");
-            latest.values().forEach(r -> { printHotel(r.getHotel()); printTrips(all, r.getHotel().getKey()); System.out.println("---------------------------------------"); });
+            latest.values().forEach(r -> {
+                printHotel(r.getHotel());
+                printTrips(all, r.getHotel().getKey());
+                System.out.println("---------------------------------------");
+            });
         }
-    }
-
-    private boolean validReturn(Trip t, LocalDateTime now, LocalDate depF, LocalDate retF) {
-        LocalDateTime d = t.getDepartureDateTime();
-        boolean afterNow = d.isAfter(now) || (d.toLocalDate().equals(now.toLocalDate()) && d.toLocalTime().isAfter(now.toLocalTime()));
-        if (retF != null && depF == null) return afterNow && !d.toLocalDate().isBefore(retF);
-        if (retF != null) afterNow &= d.toLocalDate().equals(retF);
-        if (depF != null) afterNow &= !d.toLocalDate().isBefore(depF);
-        return afterNow;
-    }
-
-    private List<Trip> findReturnTrips(String origin, String dest, LocalDateTime now, LocalDate depF, LocalDate retF) throws SQLException {
-        Set<String> keys = new HashSet<>();
-        LocalDateTime minDeparture = null;
-        List<Recommendation> idaRecommendations = analysisService.getTravelPackages(dest).stream()
-                .filter(r -> r.getTrip().getOrigin().equalsIgnoreCase(origin))
-                .collect(Collectors.toList());
-        if (depF != null) {
-            minDeparture = depF.atStartOfDay();
-        } else if (!idaRecommendations.isEmpty()) {
-            minDeparture = idaRecommendations.stream()
-                    .map(r -> r.getTrip().getDepartureDateTime())
-                    .min(LocalDateTime::compareTo)
-                    .orElse(now);
-        } else {
-            minDeparture = now;
-        }
-        LocalDateTime finalMinDeparture = minDeparture;
-        return analysisService.getTravelPackages(origin).stream()
-                .map(Recommendation::getTrip)
-                .filter(t -> t.getOrigin().equalsIgnoreCase(dest) && t.getDestination().equalsIgnoreCase(origin))
-                .filter(t -> validReturn(t, now, depF, retF))
-                .filter(t -> t.getDepartureDateTime().isAfter(finalMinDeparture))  // << AQUI FILTRAMOS que el regreso sea después de la ida
-                .filter(t -> keys.add(t.getOrigin() + t.getDestination() + t.getDepartureDateTime()))
-                .sorted(Comparator.comparing(Trip::getDepartureDateTime))
-                .collect(Collectors.toList());
-    }
-
-    private void printReturnTrips(List<Trip> trips) {
-        System.out.println("\n══════════════════════════════════════");
-        System.out.println("   VIAJES DE REGRESO DISPONIBLES");
-        System.out.println("══════════════════════════════════════");
-        if (trips.isEmpty()) System.out.println("No se encontraron viajes de regreso.");
-        else trips.forEach(t -> System.out.printf("✈ %s → %s\n   Fecha: %s\n   Precio: %.2f€\n--------------------------------------\n",
-                t.getOrigin(), t.getDestination(), t.getDepartureDateTime().format(dtf), t.getPrice()));
     }
 
     public void execute() throws SQLException {
@@ -162,7 +136,7 @@ public class CurrentRecommendations {
         String orig = yes("¿Insertar ciudad de origen? (si/no): ") ? ask("Ciudad origen: ") : null;
 
         LocalDate depF = null;
-        Long numNoches = 1L;  // por defecto 1 noche
+        Long numNoches = 1L;
         if (yes("¿Insertar fecha salida? (si/no): ")) {
             depF = askDate("Fecha salida (dd/mm/yyyy): ");
             numNoches = (long) Integer.parseInt(ask("Número de noches de estancia: "));
@@ -177,13 +151,8 @@ public class CurrentRecommendations {
         LocalDateTime now = LocalDateTime.now();
         LocalDate endDate = (depF != null) ? depF.plusDays(numNoches) : null;
 
-        List<Recommendation> allRecs = filterRecs(analysisService.getTravelPackages(dest), orig, depF, minP, maxP, now, depF, endDate);
+        List<Recommendation> allRecs = filterRecs(recommendationService.getTravelPackages(dest), orig, depF, minP, maxP, now, depF, endDate);
         Map<String, Recommendation> latest = latestRecs(allRecs);
         displayResults(dest, orig, depF, endDate, minP, maxP, now, latest, allRecs);
-
-        if (orig != null && yes("\n¿Buscar viajes regreso (" + dest + " → " + orig + ")? (si/no): ")) {
-            printReturnTrips(findReturnTrips(orig, dest, now, depF, endDate));
-        }
     }
-
 }

@@ -12,6 +12,23 @@
     
     <artifactId>blablacar-feeder</artifactId>
     <dependencies>
+        <!-- SLF4J API -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.36</version>
+        </dependency>
+
+        <!-- Bridge para redirigir logs de Log4j 1.x a SLF4J -->
+
+
+        <!-- Logback como backend para SLF4J (controla el nivel de logs y formato) -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.11</version>
+        </dependency>
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>

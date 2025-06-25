@@ -1,6 +1,7 @@
 package repository;
 
-import configuration.DatabaseConfig;
+import domain.ports.TripRepositoryPort;
+import infrastructure.configuration.DatabaseConfig;
 import domain.model.Trip;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +9,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TripRepository {
+public class TripRepository implements TripRepositoryPort {
     private static final Logger logger = LoggerFactory.getLogger(TripRepository.class);
     private static final String INSERT_SQL =
             "INSERT INTO trips(origin, destination, departure_date, departure_time, price, available) " +

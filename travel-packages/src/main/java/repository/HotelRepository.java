@@ -1,6 +1,7 @@
 package repository;
 
-import configuration.DatabaseConfig;
+import domain.ports.HotelRepositoryPort;
+import infrastructure.configuration.DatabaseConfig;
 import domain.model.Hotel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +9,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HotelRepository {
+public class HotelRepository implements HotelRepositoryPort {
     private static final Logger logger = LoggerFactory.getLogger(HotelRepository.class);
     private static final String INSERT_SQL =
             "INSERT INTO hotels(hotel_name, hotel_key, accommodation_type, " +

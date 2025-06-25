@@ -1,6 +1,6 @@
 package repository;
 
-import configuration.DatabaseConfig;
+import infrastructure.configuration.DatabaseConfig;
 import domain.model.Trip;
 import org.junit.jupiter.api.*;
 import java.sql.Connection;

@@ -1,4 +1,4 @@
-package infrastructure;
+package infrastructure.adapters;
 
 import domain.model.Hotel;
 import domain.model.Trip;

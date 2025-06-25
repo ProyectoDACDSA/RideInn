@@ -1,4 +1,4 @@
-package infrastructure;
+package infrastructure.adapters;
 
 import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;

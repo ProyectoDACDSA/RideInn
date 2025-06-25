@@ -1,4 +1,4 @@
-package infrastructure;
+package infrastructure.adapters;
 
 import com.google.gson.*;
 import domain.model.Hotel;

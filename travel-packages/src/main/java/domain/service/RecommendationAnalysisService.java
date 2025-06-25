@@ -1,22 +1,24 @@
 package domain.service;
 
+import domain.ports.RecommendationInputPort;
+import domain.ports.HotelRepositoryPort;
+import domain.ports.TripRepositoryPort;
 import domain.model.Hotel;
 import domain.model.Trip;
 import domain.model.Recommendation;
-import repository.HotelRepository;
-import repository.TripRepository;
 import java.sql.SQLException;
 import java.util.*;
 
-public class RecommendationAnalysisService {
-    private final TripRepository tripRepo;
-    private final HotelRepository hotelRepo;
+public class RecommendationAnalysisService implements RecommendationInputPort {
+    private final TripRepositoryPort tripRepo;
+    private final HotelRepositoryPort hotelRepo;
 
     public RecommendationAnalysisService() {
-        this.tripRepo = new TripRepository();
-        this.hotelRepo = new HotelRepository();
+        this.tripRepo = new repository.TripRepository();
+        this.hotelRepo = new repository.HotelRepository();
     }
 
+    @Override
     public List<Recommendation> getTravelPackages(String city) throws SQLException {
         List<Trip> trips = tripRepo.findByDestination(city);
         List<Hotel> hotels = hotelRepo.findByCity(city);

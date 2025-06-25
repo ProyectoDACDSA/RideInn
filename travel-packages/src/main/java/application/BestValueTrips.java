@@ -1,7 +1,7 @@
 package application;
 
+import domain.ports.RecommendationInputPort;
 import domain.model.Recommendation;
-import domain.service.RecommendationAnalysisService;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -9,10 +9,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class BestValueTrips {
-    private final RecommendationAnalysisService analysisService = new RecommendationAnalysisService();
+    private final RecommendationInputPort recommendationService;
     private final Scanner scanner;
 
-    public BestValueTrips(Scanner scanner) { this.scanner = scanner; }
+    public BestValueTrips(Scanner scanner, RecommendationInputPort recommendationService) {
+        this.scanner = scanner;
+        this.recommendationService = recommendationService;
+    }
 
     private String ask(String prompt) {
         System.out.print(prompt);
@@ -50,7 +53,7 @@ public class BestValueTrips {
                     r.getTrip().getOrigin(), r.getTrip().getDestination(),
                     truncate(r.getHotel().getHotelName(), 25),
                     r.getHotel().getRating() != null ? r.getHotel().getRating() : 0.0,
-                    r.getTrip().getPrice(), r.getHotel().getAveragePricePerNight(), totalPrice);
+                    r.getTrip().getPrice(), hotelPrice, totalPrice);
         });
         System.out.println("\nLeyenda:");
         System.out.println("★ Excelente - Ratio < 100 (Mejor relación calidad-precio)");
@@ -74,7 +77,7 @@ public class BestValueTrips {
         Double minRating = filterByRating ? Double.parseDouble(ask("Ingrese rating mínimo (1-5): ")) : null;
         int maxResults = Integer.parseInt(ask("Número máximo de resultados a mostrar: "));
 
-        List<Recommendation> allRecs = analysisService.getTravelPackages(city);
+        List<Recommendation> allRecs = recommendationService.getTravelPackages(city);
         List<Recommendation> processed = allRecs.stream()
                 .filter(r -> originCity == null || r.getTrip().getOrigin().equalsIgnoreCase(originCity))
                 .filter(r -> !filterByRating || (r.getHotel().getRating() != null && r.getHotel().getRating() >= minRating))

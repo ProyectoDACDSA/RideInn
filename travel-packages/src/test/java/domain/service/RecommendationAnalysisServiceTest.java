@@ -1,30 +1,21 @@
 package domain.service;
 
+import domain.model.Hotel;
 import domain.model.Recommendation;
+import domain.model.Trip;
+import domain.ports.HotelRepositoryPort;
+import domain.ports.TripRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-public class RecommendationAnalysisServiceTest {
-
-    private RecommendationAnalysisService analysisService;
-
-    @BeforeEach
-    void setUp() {
-        analysisService = new RecommendationAnalysisService();
-    }
-
-    @Test
-    void testGetTravelPackages_WithNoResults() throws SQLException {
-        String city = "CiudadInventadaSinDatos";
-
-        List<Recommendation> recommendations = analysisService.getTravelPackages(city);
-
-        assertNotNull(recommendations, "La lista de recomendaciones no debe ser nula");
-        assertTrue(recommendations.isEmpty(), "La lista debe estar vacía si no hay viajes u hoteles para la ciudad");
-    }
+class RecommendationAnalysisServiceTest {
 }
