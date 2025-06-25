@@ -15,7 +15,7 @@ public class Subscriber {
     private static final String BROKER_URL = "tcp://localhost:61616";
     private static final List<String> TOPICS = List.of("Blablacar", "Xotelo");
     private static final String CLIENT_ID = "event-store-builder";
-    private static final String BASE_DIR = "eventstore";
+    private static final String BASE_DIR = System.getProperty("event.store.dir", "eventstore");
 
     public static void main(String[] args) {
         try {
