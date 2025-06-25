@@ -30,7 +30,6 @@ public class BlablacarTripProvider {
 
     private void processRoute(String originCity, int originId, String destCity, int destId) {
         try {
-            System.out.println(String.format("Processing trips from %s to %s", originCity, destCity));
             List<Trip> trips = apiClient.fetchTripsForRoute(originId, destId);
             trips.forEach(this::processTrip);
         } catch (Exception e) {

@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 public class Controller {
     private final BlablacarTripProvider tripProvider;
     private final ScheduledExecutorService scheduler;
+    private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(Controller.class.getName());
 
     public Controller(BlablacarTripProvider tripProvider) {
         this.tripProvider = tripProvider;
@@ -15,13 +16,18 @@ public class Controller {
     }
 
     public void start() {
+        LOGGER.info("Starting Blablacar feeder service...");
         scheduler.scheduleAtFixedRate(() -> {
-            System.out.println("Fetching and processing trips from Blablacar...");
-            tripProvider.fetchAndProcessAllTrips();
+            try {
+                tripProvider.fetchAndProcessAllTrips();
+            } catch (Exception e) {
+                LOGGER.warning("Error during trip processing: " + e.getMessage());
+            }
         }, 0, 1, TimeUnit.HOURS);
     }
 
     public void stop() {
+        LOGGER.info("Shutting down Blablacar feeder service...");
         scheduler.shutdown();
         try {
             if (!scheduler.awaitTermination(5, TimeUnit.SECONDS)) {
@@ -31,6 +37,5 @@ public class Controller {
             scheduler.shutdownNow();
             Thread.currentThread().interrupt();
         }
-        System.out.println("Blablacar feeder stopped.");
     }
 }
