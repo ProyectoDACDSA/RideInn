@@ -8,8 +8,7 @@ public class TripTest {
     @Test
     public void testTripCreation() {
         ZonedDateTime now = ZonedDateTime.now();
-        Trip trip = new Trip(
-                12345L,
+        Trip trip = new Trip(12345L,
                 now,
                 now.plusHours(4),
                 now,
@@ -20,12 +19,16 @@ public class TripTest {
                 "Paris",
                 137,
                 "Lyon",
-                now
+                now);
+        TripEvent tripEvent = new TripEvent(
+                12345L,
+                "blablacar",
+                trip
         );
 
-        assertEquals("Paris", trip.getOriginCity());
-        assertEquals("Lyon", trip.getDestinationCity());
-        assertEquals(25.50, trip.getPriceCents() / 100.0);
-        assertTrue(trip.isAvailable());
+        assertEquals("Paris", tripEvent.getOriginCity());
+        assertEquals("Lyon", tripEvent.getDestinationCity());
+        assertEquals(25.50, tripEvent.getPrice() / 100.0);
+        assertTrue(tripEvent.isAvailable());
     }
 }

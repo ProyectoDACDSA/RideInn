@@ -1,8 +1,9 @@
-import adapters.ActiveMqEventSender;
+import adapters.ActiveMqTripEventStorage;
 import adapters.BlablacarApiClient;
 import adapters.Controller;
 import application.BlablacarTripProvider;
-import ports.EventSender;
+import ports.TripEventStorage;
+import ports.TripProvider;
 
 public class Main {
     public static void main(String[] args) {
@@ -13,9 +14,9 @@ public class Main {
             return;
         }
 
-        EventSender eventSender = new ActiveMqEventSender();
-        BlablacarApiClient apiClient = new BlablacarApiClient(apiKey);
-        BlablacarTripProvider tripProvider = new BlablacarTripProvider(apiClient, eventSender);
+        TripEventStorage eventStorage = new ActiveMqTripEventStorage();
+        TripProvider apiClient = new BlablacarApiClient(apiKey);
+        BlablacarTripProvider tripProvider = new BlablacarTripProvider(apiClient, eventStorage);
 
         Controller controller = new Controller(tripProvider);
         controller.start();

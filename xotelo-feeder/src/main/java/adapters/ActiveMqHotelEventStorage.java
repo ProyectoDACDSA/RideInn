@@ -9,10 +9,14 @@ public class ActiveMqHotelEventStorage implements HotelEventStorage {
     private static final String BROKER_URL = "tcp://localhost:61616";
     private static final String TOPIC_NAME = "Xotelo";
 
+    protected ConnectionFactory createConnectionFactory() {
+        return new ActiveMQConnectionFactory(BROKER_URL);
+    }
+
     @Override
     public void store(HotelEvent hotelEvent) {
         try {
-            ConnectionFactory factory = new ActiveMQConnectionFactory(BROKER_URL);
+            ConnectionFactory factory = createConnectionFactory();
             Connection connection = factory.createConnection();
             connection.start();
 

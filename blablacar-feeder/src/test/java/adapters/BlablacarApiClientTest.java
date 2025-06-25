@@ -7,7 +7,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedConstruction;
-import ports.EventSender;
+import ports.TripEventStorage;
 
 public class BlablacarApiClientTest {
     private static final String API_KEY = "test-api-key";
@@ -55,13 +55,13 @@ public class BlablacarApiClientTest {
 
     @Test
     public void testProcessFareAndSendEvent_WithSender() {
-        EventSender mockSender = mock(EventSender.class);
+        TripEventStorage mockSender = mock(TripEventStorage.class);
         BlablacarApiClient client = new BlablacarApiClient(API_KEY);
         client.setEventSender(mockSender);
 
         client.processFareAndSendEvent("Paris", "Lyon", "2023-12-01T10:00:00Z", 25.50, 1);
 
-        verify(mockSender).sendEvent("Paris", "Lyon", "2023-12-01T10:00:00Z", 25.50, 1);
+        verify(mockSender).store("Paris", "Lyon", "2023-12-01T10:00:00Z", 25.50, 1);
     }
 
     @Test
