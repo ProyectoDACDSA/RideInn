@@ -63,4 +63,3 @@ class RecommendationTest {
         assertTrue(str.contains("Precio total:"));
     }
 }
-

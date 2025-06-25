@@ -80,4 +80,3 @@ class TripRepositoryTest {
         assertEquals("Estrasburgo", estrasburgoTrips.get(0).getDestination());
     }
 }
-

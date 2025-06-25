@@ -69,4 +69,3 @@ public class EventStoreReaderTest {
         assertDoesNotThrow(reader::processAllHistoricalEvents);
     }
 }
-

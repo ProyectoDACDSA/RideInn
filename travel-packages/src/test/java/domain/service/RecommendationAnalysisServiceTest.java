@@ -28,4 +28,3 @@ public class RecommendationAnalysisServiceTest {
         assertTrue(recommendations.isEmpty(), "La lista debe estar vacía si no hay viajes u hoteles para la ciudad");
     }
 }
-

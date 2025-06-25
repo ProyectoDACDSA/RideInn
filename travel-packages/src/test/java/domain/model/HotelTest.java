@@ -60,4 +60,3 @@ class HotelTest {
         assertEquals(100.0, hotel.getTotalPrice());
     }
 }
-

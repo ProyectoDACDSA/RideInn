@@ -37,4 +37,3 @@ public class DatamartApplicationTest {
         databaseConfigMock.verify(DatabaseConfig::closeConnection, times(1));
     }
 }
-

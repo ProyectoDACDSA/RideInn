@@ -47,4 +47,3 @@ class TripTest {
         assertEquals(expected, trip.getDepartureDateTime());
     }
 }
-

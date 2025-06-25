@@ -84,4 +84,3 @@ class HotelRepositoryTest {
         assertEquals("Lyon", lyonHotels.get(0).getCity());
     }
 }
-
