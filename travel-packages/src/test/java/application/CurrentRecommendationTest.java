@@ -1,6 +1,9 @@
-package ui;
+package application;
 
-import model.*;
+import domain.model.Hotel;
+import domain.model.Recommendation;
+import domain.model.Trip;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 

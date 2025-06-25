@@ -1,5 +1,7 @@
-import ui.CurrentRecommendations;
-import ui.BestValueTrips;
+package ui;
+
+import application.CurrentRecommendations;
+import application.BestValueTrips;
 import java.sql.SQLException;
 import java.util.Scanner;
 

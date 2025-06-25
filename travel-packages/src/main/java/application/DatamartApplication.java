@@ -1,8 +1,10 @@
+package application;
+
 import configuration.DatabaseConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import service.ActiveMqConsumer;
-import service.EventStoreReader;
+import infrastructure.ActiveMqConsumer;
+import infrastructure.EventStoreReader;
 
 public class DatamartApplication {
     private static final Logger logger = LoggerFactory.getLogger(DatamartApplication.class);

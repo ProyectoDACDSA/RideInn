@@ -1,5 +1,6 @@
-package model;
+package domain.model;
 
+import domain.model.Hotel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.time.LocalDate;

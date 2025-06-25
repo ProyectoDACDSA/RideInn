@@ -1,7 +1,7 @@
 package repository;
 
 import configuration.DatabaseConfig;
-import model.Trip;
+import domain.model.Trip;
 import org.junit.jupiter.api.*;
 import java.sql.Connection;
 import java.sql.SQLException;

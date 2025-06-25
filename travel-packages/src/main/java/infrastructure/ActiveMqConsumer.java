@@ -1,8 +1,8 @@
-package service;
+package infrastructure;
 
 import com.google.gson.*;
-import model.Hotel;
-import model.Trip;
+import domain.model.Hotel;
+import domain.model.Trip;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

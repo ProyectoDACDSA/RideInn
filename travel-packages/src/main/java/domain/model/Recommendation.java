@@ -1,4 +1,4 @@
-package model;
+package domain.model;
 
 public class Recommendation {
     private final Trip trip;

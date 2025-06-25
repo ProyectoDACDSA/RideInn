@@ -1,7 +1,7 @@
-package ui;
+package application;
 
-import model.Recommendation;
-import service.RecommendationAnalysisService;
+import domain.model.Recommendation;
+import domain.service.RecommendationAnalysisService;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.*;

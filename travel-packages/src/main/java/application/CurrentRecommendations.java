@@ -1,9 +1,9 @@
-package ui;
+package application;
 
-import model.Hotel;
-import model.Recommendation;
-import model.Trip;
-import service.RecommendationAnalysisService;
+import domain.model.Hotel;
+import domain.model.Recommendation;
+import domain.model.Trip;
+import domain.service.RecommendationAnalysisService;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;

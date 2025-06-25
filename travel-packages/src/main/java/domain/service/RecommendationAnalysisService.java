@@ -1,8 +1,8 @@
-package service;
+package domain.service;
 
-import model.Hotel;
-import model.Trip;
-import model.Recommendation;
+import domain.model.Hotel;
+import domain.model.Trip;
+import domain.model.Recommendation;
 import repository.HotelRepository;
 import repository.TripRepository;
 import java.sql.SQLException;

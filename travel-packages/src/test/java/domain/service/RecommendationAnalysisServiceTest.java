@@ -1,12 +1,8 @@
-package service;
+package domain.service;
 
-import model.Hotel;
-import model.Trip;
-import model.Recommendation;
+import domain.model.Recommendation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import repository.HotelRepository;
-import repository.TripRepository;
 
 import java.sql.SQLException;
 import java.util.List;

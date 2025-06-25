@@ -1,7 +1,7 @@
 package repository;
 
 import configuration.DatabaseConfig;
-import model.Hotel;
+import domain.model.Hotel;
 import org.junit.jupiter.api.*;
 import java.sql.Connection;
 import java.sql.SQLException;

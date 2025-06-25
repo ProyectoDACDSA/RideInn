@@ -1,8 +1,10 @@
+package application;
+
 import configuration.DatabaseConfig;
 import org.junit.jupiter.api.*;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import service.EventStoreReader;
+import infrastructure.EventStoreReader;
 import static org.mockito.Mockito.*;
 
 public class DatamartApplicationTest {

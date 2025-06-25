@@ -1,11 +1,11 @@
-package ui;
+package application;
 
-import model.Hotel;
-import model.Recommendation;
-import model.Trip;
+import domain.model.Hotel;
+import domain.model.Recommendation;
+import domain.model.Trip;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import service.RecommendationAnalysisService;
+import domain.service.RecommendationAnalysisService;
 
 import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
