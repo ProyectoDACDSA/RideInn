@@ -51,7 +51,6 @@ public class CurrentRecommendations {
         r.setTotalPrice();
     }
 
-
     private List<Recommendation> filterRecs(List<Recommendation> recs, String orig, LocalDate depF,
                                             Double minP, Double maxP, LocalDateTime now, LocalDate start, LocalDate end) {
         return recs.stream()
