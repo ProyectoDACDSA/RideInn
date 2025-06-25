@@ -3,7 +3,6 @@ package application;
 import adapters.XoteloApiClient;
 import domain.Hotel;
 import org.junit.jupiter.api.Test;
-
 import java.util.List;
 import java.util.Map;
 

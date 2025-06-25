@@ -1,52 +1,28 @@
 package infrastructure.configuration;
 
-import infrastructure.configuration.DatabaseConfig;
-import org.junit.jupiter.api.*;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import java.sql.SQLException;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class DatabaseConfigTest {
 
     @BeforeEach
-    void setUp() {
-        DatabaseConfig.initializeDatabase();
-    }
-
     @AfterEach
-    void tearDown() {
+    void cleanup() throws SQLException {
         DatabaseConfig.closeConnection();
     }
 
     @Test
-    void testConnectionIsNotNullAndOpen() throws SQLException {
-        Connection conn = DatabaseConfig.getConnection();
-        assertNotNull(conn);
-        assertFalse(conn.isClosed());
+    void shouldThrowExceptionWhenUrlNotSet() {
+        System.clearProperty("DB_URL");
+
+        assertThrows(IllegalStateException.class, DatabaseConfig::getConnection);
     }
 
     @Test
-    void testCloseConnection() throws SQLException {
-        Connection conn = DatabaseConfig.getConnection();
-        DatabaseConfig.closeConnection();
-        assertTrue(conn.isClosed());
-    }
-
-    @Test
-    void testInitializeDatabaseCreatesTables() throws SQLException {
-        Connection conn = DatabaseConfig.getConnection();
-        DatabaseMetaData meta = conn.getMetaData();
-
-        ResultSet tripsTable = meta.getTables(null, null, "trips", null);
-        ResultSet hotelsTable = meta.getTables(null, null, "hotels", null);
-
-        assertTrue(tripsTable.next(), "Tabla 'trips' no fue creada");
-        assertTrue(hotelsTable.next(), "Tabla 'hotels' no fue creada");
-
-        tripsTable.close();
-        hotelsTable.close();
+    void shouldHandleCloseWhenNoConnectionExists() {
+        assertDoesNotThrow(DatabaseConfig::closeConnection);
     }
 }

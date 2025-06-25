@@ -3,9 +3,7 @@ package infrastructure.adapters;
 import domain.model.Hotel;
 import domain.model.Trip;
 import org.junit.jupiter.api.Test;
-
 import java.lang.reflect.Method;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ActiveMqConsumerTest {

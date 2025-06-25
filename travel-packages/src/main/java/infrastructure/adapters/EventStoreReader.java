@@ -7,7 +7,6 @@ import repository.HotelRepository;
 import repository.TripRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDate;
@@ -21,14 +20,16 @@ public class EventStoreReader {
     private final TripRepository tripRepository = new TripRepository();
     private final HotelRepository hotelRepository = new HotelRepository();
     private final Gson gson = new GsonBuilder()
-            .registerTypeAdapter(LocalDate.class, (JsonDeserializer<LocalDate>) (json, type, ctx) -> {
+            .registerTypeAdapter(LocalDate.class, (JsonDeserializer<LocalDate>)
+                    (json, type, ctx) -> {
                 try {
                     return LocalDate.parse(json.getAsString());
                 } catch (DateTimeParseException e) {
                     return LocalDate.parse(json.getAsString().split("T")[0]);
                 }
             })
-            .registerTypeAdapter(LocalDateTime.class, (JsonDeserializer<LocalDateTime>) (json, type, ctx) -> {
+            .registerTypeAdapter(LocalDateTime.class, (JsonDeserializer<LocalDateTime>)
+                    (json, type, ctx) -> {
                 try {
                     return LocalDateTime.parse(json.getAsString());
                 } catch (DateTimeParseException e) {

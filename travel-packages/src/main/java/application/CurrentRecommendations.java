@@ -3,7 +3,7 @@ package application;
 import domain.ports.RecommendationInputPort;
 import domain.model.Recommendation;
 import domain.model.Trip;
-import domain.model.Hotel;  // Importación añadida
+import domain.model.Hotel;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -37,10 +37,6 @@ public class CurrentRecommendations {
         return (min == null || max == null) || (p >= min && p <= max);
     }
 
-    private long nights(LocalDate start, LocalDate end) {
-        return (start == null || end == null) ? 1 : java.time.temporal.ChronoUnit.DAYS.between(start, end);
-    }
-
     private void updatePrices(Recommendation r, LocalDate start, LocalDate end) {
         Hotel h = r.getHotel();
         if (start != null && end != null) {
@@ -72,7 +68,8 @@ public class CurrentRecommendations {
                                 .compareTo(b.getHotel().getTimestamp().toLocalDateTime()) > 0 ? a : b));
     }
 
-    private void printHeader(String dest, String orig, LocalDate dep, LocalDate ret, Double min, Double max, LocalDateTime now) {
+    private void printHeader(String dest, String orig, LocalDate dep, LocalDate ret, Double min, Double max,
+                             LocalDateTime now) {
         System.out.println("\n════════════════════════════════════");
         System.out.println("   RECOMENDACIONES PARA " + dest.toUpperCase());
         if (orig != null) System.out.println("   Origen: " + orig.toUpperCase());
@@ -109,8 +106,8 @@ public class CurrentRecommendations {
         });
     }
 
-    private void displayResults(String dest, String orig, LocalDate dep, LocalDate ret, Double min, Double max, LocalDateTime now,
-                                Map<String, Recommendation> latest, List<Recommendation> all) {
+    private void displayResults(String dest, String orig, LocalDate dep, LocalDate ret, Double min, Double max,
+                                LocalDateTime now, Map<String, Recommendation> latest, List<Recommendation> all) {
         printHeader(dest, orig, dep, ret, min, max, now);
         if (latest.isEmpty()) {
             System.out.println("\nNo se encontraron recomendaciones para " + dest +
@@ -151,7 +148,8 @@ public class CurrentRecommendations {
         LocalDateTime now = LocalDateTime.now();
         LocalDate endDate = (depF != null) ? depF.plusDays(numNoches) : null;
 
-        List<Recommendation> allRecs = filterRecs(recommendationService.getTravelPackages(dest), orig, depF, minP, maxP, now, depF, endDate);
+        List<Recommendation> allRecs = filterRecs(recommendationService.getTravelPackages(dest), orig, depF, minP,
+                maxP, now, depF, endDate);
         Map<String, Recommendation> latest = latestRecs(allRecs);
         displayResults(dest, orig, depF, endDate, minP, maxP, now, latest, allRecs);
     }

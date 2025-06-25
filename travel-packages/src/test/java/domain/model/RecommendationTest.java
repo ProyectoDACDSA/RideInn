@@ -1,13 +1,9 @@
 package domain.model;
 
-import domain.model.Hotel;
-import domain.model.Recommendation;
-import domain.model.Trip;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class RecommendationTest {

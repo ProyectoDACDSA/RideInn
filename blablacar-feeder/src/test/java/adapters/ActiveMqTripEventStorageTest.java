@@ -4,7 +4,6 @@ import domain.Trip;
 import domain.TripEvent;
 import org.junit.jupiter.api.Test;
 import javax.jms.*;
-
 import static org.mockito.Mockito.*;
 
 class ActiveMqTripEventStorageTest {

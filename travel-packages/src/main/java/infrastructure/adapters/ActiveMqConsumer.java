@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.HotelRepository;
 import repository.TripRepository;
-
 import javax.jms.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,9 +20,10 @@ public class ActiveMqConsumer {
     private static final String URL = "tcp://localhost:61616", TOPIC_BLAB = "Blablacar", TOPIC_XOT = "Xotelo";
     private final ExecutorService exec = Executors.newSingleThreadExecutor();
     private final Gson gson = new GsonBuilder()
-            .registerTypeAdapter(LocalDate.class, (JsonDeserializer<LocalDate>) (j, t, c) -> LocalDate.parse(j.getAsString()))
-            .registerTypeAdapter(LocalDateTime.class, (JsonDeserializer<LocalDateTime>) (j, t, c) -> LocalDateTime.parse(j.getAsString()))
-            .create();
+            .registerTypeAdapter(LocalDate.class, (JsonDeserializer<LocalDate>)
+                    (j, t, c) -> LocalDate.parse(j.getAsString()))
+            .registerTypeAdapter(LocalDateTime.class, (JsonDeserializer<LocalDateTime>)
+                    (j, t, c) -> LocalDateTime.parse(j.getAsString())).create();
 
     public void start() {
         exec.submit(() -> {
