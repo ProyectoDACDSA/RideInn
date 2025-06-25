@@ -38,11 +38,9 @@ public class XoteloHotelProvider implements HotelProvider {
         try {
             JsonArray hotelsJson = parseHotelsJson(jsonData);
             List<Hotel> hotels = new ArrayList<>();
-
             for (JsonElement el : hotelsJson) {
                 hotels.add(createHotelFromJson(el.getAsJsonObject(), city));
             }
-
             return hotels;
         } catch (Exception e) {
             LOGGER.warning("Error processing hotel data for " + city + ": " + e.getMessage());

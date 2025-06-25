@@ -22,7 +22,7 @@ public class ControllerTest {
                 ));
 
         Controller controller = new Controller(mockHotelProvider, mockHotelEventStorage);
-        controller.execute();
+        controller.start();
 
         verify(mockHotelEventStorage, atLeastOnce()).store(any(HotelEvent.class));
     }

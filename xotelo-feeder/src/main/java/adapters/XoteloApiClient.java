@@ -19,7 +19,6 @@ public class XoteloApiClient {
         }
     }
 
-    // Cambiado a protected para que pueda ser sobrescrito en tests
     protected HttpURLConnection openConnection(String apiUrl) throws Exception {
         URL url = new URL(apiUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();

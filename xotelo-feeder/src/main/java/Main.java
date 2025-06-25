@@ -12,8 +12,11 @@ public class Main {
         HotelEventStorage hotelEventStorage = new ActiveMqHotelEventStorage();
         Controller controller = new Controller(hotelProvider, hotelEventStorage);
 
-        controller.execute();
-        System.out.println("Xotelo Feeder started successfully");
+        controller.start();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("Shutting down gracefully...");
+            controller.stop();
+        }));
     }
 }
-
