@@ -4,7 +4,6 @@ import model.Hotel;
 import model.Recommendation;
 import model.Trip;
 import service.RecommendationAnalysisService;
-
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;

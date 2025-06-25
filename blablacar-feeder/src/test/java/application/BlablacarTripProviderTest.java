@@ -1,10 +1,8 @@
 package application;
 
-import domain.Trip;
 import org.junit.jupiter.api.Test;
 import ports.TripEventStorage;
 import ports.TripProvider;
-import java.util.List;
 import java.util.Map;
 import static org.mockito.Mockito.*;
 

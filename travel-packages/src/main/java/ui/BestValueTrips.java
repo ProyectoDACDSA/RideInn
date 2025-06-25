@@ -2,7 +2,6 @@ package ui;
 
 import model.Recommendation;
 import service.RecommendationAnalysisService;
-
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
