@@ -3,11 +3,6 @@ import com.google.gson.JsonParser;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.*;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class Subscriber {
@@ -15,9 +10,8 @@ public class Subscriber {
     private static final String BROKER_URL = "tcp://localhost:61616";
     private static final List<String> TOPICS = List.of("Blablacar", "Xotelo");
     private static final String CLIENT_ID = "event-store-builder";
-    private static final String BASE_DIR = "eventstore";
 
-    public static void main(String[] args) {
+    public void start() {
         try {
             ConnectionFactory factory = new ActiveMQConnectionFactory(BROKER_URL);
             Connection connection = factory.createConnection();
@@ -34,12 +28,11 @@ public class Subscriber {
                     if (message instanceof TextMessage) {
                         try {
                             String json = ((TextMessage) message).getText();
-
                             JsonObject event = JsonParser.parseString(json).getAsJsonObject();
 
                             saveEventToFile(topicName, event);
-
                             System.out.println("Evento recibido de '" + topicName + "': " + event);
+
                         } catch (JMSException e) {
                             e.printStackTrace();
                         }
@@ -54,23 +47,23 @@ public class Subscriber {
         }
     }
 
-    private static void saveEventToFile(String topicName, JsonObject event) {
+    private void saveEventToFile(String topicName, JsonObject event) {
         try {
-            LocalDateTime now = LocalDateTime.now();
-            String date = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+            java.time.LocalDateTime now = java.time.LocalDateTime.now();
+            String date = now.format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+            String hourMinute = now.format(java.time.format.DateTimeFormatter.ofPattern("HHmm"));
 
-            String hourMinute = now.format(DateTimeFormatter.ofPattern("HHmm"));
-            Path dir = Paths.get(BASE_DIR, topicName, hourMinute);
-            Files.createDirectories(dir);
+            java.nio.file.Path dir = java.nio.file.Paths.get("eventstore", topicName, hourMinute);
+            java.nio.file.Files.createDirectories(dir);
 
-            Path filePath = dir.resolve(date + ".events");
+            java.nio.file.Path filePath = dir.resolve(date + ".events");
 
-            try (FileWriter writer = new FileWriter(filePath.toFile(), true)) {
+            try (java.io.FileWriter writer = new java.io.FileWriter(filePath.toFile(), true)) {
                 writer.write(event.toString());
                 writer.write(System.lineSeparator());
             }
 
-        } catch (IOException e) {
+        } catch (java.io.IOException e) {
             e.printStackTrace();
         }
     }
