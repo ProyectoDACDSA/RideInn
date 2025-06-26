@@ -119,7 +119,7 @@ mvn clean install
 | Variable | Descripción | Ejemplo |
 |----------|-------------|---------|
 | `BLABLACAR_API_KEY` | Token BlaBlaCar | `abc123` |
-| `DB_URL` | URL DATABASE | `database.db` |
+| `DB_URL` | URL database | `database.db` |
 
 ---
 
