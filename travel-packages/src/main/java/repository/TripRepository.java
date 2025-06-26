@@ -23,7 +23,7 @@ public class TripRepository implements TripRepositoryPort {
                 pstmt.setString(3, trip.getDepartureDate().toString());
                 pstmt.setString(4, trip.getDepartureTime().toString());
                 pstmt.setDouble(5, trip.getPrice());
-                pstmt.setInt(6, trip.getAvailable());
+                pstmt.setBoolean(6, trip.getAvailable());
                 int affectedRows = pstmt.executeUpdate();
                 if (affectedRows > 0) {
                     try (ResultSet rs = pstmt.getGeneratedKeys()) {
@@ -56,7 +56,7 @@ public class TripRepository implements TripRepositoryPort {
                             rs.getString("departure_time"),
                             rs.getString("departure_date"),
                             rs.getDouble("price"),
-                            rs.getInt("available"));
+                            rs.getBoolean("available"));
                         trip.setId(rs.getLong("id"));
                         trips.add(trip);
                     }

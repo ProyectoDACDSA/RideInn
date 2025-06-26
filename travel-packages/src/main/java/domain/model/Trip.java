@@ -13,11 +13,11 @@ public class Trip {
     private final LocalTime departureTime;
     private final LocalDateTime departureDateTime;
     private final double price;
-    private final int available;
+    private final boolean available;
 
     public Trip(String origin, String destination,
                 String departureTime, String departureDate,
-                double price, int available) {
+                double price, boolean available) {
         this.origin = Objects.requireNonNull(origin);
         this.destination = Objects.requireNonNull(destination);
         this.departureTime = LocalTime.parse(Objects.requireNonNull(departureTime));
@@ -34,7 +34,7 @@ public class Trip {
     public LocalDate getDepartureDate() { return departureDate; }
     public LocalTime getDepartureTime() { return departureTime; }
     public LocalDateTime getDepartureDateTime() { return departureDateTime; }
-    public int getAvailable() { return available; }
+    public boolean getAvailable() { return available; }
 
     public void setId(Long id) {
         this.id = id;

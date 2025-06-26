@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.stream.Stream;
 
@@ -78,14 +79,22 @@ public class EventStoreReader {
     private void processTripLine(String line) {
         try {
             JsonObject obj = JsonParser.parseString(line).getAsJsonObject();
-            String dep = obj.get("departureTime").getAsString();
+            String dtRaw = obj.get("departureTime").getAsString();
+            OffsetDateTime odt = OffsetDateTime.parse(dtRaw);
+            String date = odt.toLocalDate().toString();       // "2025-08-09"
+            String time = odt.toLocalTime().toString();
+            JsonElement availableElem = obj.get("available");
+            if (availableElem == null) {
+                availableElem = obj.get("avalable");
+            }
+            boolean available = availableElem != null && availableElem.getAsBoolean();
             Trip trip = new Trip(
                     obj.get("origin").getAsString(),
                     obj.get("destination").getAsString(),
-                    dep.substring(11, 19),
-                    dep.substring(0, 10),
+                    time,
+                    date,
                     obj.get("price").getAsDouble(),
-                    obj.get("available").getAsInt()
+                    available
             );
             tripRepository.save(trip);
         } catch (Exception e) {

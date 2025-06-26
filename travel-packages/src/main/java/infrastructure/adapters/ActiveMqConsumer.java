@@ -49,9 +49,14 @@ public class ActiveMqConsumer {
     private Trip parseTrip(String json) {
         var o = JsonParser.parseString(json).getAsJsonObject();
         var dt = o.get("departureTime").getAsString();
+        JsonElement availableElem = o.get("available");
+        if (availableElem == null) {
+            availableElem = o.get("avalable");
+        }
+        boolean available = availableElem != null && availableElem.getAsBoolean();
         return new Trip(o.get("origin").getAsString(), o.get("destination").getAsString(),
                 dt.substring(11,19), dt.substring(0,10),
-                o.get("price").getAsDouble(), o.get("available").getAsInt());
+                o.get("price").getAsDouble(), available);
     }
 
     private Hotel parseHotel(String json) {
