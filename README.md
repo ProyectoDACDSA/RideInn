@@ -102,16 +102,16 @@ Componentes independientes se comunican mediante mensajería asíncrona (ActiveM
 ## Diagrama de cajas
 ![Diagrama de cajas](https://github.com/ProyectoDACDSA/RideInn/blob/develop/Diagrama%20de%20cajas.jpg?raw=true)
 ---
-## Diagrama feederss (FALTA)
-![Diagrama ](enlace)
-![Diagrama ](enlace)
+## Diagrama feeders
+![Diagrama Blablacar Feeder](https://github.com/ProyectoDACDSA/RideInn/blob/develop/blablacar-feeder.svg)
+![Diagrama Xotelo Feeder](https://github.com/ProyectoDACDSA/RideInn/blob/develop/xotelo-feeder.svg)
 ---
-## Diagrama business unit (FALTA)
-![Diagrama ](enlace)
+## Diagrama business unit 
+![Diagrama](https://github.com/ProyectoDACDSA/RideInn/blob/develop/travel-packages.svg)
 ---
-## Diagrama event store builder (FALTA)
-![Diagrama ](enlace)
-
+## Diagrama event store builder 
+![Diagrama](https://github.com/ProyectoDACDSA/RideInn/blob/develop/event-store-builder.svg)
+---
 ---
 
 ## 6. Principios y patrones por módulo
