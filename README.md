@@ -104,7 +104,6 @@ Componentes independientes se comunican mediante mensajería asíncrona (ActiveM
 - SQLite
 - Gson
 - Git
-- Conexión estable a Internet
 
 ---
 
