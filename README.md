@@ -187,8 +187,6 @@ Abrir un navegador y entrar en: <http://localhost:61616/>
 2. **Seleccionar Opción 2: Viajes Mejor Valorados**  
    - A partir de filtros, se muestran bajo la búsqueda las opciones mejor valoradas 
 
-Con tres clics el usuario descubre un recomendaciones, pudiendo elegir la opción de viaje más económica, bajo los filtros aplicados.
-
 ---
 
 ## Estructura de archivos generados
