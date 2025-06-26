@@ -38,9 +38,9 @@ Sofía Travieso García → [@sofiatravieso](https://github.com/sofiatravieso)
 
 En la actualidad, planificar un viaje implica consultar múltiples plataformas: una para el transporte, otra para el alojamiento, y a veces incluso más para obtener información adicional como horarios, precios, o disponibilidad. Esta fragmentación genera una experiencia ineficiente, especialmente cuando los datos no están actualizados o hay que repetir la búsqueda manualmente para comparar opciones.
 
-Nuestra solución ofrece una planificación integral que conecta rutas y hospedajes en una sola plataforma. Se apoya en datos actualizados en tiempo real, gracias a la consulta periódica de APIs. Además, el sistema es modular y escalable, permitiendo integrar nuevas fuentes fácilmente mediante adapters y topics adicionales. Todo esto se construye sobre una arquitectura profesional y educativa, con buenas prácticas de desarrollo en Java.
+Nuestra solución ofrece una planificación integral que conecta rutas y hospedajes en una sola plataforma. Se apoya en datos actualizados en tiempo real, gracias a la consulta periódica de APIs. Además, el sistema es modular y escalable, permitiendo integrar nuevas fuentes fácilmente mediante adapters y topics adicionales. Según la opción que escoja el usuario en el menú y los filtros que decida aplicar, obtendrá un plan de viaje con el transporte y hotel. Incluyendo detalles como: nombre de hotel, origen, destino, fechas, valoraciones y precios. 
 
-Según la opción que escoja el usuario en el menú y los filtros que decida aplicar, obtendrá un plan de viaje con el transporte y hotel. Incluyendo detalles como: nombre de hotel, origen, destino, fechas, valoraciones y precios. 
+Todo esto se construye sobre una arquitectura profesional y educativa, con buenas prácticas de desarrollo en Java.
 
 ---
 
