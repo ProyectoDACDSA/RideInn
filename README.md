@@ -96,7 +96,7 @@ Componentes independientes se comunican mediante mensajería asíncrona (ActiveM
 
 ---
 ## Diagrama de cajas (FALTA)
-![Diagrama de cajas](enlace)
+![Diagrama de cajas]([enlace](https://github.com/ProyectoDACDSA/RideInn/blob/develop/Diagrama%20de%20cajas.jpg))
 ---
 ## Diagrama feederss (FALTA)
 ![Diagrama ](enlace)
