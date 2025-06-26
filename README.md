@@ -21,18 +21,17 @@
 3. [Arquitectura](#arquitectura)  
 4. [Módulos](#módulos)  
 5. [Justificación de APIs y persistencia](#justificación-de-apis-y-persistencia)  
-6. [Requisitos previos](#requisitos-previos)  
+6. [Tecnologías](#tecnologías)  
 7. [Instalación y compilación](#instalación-y-compilación)  
 8. [Variables de entorno](#variables-de-entorno)  
 9. [Ejecución del sistema](#ejecución-del-sistema)  
 10. [Uso de la GUI](#uso-de-la-gui)  
-11. [Estructura de almacenamiento](#estructura-de-almacenamiento)  
-12. [Tecnologías](#tecnologías)  
-13. [Pruebas](#pruebas)
+11. [Estructura de almacenamiento](#estructura-de-almacenamiento)   
+12. [Pruebas](#pruebas)
 
 ---
 
-## Propuesta de valor
+## 1. Propuesta de valor
 
 - **Planificación completa** → ofrece una solución todo-en-uno que vincula rutas y hospedaje.  
 - **Datos actualizados** → se consultan las APIs periódicamente, brindando datos en vivo.  
@@ -96,11 +95,14 @@ Componentes independientes se comunican mediante mensajería asíncrona (ActiveM
 
 ---
 
-## Requisitos previos
+## Tecnologías
 
 - Java 21  
 - Apache Maven 3.6 o superior  
 - ActiveMQ 5.17.6  
+- SQLite
+- Gson
+- Git
 - Conexión estable a Internet
 
 ---
@@ -207,11 +209,6 @@ datamart.db
 | Feeders | Adapter, Publisher (eventos con ActiveMQ) | SRP, inmutabilidad, Open/Closed |
 | Event Store | Consumer, Event Sourcing (almacenamiento en fichero) | Open/Closed, SRP                |
 | Business Unit | Facade (controladores), MVC (GUI) | DRY, SRP                   |
-
----
-
-## Tecnologías
-Java 21 · Maven · ActiveMQ · SQLite · Gson · Git
 
 ---
 
