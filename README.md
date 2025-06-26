@@ -38,10 +38,10 @@ Nuestra solución ofrece una planificación integral que conecta rutas y hospeda
 ## 2. Funcionalidades
 
 - **Consulta de trayectos asequibles**  
-  Utiliza la API de BlaBlaCar para acceder a rutas.
+  - Utiliza la API de BlaBlaCar para acceder a rutas.
 
 - **Búsqueda de alojamiento**  
-  Integra la API pública de Xotelo para encontrar opciones de hospedaje.
+  - Integra la API pública de Xotelo para encontrar opciones de hospedaje.
 
 - **Publicación de eventos en ActiveMQ**  
   - Los eventos se organizan en los topics `Xotelo` y `Blablacar`.  
@@ -52,7 +52,7 @@ Nuestra solución ofrece una planificación integral que conecta rutas y hospeda
   - También se almacenan en una base de datos SQLite.
 
 - **Interfaz de línea de comandos (CLI)**  
-  Permite introducir diversos filtros para personalizar la búsqueda según necesidades específicas.
+  - Permite introducir diversos filtros para personalizar la búsqueda según necesidades específicas.
 
 ---
 
