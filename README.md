@@ -96,14 +96,14 @@ Componentes independientes se comunican mediante mensajería asíncrona (ActiveM
 
 ---
 
-## 6. Principios y patrones por módulo (FALTA)
+## 6. Principios y patrones por módulo
 
 | Módulo | Patrón | Función principal | Principios Aplicados |
 |--------|--------|-------------------|-------------------------| 
-| `blablacar-feeder` | Adapter + Publisher | Publica trayectos en el topic `Blablacar` | SP, Inmutabilidad, Open/Closed |
-| `xotelo-feeder` | Adapter + Publisher | Publica hospedajes en el topic `Xotelo` | SRP, Inmutabilidad, Open/Closed |
-| `event-store-builder` | Consumer | Registra todos los eventos como archivos `.events` | Open/Closed, SRP |
-| `travel-packages` | Consumer + CLI | Persiste en SQLite y ofrece la interfaz de usuario | DRY, SRP |
+| `blablacar-feeder` | Adapter + Publisher | Publica trayectos en el topic `Blablacar` | SRP, DIP, Inmutabilidad, Open/Closed |
+| `xotelo-feeder` | Adapter + Publisher | Publica hospedajes en el topic `Xotelo` | SRP, DIP, Inmutabilidad, Open/Closed |
+| `event-store-builder` | Consumer | Registra todos los eventos como archivos `.events` | SRP, DIP, DRY Open/Closed |
+| `travel-packages` | Consumer + CLI | Persiste en SQLite y ofrece la interfaz de usuario | SRP, DIP, DRY, Inmutabilidad, Open/Closed|
 
 ---
 
