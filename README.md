@@ -189,11 +189,11 @@ Abrir un navegador y entrar en: <http://localhost:61616/> → Para inciar sesió
 
 ### 3. Ejecutar las clases
 
-1. Main de event-store-builder
-2. Main de blablacar-feeder con su variable de entorno `BLABLACAR_API_KEY`
-3. Main de xotelo-feeder
-4. DatamartApplication de travel-packages con su variable de entoro `DB_URL`
-5. Mian de travel-packages con su variable de entoro `DB_URL`
+1. Main de event-store-builder.
+2. Main de blablacar-feeder con su variable de entorno `BLABLACAR_API_KEY`.
+3. Main de xotelo-feeder.
+4. DatamartApplication de travel-packages con su variable de entoro `DB_URL`.
+5. Main de travel-packages con su variable de entoro `DB_URL`.
 
 Las cuatro primeras clases se mantendrán en ejecución, mientras que el main de travel-packages se podrá ir ejecutando y parando dependiendo de si queremos buscar un pack de viaje o no.
 
