@@ -147,7 +147,6 @@ eventstore/
   "city":"Lyon"
 }
 ```
-               |
 ---
 
 ## 9. Instalación y compilación
