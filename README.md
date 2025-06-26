@@ -1,8 +1,6 @@
 # RideInn
 
-> **RideInn** es una plataforma modular que **combina trayectos y alojamientos** mediante el consumo en tiempo real de las APIs públicas de **BlaBlaCar** y **Xotelo**.
-
-> El proyecto está desarrollado en **Java 21**, siguiendo principios de **Clean Code** y **Arquitectura Hexagonal**, usando **ActiveMQ** como sistema de mensajería, persistiendo la información en **SQLite y archivos planos**, y visualizándola a través de línea de comandos, con **CLI**.
+> **RideInn** es una plataforma modular que **combina trayectos y alojamientos** mediante el consumo en tiempo real de las APIs públicas de **BlaBlaCar** y **Xotelo**. El proyecto está desarrollado en **Java 21**, siguiendo principios de **Clean Code** y **Arquitectura Hexagonal**, usando **ActiveMQ** como sistema de mensajería, persistiendo la información en **SQLite y archivos planos**, y visualizándola a través de línea de comandos, con **CLI**.
 
 ---
 
