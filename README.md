@@ -2,9 +2,9 @@
 
 ---
 
-**RideInn** es una plataforma modular que **combina trayectos y alojamientos** mediante el consumo en tiempo real de las APIs públicas de **BlaBlaCar** y **Xotelo**.
+> **RideInn** es una plataforma modular que **combina trayectos y alojamientos** mediante el consumo en tiempo real de las APIs públicas de **BlaBlaCar** y **Xotelo**.
 
-El proyecto está desarrollado en **Java 21**, siguiendo principios de **Clean Code** y **Arquitectura Hexagonal**, usando **ActiveMQ** como sistema de mensajería, persistiendo la información en **SQLite y archivos planos**, y visualizándola a través de línea de comandos, con **CLI**.
+> El proyecto está desarrollado en **Java 21**, siguiendo principios de **Clean Code** y **Arquitectura Hexagonal**, usando **ActiveMQ** como sistema de mensajería, persistiendo la información en **SQLite y archivos planos**, y visualizándola a través de línea de comandos, con **CLI**.
 
 ---
 
@@ -63,14 +63,14 @@ Nuestra solución ofrece una planificación integral que conecta rutas y hospeda
 
 ## 3. Justificación de APIs y persistencia
 
-> **BlaBlaCar**  
-> API centrada en viajes colaborativos y económicos, proporcionando opciones accesibles y eficientes.
+1. **BlaBlaCar:**  
+   Esta API está enfocada en viajes colaborativos y económicos, lo que permite ofrecer trayectos accesibles y sostenibles a los usuarios.
 
-> **Xotelo**  
-> Fuente abierta con información hotelera confiable, que facilita integraciones ágiles y actualizadas.
+2. **Xotelo:**  
+   Es una fuente abierta de información hotelera, ideal para integraciones que requieren datos confiables y actualizados sobre alojamientos.
 
-> **Event Store + SQLite**  
-> Sistema de almacenamiento que combina persistencia de eventos y base de datos, permitiendo análisis históricos, depuración y recuperación ante fallos.
+3. **Event Store + SQLite:**  
+   La combinación del almacenamiento de eventos y la base de datos SQLite permite realizar análisis históricos, facilitar la depuración y garantizar la recuperación ante posibles fallos, asegurando la robustez del sistema.
 
 ---
 
