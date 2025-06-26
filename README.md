@@ -195,7 +195,7 @@ Abrir un navegador y entrar en: <http://localhost:61616/> → Para inciar sesió
 4. DatamartApplication de travel-packages con su variable de entoro `DB_URL`.
 5. Main de travel-packages con su variable de entoro `DB_URL`.
 
-Las cuatro primeras clases se mantendrán en ejecución, mientras que el main de travel-packages se podrá ir ejecutando y parando dependiendo de si queremos buscar un pack de viaje o no.
+Las cuatro primeras clases se mantendrán en ejecución, mientras que el main de travel-packages se podrá ir ejecutando y parando, dependiendo de si queremos buscar un pack de viaje o no.
 
 ---
 
@@ -205,10 +205,6 @@ Las cuatro primeras clases se mantendrán en ejecución, mientras que el main de
    - Tienes diferentes filtros que ayudarán a guiar la búsqueda del usuario
 2. **Seleccionar Opción 2: Viajes Mejor Valorados**  
    - A partir de filtros, se muestran bajo la búsqueda las opciones mejor valoradas 
-
----
-
-> Cada línea de un `.events` es un objeto JSON serializado.
 
 ---
 
