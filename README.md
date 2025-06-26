@@ -31,20 +31,28 @@
 
 ## 1. Propuesta de valor
 
-- **Planificación completa** → ofrece una solución todo-en-uno que vincula rutas y hospedaje.  
-- **Datos actualizados** → se consultan las APIs periódicamente, brindando datos en vivo.  
-- **Escalable y modular** → cualquier nueva fuente se integra con un adapter y un topic adicional.  
-- **Educativo y profesional** → arquitectura clara con buenas prácticas en Java.
+Nuestra solución ofrece una planificación integral que conecta rutas y hospedajes en una sola plataforma. Se apoya en datos actualizados en tiempo real, gracias a la consulta periódica de APIs. Además, el sistema es modular y escalable, permitiendo integrar nuevas fuentes fácilmente mediante adapters y topics adicionales. Todo esto se construye sobre una arquitectura profesional y educativa, con buenas prácticas de desarrollo en Java.
 
 ---
 
 ## 2. Funcionalidades
 
-- **Consulta de trayectos** asequibles mediante la API de BlaBlaCar.  
-- **Búsqueda de alojamiento** usando la API pública de Xotelo.  
-- **Publicación de eventos** en ActiveMQ (topics `Xotelo` y `Blablacar`).  
-- **Almacenamiento** de todos los mensajes en ficheros `.events` y base de datos SQLite.  
-- **CLI** que permite introudcir diversos filtros.
+- **Consulta de trayectos asequibles**  
+  Utiliza la API de BlaBlaCar para acceder a rutas.
+
+- **Búsqueda de alojamiento**  
+  Integra la API pública de Xotelo para encontrar opciones de hospedaje.
+
+- **Publicación de eventos en ActiveMQ**  
+  - Los eventos se organizan en los topics `Xotelo` y `Blablacar`.  
+  - Facilita la comunicación y actualización en tiempo real.
+
+- **Almacenamiento persistente**  
+  - Los mensajes se guardan en ficheros `.events`.  
+  - También se almacenan en una base de datos SQLite.
+
+- **Interfaz de línea de comandos (CLI)**  
+  Permite introducir diversos filtros para personalizar la búsqueda según necesidades específicas.
 
 ---
 
@@ -179,11 +187,8 @@ Linux / macOS:
 ```
 ./activemq start
 ```
-### 2. Verificar que está activo
 
-Abrir un navegador y entrar en: <http://localhost:61616/> → Para inciar sesión: usuario admin y contraseña admin.
-
-### 3. Ejecutar las clases
+### 2. Ejecutar las clases
 
 1. Main de event-store-builder.
 2. Main de blablacar-feeder con su variable de entorno `BLABLACAR_API_KEY`.
