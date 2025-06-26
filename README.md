@@ -119,7 +119,7 @@ Componentes independientes se comunican mediante mensajería asíncrona (ActiveM
 
 Tabla Trips
 
-| Id | Origin | Destination | Departure_date | Departure_time | Price | Available | Processed_at |
+| id | origin | destination | departure_date | departure_time | price | available | processed_at |
 |----|--------|-------------|----------------|----------------|--------|-----------|---------------------|
 | 1  | Paris  | Niza        | 2025-06-27     | 20:30          | 94.98  | 1         | 2025-06-25 14:23:01 |
 | 2  | Paris  | Niza        | 2025-06-27     | 23:20          | 89.98  | 1         | 2025-06-25 14:23:01 |
