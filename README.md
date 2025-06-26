@@ -63,9 +63,14 @@ Nuestra solución ofrece una planificación integral que conecta rutas y hospeda
 
 ## 3. Justificación de APIs y persistencia
 
-- **BlaBlaCar** → API enfocada en viajes colaborativos y económicos.  
-- **Xotelo** → fuente abierta de información hotelera, ideal para integraciones.  
-- **Event Store + SQLite** → permite análisis histórico, depuración y recuperación ante fallos.
+> **BlaBlaCar**  
+> API centrada en viajes colaborativos y económicos, proporcionando opciones accesibles y eficientes.
+
+> **Xotelo**  
+> Fuente abierta con información hotelera confiable, que facilita integraciones ágiles y actualizadas.
+
+> **Event Store + SQLite**  
+> Sistema de almacenamiento que combina persistencia de eventos y base de datos, permitiendo análisis históricos, depuración y recuperación ante fallos.
 
 ---
 
