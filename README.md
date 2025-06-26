@@ -18,17 +18,19 @@
 ## Índice
 
 1. [Propuesta de valor](#propuesta-de-valor)  
-2. [Funcionalidades](#funcionalidades)  
-3. [Arquitectura](#arquitectura)  
-4. [Módulos](#módulos)  
-5. [Justificación de APIs y persistencia](#justificación-de-apis-y-persistencia)  
-6. [Tecnologías](#tecnologías)  
-7. [Instalación y compilación](#instalación-y-compilación)  
-8. [Variables de entorno](#variables-de-entorno)  
-9. [Ejecución del sistema](#ejecución-del-sistema)  
-10. [Uso de la GUI](#uso-de-la-gui)  
-11. [Estructura de almacenamiento](#estructura-de-almacenamiento)   
-12. [Pruebas](#pruebas)
+2. [Funcionalidades](#funcionalidades)
+3. [Justificación de APIs y persistencia](#justificación-de-apis-y-persistencia)   
+4. [Arquitectura](#arquitectura)
+5. [Tecnologías](#tecnologías) 
+6. [Módulos](#módulos)
+7. [Principios y patrones por módulo](#principios-y-patrones-por-módulo)
+8. [Estructura de archivos generados](#estructura-de-archivos-generados)
+9. [Formato de mensajes publicados](#formato-de-mensajes-publicados)
+10. [Instalación y compilación](#instalación-y-compilación)  
+11. [Variables de entorno](#variables-de-entorno)  
+12. [Ejecución del sistema](#ejecución-del-sistema)  
+13. [Uso de la GUI](#uso-de-la-gui)  
+14. [Pruebas](#pruebas)
 
 ---
 
@@ -51,7 +53,15 @@
 
 ---
 
-## 3. Arquitectura
+## 3. Justificación de APIs y persistencia
+
+- **BlaBlaCar** → API enfocada en viajes colaborativos y económicos.  
+- **Xotelo** → fuente abierta de información hotelera, ideal para integraciones.  
+- **Event Store + SQLite** → permite análisis histórico, depuración y recuperación ante fallos.
+
+---
+
+## 4. Arquitectura
 
 El proyecto sigue los principios de **Clean Code** así como de **Arquitectura Hexagonal**, mejorando la infraestructura y presentación.  
 Componentes independientes se comunican mediante mensajería asíncrona (ActiveMQ).
@@ -74,29 +84,9 @@ Componentes independientes se comunican mediante mensajería asíncrona (ActiveM
 ## Diagrama event store builder (FALTA)
 ![Diagrama ](enlace)
 
-
 ---
 
-## 4. Módulos
-
-| Módulo | Patrón | Función principal |
-|--------|--------|-------------------|
-| `blablacar-feeder` | Adapter + Publisher | Publica trayectos en el topic `Blablacar` |
-| `xotelo-feeder` | Adapter + Publisher | Publica hospedajes en el topic `Xotelo` |
-| `event-store` | Consumer | Registra todos los eventos como archivos `.events` |
-| `travel-packages` | Consumer + CLI | Persiste en SQLite y ofrece la interfaz de usuario |
-
----
-
-## 5. Justificación de APIs y persistencia
-
-- **BlaBlaCar** → API enfocada en viajes colaborativos y económicos.  
-- **Xotelo** → fuente abierta de información hotelera, ideal para integraciones.  
-- **Event Store + SQLite** → permite análisis histórico, depuración y recuperación ante fallos.
-
----
-
-## 6. Tecnologías
+## 5. Tecnologías
 
 - Java 21  
 - Apache Maven 3.6 o superior  
@@ -107,25 +97,38 @@ Componentes independientes se comunican mediante mensajería asíncrona (ActiveM
 
 ---
 
-## 7. Instalación y compilación
+## 6. Módulos
 
-```bash
-git clone https://github.com/ProyectoDACDSA/RideInn
-cd RideInn
-mvn clean install
+| Módulo | Patrón | Función principal |
+|--------|--------|-------------------|
+| `blablacar-feeder` | Adapter + Publisher | Publica trayectos en el topic `Blablacar` |
+| `xotelo-feeder` | Adapter + Publisher | Publica hospedajes en el topic `Xotelo` |
+| `event-store` | Consumer | Registra todos los eventos como archivos `.events` |
+| `travel-packages` | Consumer + CLI | Persiste en SQLite y ofrece la interfaz de usuario |
+
+---
+
+## 7. Principios y patrones por módulo (FALTA)
+| Módulo | Patrones | Principios                      |
+|--------|----------|---------------------------------|
+| Feeders | Adapter, Publisher (eventos con ActiveMQ) | SRP, inmutabilidad, Open/Closed |
+| Event Store | Consumer, Event Sourcing (almacenamiento en fichero) | Open/Closed, SRP                |
+| Business Unit | Facade (controladores), MVC (GUI) | DRY, SRP    
+
+---
+
+## 8. Estructura de archivos generados
+```
+eventstore/
+└── Xotelo/ | Blablacar/
+    └── HHSS/YYYYMMDD.events
+
+datamart.db
 ```
 
 ---
 
-## Variables de entorno
-| Variable | Descripción | Ejemplo |
-|----------|-------------|---------|
-| `BLABLACAR_API_KEY` | Token BlaBlaCar | `abc123` |
-| `DB_URL` | URL database | `database.db` |
-
----
-
-## 8. Formatos de mensajes publicados
+## 9. Formato de mensajes publicados
 
 ### Evento BlaBlaCar (`Blablacar`)
 
@@ -156,10 +159,28 @@ mvn clean install
   "city":"Lyon"
 }
 ```
+               |
+---
+
+## 10. Instalación y compilación
+
+```bash
+git clone https://github.com/ProyectoDACDSA/RideInn
+cd RideInn
+mvn clean install
+```
 
 ---
 
-## 9. Cómo ejecutar el proyecto
+## 11. Variables de entorno
+| Variable | Descripción | Ejemplo |
+|----------|-------------|---------|
+| `BLABLACAR_API_KEY` | Token BlaBlaCar | `abc123` |
+| `DB_URL` | URL database | `database.db` |
+
+---
+
+## 12. Cómo ejecutar el proyecto
 
 ### 1. Iniciar ActiveMQ
 
@@ -182,7 +203,7 @@ Abrir un navegador y entrar en: <http://localhost:61616/>
 
 ---
 
-## Flujo de la CLI paso a paso
+## 13. Flujo de la CLI paso a paso
 
 1. **Seleccionar Opcion 1: Recomendaciones Actuales**  
    - Tienes diferentes filtros que ayudarán a guiar la búsqueda del usuario
@@ -191,28 +212,11 @@ Abrir un navegador y entrar en: <http://localhost:61616/>
 
 ---
 
-## 10. Estructura de archivos generados
-```
-eventstore/
-└── Xotelo/ | Blablacar/
-    └── HHSS/YYYYMMDD.events
-
-datamart.db
-```
 > Cada línea de un `.events` es un objeto JSON serializado.
 
 ---
 
-## 11. Principios y patrones por módulo (FALTA)
-| Módulo | Patrones | Principios                      |
-|--------|----------|---------------------------------|
-| Feeders | Adapter, Publisher (eventos con ActiveMQ) | SRP, inmutabilidad, Open/Closed |
-| Event Store | Consumer, Event Sourcing (almacenamiento en fichero) | Open/Closed, SRP                |
-| Business Unit | Facade (controladores), MVC (GUI) | DRY, SRP                   |
-
----
-
-## 12. Tests
+## 14. Tests
 
 ```bash
 mvn test
