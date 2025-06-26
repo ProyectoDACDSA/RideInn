@@ -162,7 +162,7 @@ mvn clean install
 ## 10. Variables de entorno
 | Variable | Descripción | Ejemplo |
 |----------|-------------|---------|
-| `BLABLACAR_API_KEY` | Token BlaBlaCar | `abc123` |
+| `BLABLACAR_API_KEY` | Token BlaBlaCar | `123qwe` |
 | `DB_URL` | URL database | `database.db` |
 
 ---
