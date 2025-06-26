@@ -23,7 +23,7 @@
 4. [Tecnologías](#tecnologías) 
 5. [Arquitectura](#arquitectura)
 6. [Principios y patrones por módulo](#principios-y-patrones-por-módulo)
-7. [Estructura de archivos generados](#estructura-de-archivos-generados)
+7. [Estructura de eventos generados](#estructura-de-eventos-generados)
 8. [Formato de mensajes publicados](#formato-de-mensajes-publicados)
 9. [Instalación y compilación](#instalación-y-compilación)
 10. [Variables de entorno](#variables-de-entorno)
@@ -107,13 +107,11 @@ Componentes independientes se comunican mediante mensajería asíncrona (ActiveM
 
 ---
 
-## 7. Estructura de archivos generados
+## 7. Estructura de eventos generados
 ```
 eventstore/
 └── Xotelo/ | Blablacar/
     └── HHSS/YYYYMMDD.events
-
-datamart.db
 ```
 
 ---
