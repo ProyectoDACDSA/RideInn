@@ -18,7 +18,7 @@ class TripTest {
                 "15:30",
                 "2025-06-01",
                 19.99,
-                3
+                true
         );
         trip.setId(42L);
     }

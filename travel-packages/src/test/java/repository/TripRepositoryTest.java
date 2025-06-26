@@ -16,16 +16,16 @@ public class TripRepositoryTest {
     @Test
     public void testTripCreationAndRepositoryInstantiation() {
         Trip trip = new Trip(
-                "Madrid",
-                "Barcelona",
+                "Paris",
+                "Niza",
                 "10:00",
                 "2025-07-15",
                 45.5,
-                3
+                true
         );
 
         assertNotNull(trip);
-        assertEquals("Madrid", trip.getOrigin());
-        assertEquals("Barcelona", trip.getDestination());
+        assertEquals("Paris", trip.getOrigin());
+        assertEquals("Niza", trip.getDestination());
     }
 }

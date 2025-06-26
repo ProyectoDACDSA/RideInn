@@ -60,7 +60,7 @@ class RecommendationAnalysisServiceTest {
 
     @Test
     void shouldCreateRecommendationWhenTripAndHotelMatch() throws SQLException {
-        tripRepo.save(new Trip("Lyon", "Paris", "10:00:00", "2023-12-15", 120, 3));
+        tripRepo.save(new Trip("Lyon", "Paris", "10:00:00", "2023-12-15", 120, true));
         hotelRepo.save(new Hotel(1L, "Hotel Paris", "paris-1", "Hotel", "url", 4.5, 80, "Paris", LocalDateTime.now()));
         var r = service.getTravelPackages("Paris").get(0);
         assertEquals(200.0, r.getTotalPrice(), 0.01);
@@ -68,7 +68,7 @@ class RecommendationAnalysisServiceTest {
 
     @Test
     void shouldNotCreateRecommendationWhenCitiesDontMatch() throws SQLException {
-        tripRepo.save(new Trip("Lyon", "Paris", "10:00:00", "2023-12-15", 120, 3));
+        tripRepo.save(new Trip("Lyon", "Paris", "10:00:00", "2023-12-15", 120, true));
         hotelRepo.save(new Hotel(1L, "Hotel Nice", "nice-1", "Hotel", "url", 4.5, 80, "Nice", LocalDateTime.now()));
         assertTrue(service.getTravelPackages("Paris").isEmpty());
     }

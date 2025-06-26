@@ -23,7 +23,7 @@ public class HotelRepositoryTest {
                 "http://demo.com",
                 4.5,
                 120.0,
-                "Madrid",
+                "Paris",
                 LocalDateTime.now()
         );
 

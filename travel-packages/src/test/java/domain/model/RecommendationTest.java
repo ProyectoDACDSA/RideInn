@@ -14,7 +14,7 @@ class RecommendationTest {
 
     @BeforeEach
     void setUp() {
-        trip = new Trip("Paris", "Lyon", "10:00", "2025-07-01", 25.0, 2);
+        trip = new Trip("Paris", "Lyon", "10:00", "2025-07-01", 25.0, true);
         trip.setId(1L);
 
         hotel = new Hotel(1L, "Hotel Lyon", "H123", "Hotel",

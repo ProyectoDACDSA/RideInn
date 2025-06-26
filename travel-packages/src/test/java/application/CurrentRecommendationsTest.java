@@ -29,7 +29,7 @@ class CurrentRecommendationsTest {
             public List<Recommendation> getTravelPackages(String city) throws SQLException {
                 if (city.equals("Paris")) {
                     Trip trip = new Trip("Lyon", "Paris", "10:00:00",
-                            "2023-12-15", 120.0, 3);
+                            "2023-12-15", 120.0, true);
                     Hotel hotel = new Hotel(1L, "Hotel Paris", "paris-1", "Hotel",
                             "http://hotel.com", 4.5, 80.0, "Paris",
                             LocalDateTime.now());

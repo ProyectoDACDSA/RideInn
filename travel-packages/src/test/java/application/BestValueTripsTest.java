@@ -58,13 +58,13 @@ class BestValueTripsTest {
     private List<Recommendation> mockRecommendations() {
         return Arrays.asList(
                 new Recommendation(
-                        new Trip("Niza", "Paris", "10:00:00", "2023-12-15", 100.0, 4),
+                        new Trip("Niza", "Paris", "10:00:00", "2023-12-15", 100.0, true),
                         new Hotel(1L, "Excelente Hotel", "paris-hotel-1", "Hotel",
                                 "http://example.com", 4.5, 80.0, "Paris", LocalDateTime.now()),
                         180.0
                 ),
                 new Recommendation(
-                        new Trip("Toulouse", "Paris", "12:00:00", "2023-12-15", 120.0, 2),
+                        new Trip("Toulouse", "Paris", "12:00:00", "2023-12-15", 120.0, true),
                         new Hotel(2L, "Buen Hotel", "paris-hotel-2", "Hotel",
                                 "http://example.com", 4.0, 100.0, "Paris", LocalDateTime.now()),
                         220.0
