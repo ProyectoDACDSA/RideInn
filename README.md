@@ -175,7 +175,7 @@ Linux / macOS:
 ```
 ### 2. Verificar que está activo
 
-Abrir un navegador y entrar en: <http://localhost:8161/>
+Abrir un navegador y entrar en: <http://localhost:61616/>
 >(Para inciar sesión: usuario admin / contraseña admin).
 
 ---
