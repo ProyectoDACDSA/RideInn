@@ -7,9 +7,9 @@ El proyecto está desarrollado en **Java 21**, siguiendo principios de **Clean C
 ---
 
 ## Autores
-> Adriana Peñate Sosa → [@adrianapenate](https://github.com/adrianapenate)
 
-> Sofía Travieso García → [@sofiatravieso](https://github.com/sofiatravieso)
+Adriana Peñate Sosa → [@adrianapenate](https://github.com/adrianapenate)
+Sofía Travieso García → [@sofiatravieso](https://github.com/sofiatravieso)
 
 ---
 
