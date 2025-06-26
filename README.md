@@ -7,8 +7,8 @@
 ---
 
 ## Autores
-Adriana Peñate → [@adrianapenate](https://github.com/adrianapenate)
-Sofía Travieso → [@sofiatravieso](https://github.com/sofiatravieso)
+> Adriana Peñate → [@adrianapenate](https://github.com/adrianapenate)
+> Sofía Travieso → [@sofiatravieso](https://github.com/sofiatravieso)
 
 ---
 
