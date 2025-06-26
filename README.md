@@ -127,11 +127,11 @@ Tabla Trips
 
 Tabla Hotels
 
-| Id | Hotel_name     | Hotel_key        | Accommodation_type | Rating | Avg_price_per_night | City     | URL              | Processed_at |
-|----|----------------|------------------|---------------------|--------|----------------------|----------|------------------|---------------|
-| 1  | Hotel Albert   | g187175-...      | Hotel               | 4.4    | 179.0                | Toulouse | https://w...     | 2025-06-26    |
-| 2  | Appart'hôtel   | g187175-...      | Condominium         | 4.4    | 91.0                 | Toulouse | https://w...     | 2025-06-26    |
-| 3  | Plaza Hotel    | g187175-...      | Hotel               | 3.9    | 194.0                | Toulouse | https://w...     | 2025-06-26    |
+| id | hotel_name     | hotel_key        | accommodation_type | url           | rating | avg_price_per_night | city     | processed_at |
+|----|----------------|------------------|---------------------|---------------|--------|----------------------|----------|---------------|
+| 1  | Hotel Albert   | g187175-...      | Hotel               | https://w...  | 4.4    | 179.0                | Toulouse | 2025-06-26    |
+| 2  | Appart'hôtel   | g187175-...      | Condominium         | https://w...  | 4.4    | 91.0                 | Toulouse | 2025-06-26    |
+| 3  | Plaza Hotel    | g187175-...      | Hotel               | https://w...  | 3.9    | 194.0                | Toulouse | 2025-06-26    |
 
 ---
 
