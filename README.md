@@ -22,15 +22,16 @@ Sofía Travieso García → [@sofiatravieso](https://github.com/sofiatravieso)
 2. Funcionalidades  
 3. Justificación de APIs y persistencia  
 4. Tecnologías  
-5. Arquitectura  
-6. Principios y patrones por módulo  
-7. Estructura de eventos generados  
-8. Formato de mensajes publicados  
-9. Instalación y compilación  
-10. Variables de entorno  
-11. Ejecución del sistema  
-12. Uso de la GUI  
-13. Pruebas  
+5. Arquitectura
+6. Estructura del datamart 
+7. Principios y patrones por módulo  
+8. Estructura de eventos generados  
+9. Formato de mensajes publicados  
+10. Instalación y compilación  
+11. Variables de entorno  
+12. Ejecución del sistema  
+13. Uso de la GUI  
+14. Pruebas  
 
 ---
 
@@ -114,7 +115,27 @@ Componentes independientes se comunican mediante mensajería asíncrona (ActiveM
 ---
 ---
 
-## 6. Principios y patrones por módulo
+## 6. Estructura del datamart
+
+Tabla Trips
+
+| id | origin | destination | departure_date | departure_time | price | available | processed_at |
+|----|--------|-------------|----------------|----------------|--------|-----------|---------------------|
+| 1  | Paris  | Niza        | 2025-06-27     | 20:30          | 94.98  | 1         | 2025-06-25 14:23:01 |
+| 2  | Paris  | Niza        | 2025-06-27     | 23:20          | 89.98  | 1         | 2025-06-25 14:23:01 |
+| 3  | Paris  | Niza        | 2025-06-27     | 23:45          | 77.98  | 1         | 2025-06-25 14:23:01 |
+
+Tabla Hotels
+
+| id | hotel_name     | hotel_key        | accommodation_type | url           | rating | avg_price_per_night | city     | processed_at |
+|----|----------------|------------------|---------------------|---------------|--------|----------------------|----------|---------------|
+| 1  | Hotel Albert   | g187175-...      | Hotel               | https://w...  | 4.4    | 179.0                | Toulouse | 2025-06-26    |
+| 2  | Appart'hôtel   | g187175-...      | Condominium         | https://w...  | 4.4    | 91.0                 | Toulouse | 2025-06-26    |
+| 3  | Plaza Hotel    | g187175-...      | Hotel               | https://w...  | 3.9    | 194.0                | Toulouse | 2025-06-26    |
+
+---
+
+## 7. Principios y patrones por módulo
 
 | Módulo | Patrón | Función principal | Principios Aplicados |
 |--------|--------|-------------------|-------------------------| 
@@ -125,7 +146,7 @@ Componentes independientes se comunican mediante mensajería asíncrona (ActiveM
 
 ---
 
-## 7. Estructura de eventos generados
+## 8. Estructura de eventos generados
 ```
 eventstore/
 └── Xotelo/ | Blablacar/
@@ -138,7 +159,7 @@ eventstore/
 
 ---
 
-## 8. Formato de mensajes publicados
+## 9. Formato de mensajes publicados
 
 ### Evento BlaBlaCar (`Blablacar`)
 
@@ -171,7 +192,7 @@ eventstore/
 ```
 ---
 
-## 9. Instalación y compilación
+## 10. Instalación y compilación
 
 ```bash
 git clone https://github.com/ProyectoDACDSA/RideInn
@@ -181,7 +202,7 @@ mvn clean install
 
 ---
 
-## 10. Variables de entorno
+## 11. Variables de entorno
 | Variable | Descripción | Ejemplo |
 |----------|-------------|---------|
 | `BLABLACAR_API_KEY` | Token BlaBlaCar | `123qwe` |
@@ -189,7 +210,7 @@ mvn clean install
 
 ---
 
-## 11. Cómo ejecutar el proyecto
+## 12. Cómo ejecutar el proyecto
 
 ### 1. Iniciar ActiveMQ
 
@@ -212,7 +233,7 @@ Las cuatro primeras clases se mantendrán en ejecución, mientras que el main de
 
 ---
 
-## 12. Flujo de la CLI paso a paso
+## 13. Flujo de la CLI paso a paso
 
 1. **Seleccionar Opcion 1: Recomendaciones Actuales**  
    - Tienes diferentes filtros que ayudarán a guiar la búsqueda del usuario
@@ -221,7 +242,7 @@ Las cuatro primeras clases se mantendrán en ejecución, mientras que el main de
 
 ---
 
-## 13. Tests
+## 14. Tests
 
 ```bash
 mvn test
