@@ -128,6 +128,10 @@ eventstore/
     └── HHSS/YYYYMMDD.events
 ```
 
+- **eventstore/**: carpeta raíz donde se almacenan todos los eventos.  
+- **Xotelo/** y **Blablacar/**: directorios separados para cada fuente de eventos.  
+- **HHSS/YYYYMMDD.events**: archivos con eventos organizados por fecha y hora (HHSS = hora, minutos; YYYYMMDD = año, mes, día).
+
 ---
 
 ## 8. Formato de mensajes publicados
@@ -189,14 +193,10 @@ Descarga el .zip en <https://activemq.apache.org/components/classic/download/cla
 
 Antes de ejecutar esta instrucción desde la consola tienes que estar dentro de la carpeta.
 
-Windows:
-```
-bin\activemq start
-```
-Linux / macOS:
-```
-./activemq start
-```
+| Sistema operativo | Comando               |
+|-------------------|-----------------------|
+| Windows           | `bin\activemq start`  |
+| Linux / macOS     | `./activemq start`    |
 
 ### 2. Ejecutar las clases
 
