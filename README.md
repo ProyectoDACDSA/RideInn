@@ -40,7 +40,7 @@
 
 ---
 
-## Funcionalidades
+## 2. Funcionalidades
 
 - **Consulta de trayectos** asequibles mediante la API de BlaBlaCar.  
 - **Búsqueda de alojamiento** usando la API pública de Xotelo.  
@@ -50,7 +50,7 @@
 
 ---
 
-## Arquitectura
+## 3. Arquitectura
 
 El proyecto sigue los principios de **Clean Code** así como de **Arquitectura Hexagonal**, mejorando la infraestructura y presentación.  
 Componentes independientes se comunican mediante mensajería asíncrona (ActiveMQ).
@@ -76,7 +76,7 @@ Componentes independientes se comunican mediante mensajería asíncrona (ActiveM
 
 ---
 
-## Módulos
+## 4. Módulos
 
 | Módulo | Patrón | Función principal |
 |--------|--------|-------------------|
@@ -87,7 +87,7 @@ Componentes independientes se comunican mediante mensajería asíncrona (ActiveM
 
 ---
 
-## Justificación de APIs y persistencia
+## 5. Justificación de APIs y persistencia
 
 - **BlaBlaCar** → API enfocada en viajes colaborativos y económicos.  
 - **Xotelo** → fuente abierta de información hotelera, ideal para integraciones.  
@@ -95,7 +95,7 @@ Componentes independientes se comunican mediante mensajería asíncrona (ActiveM
 
 ---
 
-## Tecnologías
+## 6. Tecnologías
 
 - Java 21  
 - Apache Maven 3.6 o superior  
@@ -107,7 +107,7 @@ Componentes independientes se comunican mediante mensajería asíncrona (ActiveM
 
 ---
 
-## Instalación y compilación
+## 7. Instalación y compilación
 
 ```bash
 git clone https://github.com/ProyectoDACDSA/RideInn
@@ -125,7 +125,7 @@ mvn clean install
 
 ---
 
-## Formatos de mensajes publicados
+## 8. Formatos de mensajes publicados
 
 ### Evento BlaBlaCar (`Blablacar`)
 
@@ -159,7 +159,7 @@ mvn clean install
 
 ---
 
-## Cómo ejecutar el proyecto
+## 9. Cómo ejecutar el proyecto
 
 ### 1. Iniciar ActiveMQ
 
@@ -191,7 +191,7 @@ Abrir un navegador y entrar en: <http://localhost:61616/>
 
 ---
 
-## Estructura de archivos generados
+## 10. Estructura de archivos generados
 ```
 eventstore/
 └── Xotelo/ | Blablacar/
@@ -203,7 +203,7 @@ datamart.db
 
 ---
 
-## Principios y patrones por módulo (FALTA)
+## 11. Principios y patrones por módulo (FALTA)
 | Módulo | Patrones | Principios                      |
 |--------|----------|---------------------------------|
 | Feeders | Adapter, Publisher (eventos con ActiveMQ) | SRP, inmutabilidad, Open/Closed |
@@ -212,7 +212,7 @@ datamart.db
 
 ---
 
-## Tests
+## 12. Tests
 
 ```bash
 mvn test
