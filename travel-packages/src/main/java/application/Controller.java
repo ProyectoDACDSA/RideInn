@@ -62,8 +62,4 @@ public class Controller {
         System.out.println("3. Salir");
         System.out.print("Seleccione una opción: ");
     }
-
-    public static void main(String[] args) {
-        new Controller().start();
-    }
 }
