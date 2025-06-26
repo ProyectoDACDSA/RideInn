@@ -100,7 +100,7 @@ Componentes independientes se comunican mediante mensajería asíncrona (ActiveM
 
 ---
 ## Diagrama de cajas
-![Diagrama de cajas](https://github.com/ProyectoDACDSA/RideInn/blob/develop/Diagrama%20de%20cajas.jpg?raw=true)
+![Diagrama de cajas](https://github.com/ProyectoDACDSA/RideInn/blob/develop/diagrama-de-cajas.svg)
 ---
 ## Diagrama feeders
 ![Diagrama Blablacar Feeder](https://github.com/ProyectoDACDSA/RideInn/blob/develop/blablacar-feeder.svg)
