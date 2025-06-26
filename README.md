@@ -184,7 +184,6 @@ Abrir un navegador y entrar en: <http://localhost:61616/>
 
 1. **Seleccionar Opcion 1: Recomendaciones Actuales**  
    - Tienes diferentes filtros que ayudarán a guiar la búsqueda del usuario
-   - Al mostrar los resultados por pantalla, se permite buscar viajes de vuelta de destino a origen
 2. **Seleccionar Opción 2: Viajes Mejor Valorados**  
    - A partir de filtros, se muestran bajo la búsqueda las opciones mejor valoradas 
 
