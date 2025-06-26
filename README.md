@@ -19,9 +19,9 @@
 
 1. [Propuesta de valor](#propuesta-de-valor)  
 2. [Funcionalidades](#funcionalidades)
-3. [Justificación de APIs y persistencia](#justificación-de-apis-y-persistencia)   
-4. [Arquitectura](#arquitectura)
-5. [Tecnologías](#tecnologías) 
+3. [Justificación de APIs y persistencia](#justificación-de-apis-y-persistencia)
+4. [Tecnologías](#tecnologías) 
+5. [Arquitectura](#arquitectura)
 6. [Módulos](#módulos)
 7. [Principios y patrones por módulo](#principios-y-patrones-por-módulo)
 8. [Estructura de archivos generados](#estructura-de-archivos-generados)
@@ -61,7 +61,18 @@
 
 ---
 
-## 4. Arquitectura
+## 4. Tecnologías
+
+- Java 21  
+- Apache Maven 3.6 o superior  
+- ActiveMQ 5.17.6  
+- SQLite
+- Gson
+- Git
+
+---
+
+## 5. Arquitectura
 
 El proyecto sigue los principios de **Clean Code** así como de **Arquitectura Hexagonal**, mejorando la infraestructura y presentación.  
 Componentes independientes se comunican mediante mensajería asíncrona (ActiveMQ).
@@ -83,17 +94,6 @@ Componentes independientes se comunican mediante mensajería asíncrona (ActiveM
 ---
 ## Diagrama event store builder (FALTA)
 ![Diagrama ](enlace)
-
----
-
-## 5. Tecnologías
-
-- Java 21  
-- Apache Maven 3.6 o superior  
-- ActiveMQ 5.17.6  
-- SQLite
-- Gson
-- Git
 
 ---
 
