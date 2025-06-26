@@ -22,15 +22,14 @@
 3. [Justificación de APIs y persistencia](#justificación-de-apis-y-persistencia)
 4. [Tecnologías](#tecnologías) 
 5. [Arquitectura](#arquitectura)
-6. [Módulos](#módulos)
-7. [Principios y patrones por módulo](#principios-y-patrones-por-módulo)
-8. [Estructura de archivos generados](#estructura-de-archivos-generados)
-9. [Formato de mensajes publicados](#formato-de-mensajes-publicados)
-10. [Instalación y compilación](#instalación-y-compilación)  
-11. [Variables de entorno](#variables-de-entorno)  
-12. [Ejecución del sistema](#ejecución-del-sistema)  
-13. [Uso de la GUI](#uso-de-la-gui)  
-14. [Pruebas](#pruebas)
+6. [Principios y patrones por módulo](#principios-y-patrones-por-módulo)
+7. [Estructura de archivos generados](#estructura-de-archivos-generados)
+8. [Formato de mensajes publicados](#formato-de-mensajes-publicados)
+9. [Instalación y compilación](#instalación-y-compilación)
+10. [Variables de entorno](#variables-de-entorno)
+11. [Ejecución del sistema](#ejecución-del-sistema)
+12. [Uso de la GUI](#uso-de-la-gui)
+13. [Pruebas](#pruebas)
 
 ---
 
@@ -97,27 +96,18 @@ Componentes independientes se comunican mediante mensajería asíncrona (ActiveM
 
 ---
 
-## 6. Módulos
+## 6. Principios y patrones por módulo (FALTA)
 
-| Módulo | Patrón | Función principal |
-|--------|--------|-------------------|
-| `blablacar-feeder` | Adapter + Publisher | Publica trayectos en el topic `Blablacar` |
-| `xotelo-feeder` | Adapter + Publisher | Publica hospedajes en el topic `Xotelo` |
-| `event-store` | Consumer | Registra todos los eventos como archivos `.events` |
-| `travel-packages` | Consumer + CLI | Persiste en SQLite y ofrece la interfaz de usuario |
-
----
-
-## 7. Principios y patrones por módulo (FALTA)
-| Módulo | Patrones | Principios                      |
-|--------|----------|---------------------------------|
-| Feeders | Adapter, Publisher (eventos con ActiveMQ) | SRP, inmutabilidad, Open/Closed |
-| Event Store | Consumer, Event Sourcing (almacenamiento en fichero) | Open/Closed, SRP                |
-| Business Unit | Facade (controladores), MVC (GUI) | DRY, SRP    
+| Módulo | Patrón | Función principal | Principios Aplicados |
+|--------|--------|-------------------|-------------------------| 
+| `blablacar-feeder` | Adapter + Publisher | Publica trayectos en el topic `Blablacar` | SP, Inmutabilidad, Open/Closed |
+| `xotelo-feeder` | Adapter + Publisher | Publica hospedajes en el topic `Xotelo` | SRP, Inmutabilidad, Open/Closed |
+| `event-store` | Consumer | Registra todos los eventos como archivos `.events` | Open/Closed, SRP |
+| `travel-packages` | Consumer + CLI | Persiste en SQLite y ofrece la interfaz de usuario | DRY, SRP |
 
 ---
 
-## 8. Estructura de archivos generados
+## 7. Estructura de archivos generados
 ```
 eventstore/
 └── Xotelo/ | Blablacar/
@@ -128,7 +118,7 @@ datamart.db
 
 ---
 
-## 9. Formato de mensajes publicados
+## 8. Formato de mensajes publicados
 
 ### Evento BlaBlaCar (`Blablacar`)
 
@@ -162,7 +152,7 @@ datamart.db
                |
 ---
 
-## 10. Instalación y compilación
+## 9. Instalación y compilación
 
 ```bash
 git clone https://github.com/ProyectoDACDSA/RideInn
@@ -172,7 +162,7 @@ mvn clean install
 
 ---
 
-## 11. Variables de entorno
+## 10. Variables de entorno
 | Variable | Descripción | Ejemplo |
 |----------|-------------|---------|
 | `BLABLACAR_API_KEY` | Token BlaBlaCar | `abc123` |
@@ -180,7 +170,7 @@ mvn clean install
 
 ---
 
-## 12. Cómo ejecutar el proyecto
+## 11. Cómo ejecutar el proyecto
 
 ### 1. Iniciar ActiveMQ
 
@@ -203,7 +193,7 @@ Abrir un navegador y entrar en: <http://localhost:61616/>
 
 ---
 
-## 13. Flujo de la CLI paso a paso
+## 12. Flujo de la CLI paso a paso
 
 1. **Seleccionar Opcion 1: Recomendaciones Actuales**  
    - Tienes diferentes filtros que ayudarán a guiar la búsqueda del usuario
@@ -216,7 +206,7 @@ Abrir un navegador y entrar en: <http://localhost:61616/>
 
 ---
 
-## 14. Tests
+## 13. Tests
 
 ```bash
 mvn test
