@@ -95,7 +95,7 @@ Componentes independientes se comunican mediante mensajería asíncrona (ActiveM
 - **Business Unit**: fusiona datos históricos y en vivo, persiste en SQLite y muestra resultados en CLI.
 
 ---
-## Diagrama de cajas (FALTA)
+## Diagrama de cajas
 ![Diagrama de cajas](https://github.com/ProyectoDACDSA/RideInn/blob/develop/Diagrama%20de%20cajas.jpg?raw=true)
 ---
 ## Diagrama feederss (FALTA)
