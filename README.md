@@ -102,7 +102,7 @@ Componentes independientes se comunican mediante mensajería asíncrona (ActiveM
 |--------|--------|-------------------|-------------------------| 
 | `blablacar-feeder` | Adapter + Publisher | Publica trayectos en el topic `Blablacar` | SP, Inmutabilidad, Open/Closed |
 | `xotelo-feeder` | Adapter + Publisher | Publica hospedajes en el topic `Xotelo` | SRP, Inmutabilidad, Open/Closed |
-| `event-store` | Consumer | Registra todos los eventos como archivos `.events` | Open/Closed, SRP |
+| `event-store-builder` | Consumer | Registra todos los eventos como archivos `.events` | Open/Closed, SRP |
 | `travel-packages` | Consumer + CLI | Persiste en SQLite y ofrece la interfaz de usuario | DRY, SRP |
 
 ---
@@ -185,8 +185,17 @@ Linux / macOS:
 ```
 ### 2. Verificar que está activo
 
-Abrir un navegador y entrar en: <http://localhost:61616/>
->(Para inciar sesión: usuario admin / contraseña admin).
+Abrir un navegador y entrar en: <http://localhost:61616/> → Para inciar sesión: usuario admin y contraseña admin.
+
+### 3. Ejecutar las clases
+
+1. Main de event-store-builder
+2. Main de blablacar-feeder con su variable de entorno `BLABLACAR_API_KEY`
+3. Main de xotelo-feeder
+4. DatamartApplication de travel-packages con su variable de entoro `DB_URL`
+5. Mian de travel-packages con su variable de entoro `DB_URL`
+
+Las cuatro primeras clases se mantendrán en ejecución, mientras que el main de travel-packages se podrá ir ejecutando y parando dependiendo de si queremos buscar un pack de viaje o no.
 
 ---
 
