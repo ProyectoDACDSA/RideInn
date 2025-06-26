@@ -18,19 +18,19 @@ Sofía Travieso García → [@sofiatravieso](https://github.com/sofiatravieso)
 
 ## Índice
 
-1. [Propuesta de valor](#propuesta-de-valor)  
-2. [Funcionalidades](#funcionalidades)
-3. [Justificación de APIs y persistencia](#justificación-de-apis-y-persistencia)
-4. [Tecnologías](#tecnologías) 
-5. [Arquitectura](#arquitectura)
-6. [Principios y patrones por módulo](#principios-y-patrones-por-módulo)
-7. [Estructura de eventos generados](#estructura-de-eventos-generados)
-8. [Formato de mensajes publicados](#formato-de-mensajes-publicados)
-9. [Instalación y compilación](#instalación-y-compilación)
-10. [Variables de entorno](#variables-de-entorno)
-11. [Ejecución del sistema](#ejecución-del-sistema)
-12. [Uso de la GUI](#uso-de-la-gui)
-13. [Pruebas](#pruebas)
+1. Propuesta de valor  
+2. Funcionalidades  
+3. Justificación de APIs y persistencia  
+4. Tecnologías  
+5. Arquitectura  
+6. Principios y patrones por módulo  
+7. Estructura de eventos generados  
+8. Formato de mensajes publicados  
+9. Instalación y compilación  
+10. Variables de entorno  
+11. Ejecución del sistema  
+12. Uso de la GUI  
+13. Pruebas  
 
 ---
 
